@@ -1,0 +1,101 @@
+aif.orton.exp <- function(tt, AB, muB, AG, muG) {
+  out <- AB * tt * exp(-muB * tt) + AG * (exp(-muG * tt) - exp(-muB * tt))
+  out[tt < 0] <- 0
+  return(out)
+}
+
+orton.exp.lm <- function(tt, aif, guess=c(100, 10, 1, 0.1), nprint=0) {
+  func <- function(x, aparams, aif) {
+    AB <- aparams[1]
+    muB <- aparams[2]
+    AG <- aparams[3]
+    muG <- aparams[4]
+    return(aif - aif.orton.exp(x, AB, muB, AG, muG))
+  }
+  require("minpack.lm") # Levenberg-Marquart fitting
+  out <- nls.lm(par=guess, fn=func, control=list(nprint=nprint),
+                x=tt, aif=aif)
+  list(AB=out$par[1], muB=out$par[2], AG=out$par[3], muG=out$par[4], 
+       info=out$info, message=out$message)
+}
+
+extract.aif <- function(img, x, y, z, thresh=0.9) {
+  c.start <- function(ctc) {
+    if (sum(is.na(ctc)) > 0)
+      return(0)
+    else {
+      if (sd(ctc) == 0)
+        return(0)
+      else {
+        out <- cor(ctc, start, use="pairwise.complete.obs")
+        return(out)
+      }
+    }
+  }
+
+  check <- function(xx, yy, zz, aif.mask) {
+    if (xx != 1 && aif.mask[xx-1,yy,zz] == 0)
+      if (c.test[xx-1,yy,zz] > thresh) {
+        aif.mask[xx-1,yy,zz] <- 1
+        aif.mask <- check(xx-1, yy, zz, aif.mask)
+      }
+    if (xx != X && aif.mask[xx+1,yy,zz] == 0)
+      if (c.test[xx+1,yy,zz] > thresh) {
+        aif.mask[xx+1,yy,zz] <- 1
+        aif.mask <- check(xx+1, yy, zz, aif.mask)
+      }
+    if (yy != 1 && aif.mask[xx,yy-1,zz] == 0)
+      if (c.test[xx,yy-1,zz] > thresh) {
+        aif.mask[xx,yy-1,zz] <- 1
+        aif.mask <- check(xx, yy-1, zz, aif.mask)
+      }
+    if (yy != Y && aif.mask[xx,yy+1,zz] == 0)
+      if (c.test[xx,yy+1,zz] > thresh) {
+        aif.mask[xx,yy+1,zz] <- 1
+        aif.mask <- check(xx, yy+1, zz, aif.mask)
+      }
+    if (zz != 1 && aif.mask[xx,yy,zz-1] == 0)
+      if (c.test[xx,yy,zz-1] > thresh) {
+        aif.mask[xx,yy,zz-1] <- 1
+        aif.mask <- check(xx, yy, zz-1, aif.mask)
+      }
+    if (zz != Z && aif.mask[xx,yy,zz+1] == 0)
+      if (c.test[xx,yy,zz+1] > thresh) {
+        aif.mask[xx,yy,zz+1] <- 1
+        aif.mask <- check(xx, yy, zz+1, aif.mask)
+      }
+    return(aif.mask)
+  }
+
+  X <- dim(img)[1]
+  Y <- dim(img)[2]
+  Z <- dim(img)[3]
+  W <- dim(img)[4]
+  
+  start <- img[x,y,z,]
+  c.test <- apply(img, 1:3, c.start)
+  
+  aif.mask <- array(0, c(X,Y,Z))
+  aif.mask[x,y,z] <- 1
+  
+  aif.mask <- check(x, y, z, aif.mask)
+  n <- sum(aif.mask, na.rm=TRUE)
+  test <- array(NA, c(n,W))
+  coord <- array(NA, c(n,3))
+  l <- 0
+  for (i in 1:X) {
+    for (j in 1:Y) {
+      for (k in 1:Z) {
+        if (!is.na(c.test[i,j,k]) && aif.mask[i,j,k] == 1) {
+          l <- l + 1
+          test[l,] <- img[i,j,k,]
+          coord[l,] <- c(i,j,k)
+        }
+      }
+    }
+  }
+  if (l != n)
+    return(FALSE)
+  list("coord"=coord, "conc"=test, "mask"=aif.mask, "cor"=c.test)
+}
+

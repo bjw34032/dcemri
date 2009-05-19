@@ -1,0 +1,14 @@
+Package: dcemri
+Version: 0.01
+Date: 2009-02-13
+Title: R Package for the Analysis of DCE-MRI
+Author: Brandon Whitcher <bjw34032@users.sourceforge.net> and
+  Volker Schmid <volkerschmid@users.sourceforge.net>
+Maintainer: Brandon Whitcher <bjw34032@users.sourceforge.net>
+Depends: R (>= 2.5.0), bitops, MASS, minpack.lm, splines
+Description: A collection of routines and documentation that allows one to
+  perform a quantitative analysis of dynamic contrast-enhanced MRI data.  
+  Data should be organized using the Analyze and/or NIfTI data formats.  
+License: BSD
+URL: http://dcemri.sourceforge.net/
+Packaged: Tue Feb 24 17:01:17 2009; bjw34032
