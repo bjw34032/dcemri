@@ -1,9 +1,9 @@
-dcemri.nls <- function(conc, time, img.mask, model="extended",
-                       aif="tofts.kermode", nprint=0, user=NULL, ...) {
-  ## dcemri.nls - a function for fitting 1-compartment PK models to
+dcemri.lm <- function(conc, time, img.mask, model="extended",
+                      aif="tofts.kermode", nprint=0, user=NULL, ...) {
+  ## dcemri.lm - a function for fitting 1-compartment PK models to
   ## DCE-MRI images
   ##
-  ## author: Volker Schmid
+  ## authors: Volker Schmid, Brandon Whitcher
   ##
   ## input:
   ##        conc: array of Gd concentration,

@@ -12,7 +12,7 @@ adc.lm <- function(signal, b, guess, nprint=0) {
   list(S0=out$par[1], D=out$par[2], info=out$info, message=out$message)
 }
 
-ADC.fast <- function(dwi, dwi.mask, bvalues, verbose=FALSE) {
+ADC.fast <- function(dwi, bvalues, dwi.mask, verbose=FALSE) {
   if (length(dim(dwi)) != 4)  # Check dwi is a 4D array
     stop("Diffusion-weighted data must be a 4D array.")
   if (!is.logical(dwi.mask))  # Check dyn.mask is logical

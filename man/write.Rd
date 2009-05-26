@@ -1,19 +1,24 @@
-\name{Write Analyze}
+\name{Write Analyze/NIfTI}
 \alias{write.analyze.img}
-\title{Save Analyze Format Binary Image Files}
+\alias{write.nifti.img}
+\title{Save Analyze/NIfTI Format Binary Image Files}
 \description{
   This function saves both the header information and multidimensional
-  image array into a pair of binary files in Analyze format.
+  image array into a pair of binary files in Analyze format or a single
+  binary file in NIfTI format.
 }
 \usage{
 write.analyze.img(fname, hdr, img, type, gzipped=TRUE)
+write.nifti.img(fname, hdr, img, type, gzipped=TRUE)
 }
 \arguments{
-  \item{fname}{Pathname to save the Analzye pair of files .img and .hdr 
-    without the suffix.}
+  \item{fname}{Pathname to save the Analzye pair of files .img and .hdr
+    or .nii NIfTI file (without the suffix).}
   \item{hdr}{Header information as read in with \code{read.hdr}.}   
   \item{img}{Multidimensional array of image data.}
-  \item{type}{Character string describing the image format.}
+  \item{type}{Character string describing the image format.  Valid
+    character strings include: "uint1", "uint8", "int16", "int32",
+    "float32", "float64".}
   \item{gzipped}{Allows the exportation of compressed (.gz) files.}
 }
 \value{
@@ -34,10 +39,13 @@ write.analyze.img(fname, hdr, img, type, gzipped=TRUE)
 \references{
   Analyze 7.5
   http://www.mayo.edu/bir/PDF/ANALYZE75.pdf
+  
+  NIfTI-1
+  http://nifti.nimh.nih.gov/
 }
 \seealso{
     \code{\link{read.hdr}}, \code{\link{read.img}}
 }
 %\examples{}
-\author{Volker Schmid, Brandon Whitcher}
+\author{Brandon Whitcher, Volker Schmid}
 \keyword{file}

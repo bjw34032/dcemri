@@ -497,29 +497,17 @@ read.analyze.img <- function(fname, gzipped=TRUE, signed=FALSE, verbose=FALSE,
   size <- hdr$bitpix / 8
   what <- integer()
   switch(as.character(hdr$datatype),
-         "2" = {
-           signed <- FALSE
-         },
-         "4" = {
-           signed <- TRUE
-         },
-         "8" = {
-           signed <- TRUE
-         },
-         "16" = {
-           what <- numeric()
-           signed <- TRUE
-         },
+         "2" = { signed <- FALSE },
+         "4" = { signed <- TRUE  },
+         "8" = { signed <- TRUE  },
+         "16" = { what <- numeric() ; signed <- TRUE },
          "32" = {
            signed <- TRUE
            n.elements <- prod(hdr$dim[2:5]) * 2
            size <- hdr$bitpix / 8 / 2
            what <- numeric()
          },
-         "64" = {
-           what <- double()
-           signed <- TRUE
-         },
+         "64" = { what <- double() ; signed <- TRUE },
          stop(paste("Data type ", hdr$datatype, "unsupported in ", fname,
                     ".img", sep=""))
          )
@@ -719,7 +707,10 @@ read.nifti.hdr <- function(fname, onefile=TRUE, gzipped=TRUE,
   if(sizeof.hdr != 348) {
     close(fid)
     endian <- "swap"
-    fid <- file(fname, "rb")
+    if(gzipped)
+      fid <- gzfile(fname, "rb")
+    else
+      fid <- file(fname, "rb")
     sizeof.hdr <- readBin(fid, integer(), size=4, endian=endian)
     if(verbose) cat("  ENDIAN = swap", fill=TRUE)
   }

@@ -69,10 +69,11 @@ CA.fast <- function(dynamic, dyn.mask, dangle, flip, fangles, TR, r1=4.39,
   A <- (dyn.mat - dyn.mat[,1]) / M0 / sin(theta)
   R1t <- -(1/TR) * log((1 - (A+B)) / (1 - cos(theta) * (A+B)))
   conc <- (R1t - R10) / r1
+  rm(A,B,CD)
 
   if (verbose)
     cat("  Reconstructing results...", fill=TRUE)
-  R10.array <- M0.array <- array(NA, c(M,N,Z))
+  R10.array <- M0.array <- array(NA, c(M,N,Z,1))
   R10.array[dyn.mask] <- R10
   M0.array[dyn.mask] <- M0
   conc.array <- R1t.array <- array(NA, c(M,N,Z,W))
@@ -86,7 +87,7 @@ CA.fast <- function(dynamic, dyn.mask, dangle, flip, fangles, TR, r1=4.39,
 CA.fast2 <- function(dynamic, dyn.mask, dangle, flip, fangles, TR, r1=4.39,
                      verbose=FALSE) {
   
-  if (dim(flip) != 4)  # Check flip is a 4D array
+  if (length(dim(flip)) != 4)  # Check flip is a 4D array
     stop("Flip-angle data must be a 4D array.")
   if (!is.logical(dyn.mask))  # Check dyn.mask is logical
     stop("Mask must be logical.")
@@ -129,7 +130,7 @@ CA.fast2 <- function(dynamic, dyn.mask, dangle, flip, fangles, TR, r1=4.39,
 
   if (verbose)
     cat("  Reconstructing results...", fill=TRUE)
-  R10.array <- M0.array <- array(NA, c(M,N,Z))
+  R10.array <- M0.array <- array(NA, c(M,N,Z,1))
   R10.array[dyn.mask] <- R10
   M0.array[dyn.mask] <- M0
   conc.array <- R1t.array <- array(NA, c(M,N,Z,W))

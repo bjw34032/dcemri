@@ -1,3 +1,3 @@
-.First.lib <- function(lib, pkg) {
-  library.dynam("dcemri", pkg, lib)
+.First.lib <- function(lib,pkg) { 
+  library.dynam("dcemri", pkg, lib)  
 }

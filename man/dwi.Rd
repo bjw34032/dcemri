@@ -8,7 +8,7 @@
 }
 \usage{
 adc.lm(signal, b, guess, nprint=0)
-ADC.fast(dwi, dwi.mask, bvalues, verbose=FALSE)
+ADC.fast(dwi, bvalues, dwi.mask, verbose=FALSE)
 }
 \arguments{
   \item{signal}{Signal intensity vector as a function of b-values.}
@@ -30,8 +30,8 @@ ADC.fast(dwi, dwi.mask, bvalues, verbose=FALSE)
   routine.
 }
 \details{
-  The ".lm" function requires the routine \code{nls.lm} that applies the
-  Levenberg-Marquardt algorithm.
+  The \code{adc.lm} function requires the routine \code{nls.lm} that
+  applies the Levenberg-Marquardt algorithm.
 }
 %\references{}
 %\seealso{}

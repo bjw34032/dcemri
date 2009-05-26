@@ -1,4 +1,4 @@
-write.img <- function(fname, hdr, img, type, gzipped=TRUE) {
+write.analyze.img <- function(fname, hdr, img, type, gzipped=TRUE) {
 
   ## Basic error checking
   if(length(img) != prod(hdr$dim[2:5]))

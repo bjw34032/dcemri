@@ -1,20 +1,22 @@
 \name{dcemri}
-\alias{dcemri.ext}
-\alias{dcemri.fit}
-\title{Routines to Fit Pharmacokinetic Models to DCE-MRI Data}
+\alias{dcemri.lm}
+\title{Pharmacokinetic Models for Dynamic Contrast-Enhanced MRI Data}
 \description{
   TBA
 }
 \usage{
-dcemri.fit(conc, tmin, img.mask, aif, nprint=0)
-dcemri.ext(conc, tmin, img.mask, aif, nprint=0)
+dcemri.lm(conc, time, img.mask, model="extended", aif="tofts.kermode",
+          nprint=0, user=NULL, ...)
 }
 \arguments{
   \item{conc}{}
-  \item{tmin}{}
+  \item{time}{}
   \item{img.mask}{}
+  \item{model}{}
   \item{aif}{}
   \item{nprint}{}
+  \item{user}{}
+  \item{...}{}
 }
 \value{
 }
@@ -23,8 +25,8 @@ dcemri.ext(conc, tmin, img.mask, aif, nprint=0)
 \references{
 }
 \seealso{
-  dcemri.nls, dcemri2.nls
+  dce.bayes, dce.spline
 }
 %\examples{}
-\author{Brandon Whitcher}
+\author{Brandon Whitcher, Volker Schmid}
 \keyword{}

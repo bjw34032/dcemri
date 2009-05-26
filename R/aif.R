@@ -19,6 +19,33 @@ orton.exp.lm <- function(tt, aif, guess=c(100, 10, 1, 0.1), nprint=0) {
        info=out$info, message=out$message)
 }
 
+model.orton.exp <- function(tt, aparams, kparams) {
+  ## Extended model using the exponential AIF from Matthew Orton (ICR)
+  Cp <- function(tt, ...) 
+    AB * tt * exp(-muB * tt) + AG * (exp(-muG * tt) - exp(-muB * tt))
+  
+  aparams <- as.numeric(aparams)
+  kparams <- as.numeric(kparams)
+  AB <- aparams[1]
+  muB <- aparams[2]
+  AG <- aparams[3]
+  muG <- aparams[4]
+  vp <- kparams[1]
+  ktrans <- kparams[2]
+  kep <- kparams[3]
+  
+  T1 <- AB * kep / (kep - muB)
+  T2 <- tt * exp(-muB * tt) -
+    (exp(-muB * tt) - exp(-kep * tt)) / (kep - muB)
+  T3 <- AG * kep
+  T4 <- (exp(-muG * tt) - exp(-kep * tt)) / (kep - muG) -
+    (exp(-muB * tt) - exp(-kep * tt)) / (kep - muB)
+  
+  out <- vp * Cp(tt) + ktrans * (T1 * T2 + T3 * T4)
+  out[tt <= 0] <- 0
+  return(out)
+}
+
 extract.aif <- function(img, x, y, z, thresh=0.9) {
   c.start <- function(ctc) {
     if (sum(is.na(ctc)) > 0)
