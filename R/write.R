@@ -140,8 +140,8 @@ write.nifti.img <- function(fname, hdr, img, type, gzipped=TRUE) {
   if(length(img) != prod(hdr$dim[2:5]))
     stop("Header and image dimensions do not match")
 
-  hdr$cal.min <- min(img)
-  hdr$cal.max <- max(img)
+  hdr$cal.min <- min(img, na.rm=TRUE)
+  hdr$cal.max <- max(img, na.rm=TRUE)
   
   ## Deal with different types...
   switch(type,
@@ -273,6 +273,19 @@ write.nifti.img <- function(fname, hdr, img, type, gzipped=TRUE) {
   writeBin(hdr$extender, fid, endian=hdr$endian, size=1)
 
   ## Write image file...
+  if (hdr$qform.code > 0) {
+    # if (verbose)
+    stop("NIfTI-1: qform_code > 0")
+  }
+  if (hdr$sform.code > 0) {
+    if (verbose)
+      print("NIfTI-1: sform_code > 0")
+    x <- (1:hdr$dim[2] - hdr$srow.x[4]) / hdr$srow.x[1]
+    y <- (1:hdr$dim[3] - hdr$srow.y[4]) / hdr$srow.y[2]
+    z <- (1:hdr$dim[4] - hdr$srow.z[4]) / hdr$srow.z[3]
+    img <- img[order(x),order(y),order(z),]
+  }
+  
   writeBin(img, fid, endian=hdr$endian, size=hdr$bitpix/8)
   close(fid)
 }

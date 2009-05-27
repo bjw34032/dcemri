@@ -22,7 +22,7 @@ write.nifti.img(fname, hdr, img, type, gzipped=TRUE)
   \item{gzipped}{Allows the exportation of compressed (.gz) files.}
 }
 \value{
-  \code{write.img} returns nothing.
+  \code{write.analyze.img} and \code{write.nifti.img} return nothing.
 }
 \details{
   Both functions utilize the internal \code{writeBin} and
@@ -46,6 +46,18 @@ write.nifti.img(fname, hdr, img, type, gzipped=TRUE)
 \seealso{
     \code{\link{read.hdr}}, \code{\link{read.img}}
 }
-%\examples{}
+\examples{
+X <- Y <- Z <- 64
+img <- array(sample(c(0,1), X*Y*Z, replace=TRUE), c(X,Y,Z))
+## Analyze
+hdr <- make.hdr(X, Y, Z, 1, "int16")
+write.analyze.img("xyz64", hdr, img, "int16")
+## NIfTI
+nhdr <- make.hdr(X, Y, Z, 1, "INT", "nifti")
+write.nifti.img("XYZ64", nhdr, img, "int16")
+## These files should be viewable in FSLview.
+## Make sure you adjust the min/max values for proper visualization.
+data <- read.img("XYZ64.nii.gz")
+}
 \author{Brandon Whitcher, Volker Schmid}
 \keyword{file}

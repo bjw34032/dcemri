@@ -12,7 +12,7 @@
 \usage{
 read.analyze.hdr(fname, gzipped=TRUE, verbose=FALSE, warn=-1)
 read.analyze.img(fname, gzipped=TRUE, signed=FALSE, verbose=FALSE, warn=-1)
-make.hdr(X, Y, Z, T, datatype, min=0, max=0)
+make.hdr(X, Y, Z, T, datatype, type)
 read.hdr(fname, verbose=FALSE, warn=-1)
 read.img(fname, verbose=FALSE, warn=-1)
 }
@@ -26,7 +26,7 @@ read.img(fname, verbose=FALSE, warn=-1)
   \item{warn}{}
   \item{X,Y,Z,T}{}
   \item{datatype}{}
-  \item{min,max}{}
+  \item{type}{}
 }
 \value{
   \code{read.analyze.hdr} returns a list containing all the fields from

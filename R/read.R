@@ -9,7 +9,7 @@ read.hdr <- function(fname, verbose=FALSE, warn=-1) {
 
   if (GZ) {
     if (ANALYZE) {
-      ls.hdr.gz <- system(paste("ls", fname), intern=TRUE)
+      ls.hdr.gz <- system(paste("ls", fname), intern=TRUE, ignore.stderr=TRUE)
       if (length(ls.hdr.gz) != 0) {
         if (verbose)
           cat(paste("  fname =", fname, "and file =", ls.hdr.gz), fill=TRUE)
@@ -20,7 +20,8 @@ read.hdr <- function(fname, verbose=FALSE, warn=-1) {
       }
     } else {
       if (NIFTI) {
-        ls.nii.gz <- system(paste("ls", fname), intern=TRUE)
+        ls.nii.gz <- system(paste("ls", fname), intern=TRUE,
+                            ignore.stderr=TRUE)
         if (length(ls.nii.gz) != 0) {
           if (verbose)
             cat(paste("  fname =", fname, "and file =", ls.nii.gz), fill=TRUE)
@@ -36,7 +37,7 @@ read.hdr <- function(fname, verbose=FALSE, warn=-1) {
     }    
   } else {
     if (ANALYZE) {
-      ls.hdr <- system(paste("ls", fname), intern=TRUE)
+      ls.hdr <- system(paste("ls", fname), intern=TRUE, ignore.stderr=TRUE)
       if (length(ls.hdr) != 0) {
         if (verbose)
           cat(paste("  fname =", fname, "and file =", ls.hdr), fill=TRUE)
@@ -46,7 +47,8 @@ read.hdr <- function(fname, verbose=FALSE, warn=-1) {
         return(hdr)
       } else {
         fname.hdr.gz <- paste(fname, "gz", sep=".")
-        ls.hdr.gz <- system(paste("ls", fname.hdr.gz), intern=TRUE)
+        ls.hdr.gz <- system(paste("ls", fname.hdr.gz), intern=TRUE,
+                            ignore.stderr=TRUE)
         if (length(ls.hdr.gz) != 0) {
           if (verbose)
             cat(paste("  fname =", fname, "and file =", ls.hdr.gz), fill=TRUE)
@@ -61,7 +63,7 @@ read.hdr <- function(fname, verbose=FALSE, warn=-1) {
       }
     } else {
       if (NIFTI) {
-        ls.nii <- system(paste("ls", fname), intern=TRUE)
+        ls.nii <- system(paste("ls", fname), intern=TRUE, ignore.stderr=TRUE)
         if (length(ls.nii) != 0) {
           if (verbose)
             cat(paste("  fname =", fname, "and file =", ls.nii), fill=TRUE)
@@ -71,7 +73,8 @@ read.hdr <- function(fname, verbose=FALSE, warn=-1) {
           return(hdr)
         } else {
           fname.nii.gz <- paste(fname, "gz", sep=".")
-          ls.nii.gz <- system(paste("ls", fname.nii.gz), intern=TRUE)
+          ls.nii.gz <- system(paste("ls", fname.nii.gz), intern=TRUE,
+                              ignore.stderr=TRUE)
           if (length(ls.nii.gz) != 0) {
             if (verbose)
               cat(paste("  fname =", fname, "and file =", ls.nii.gz),
@@ -87,7 +90,8 @@ read.hdr <- function(fname, verbose=FALSE, warn=-1) {
         }
       } else {
         fname.hdr <- paste(fname, "hdr", sep=".")
-        ls.hdr <- system(paste("ls", fname.hdr), intern=TRUE)
+        ls.hdr <- system(paste("ls", fname.hdr), intern=TRUE,
+                         ignore.stderr=TRUE)
         if (length(ls.hdr) != 0) {
           if (verbose)
             cat(paste("  fname =", fname, "and file =", ls.hdr), fill=TRUE)
@@ -97,7 +101,8 @@ read.hdr <- function(fname, verbose=FALSE, warn=-1) {
           return(hdr)
         } else {
           fname.hdr.gz <- paste(fname, "hdr.gz", sep=".")
-          ls.hdr.gz <- system(paste("ls", fname.hdr.gz), intern=TRUE)
+          ls.hdr.gz <- system(paste("ls", fname.hdr.gz), intern=TRUE,
+                              ignore.stderr=TRUE)
           if (length(ls.hdr.gz) != 0) {
             if (verbose)
               cat(paste("  fname =", fname, "and file =", ls.hdr.gz),
@@ -108,7 +113,8 @@ read.hdr <- function(fname, verbose=FALSE, warn=-1) {
             return(hdr)
           } else {
             fname.nii <- paste(fname, "nii", sep=".")
-            ls.nii <- system(paste("ls", fname.nii), intern=TRUE)
+            ls.nii <- system(paste("ls", fname.nii), intern=TRUE,
+                             ignore.stderr=TRUE)
             if (length(ls.nii) != 0) {
               if (verbose)
                 cat(paste("  fname =", fname, "and file =", ls.nii), fill=TRUE)
@@ -118,7 +124,8 @@ read.hdr <- function(fname, verbose=FALSE, warn=-1) {
               return(hdr)
             } else {
               fname.nii.gz <- paste(fname, "nii.gz", sep=".")
-              ls.nii.gz <- system(paste("ls", fname.nii.gz), intern=TRUE)
+              ls.nii.gz <- system(paste("ls", fname.nii.gz), intern=TRUE,
+                                  ignore.stderr=TRUE)
               if (length(ls.nii.gz) != 0) {
                 if (verbose)
                   cat(paste("  fname =", fname, "and file =", ls.nii.gz),
@@ -249,45 +256,94 @@ read.analyze.hdr <- function(fname, gzipped=TRUE, verbose=FALSE, warn=-1) {
   return(output)
 }
 
-make.hdr <- function(X, Y, Z, T, datatype, min=0, max=0) {
-  if(X <=0 && Y <= 0 && Z <= 0 && T <= 0)
-    stop("")
-  if(!(datatype %in% c("UNKNOWN","BINARY","CHAR","SHORT","INT",
-                       "FLOAT","COMPLEX","DOUBLE","RGB")))
-    stop(paste("Unrecognized Data Type:", datatype))
-  
-  size.of.hdr <- as.integer(348)
-  
-  db.type <- rep("", 10) # readChar(fid, n=10)
-  db.name <- rep("", 18) # readChar(fid, n=18)
-  
-  extents <- integer(1) # readBin(fid, integer(), size=4, endian=endian)
-  session.error <- integer(1) # readBin(fid, integer(), size=2, endian=endian)
-  
-  regular <- "r" # readChar(fid, n=1)
-  hkey.un0 <- "" # readChar(fid, n=1)
+make.hdr <- function(X, Y, Z, T, datatype, type="analyze") {
 
-  dim <- integer(8)
-  dim[1] = 4 # all Analyze images are taken as 4 dimensional
-  dim[2] = as.integer(X) # slice width in pixels
-  dim[3] = as.integer(Y) # slice height in pixels
-  dim[4] = as.integer(Z) # volume depth in slices
-  dim[5] = as.integer(T) # number of volumes per file
+  if (X < 1 || Y < 1 || Z < 1 || T < 0)
+    stop("Array dimensions are incorrect")
 
-  vox.units <- rep("", 4) # readChar(fid, n=4)
-  cal.units <- rep("", 8) # readChar(fid, n=8)
+  endian <- .Platform$endian
 
-  datatype <- switch(datatype,
-                     "UNKNOWN" = 0,
-                     "BINARY" = 1,
-                     "CHAR" = 2,
-                     "SHORT" = 4,
-                     "INT" = 8,
-                     "FLOAT" = 16,
-                     "COMPLEX" = 32,
-                     "DOUBLE" = 64,
-                     "RGB" = 128) # readBin(fid, integer(), size=2, endian=endian)
-  bitpix <- switch(datatype,
+  if (type %in% "analyze") {
+    if (!(datatype %in% c("uint1","uint8","int16","int32","float","double")))
+      stop(paste("Unrecognized Analyze data type:", datatype))
+    size.of.hdr <- as.integer(348)
+    db.type <- rep("", 10)
+    db.name <- rep("", 18)
+    extents <- session.error <- integer(1)
+    datatype <- switch(type,
+                       "int1" = 1,
+                       "int8" = 2,
+                       "int16" = 4,
+                       "int32" = 8,
+                       "float" = 16,
+                       "double" = 64)
+    bitpix <- switch(type,
+                     "int1" = 1,
+                     "int8" = 8,
+                     "int16" = 16,
+                     "int32" = 32,
+                     "float" = 32,
+                     "double" = 64)
+    regular <- "r"
+    hkey.un0 <- ""
+    dim <- as.integer(c(4,X,Y,Z,T,0,0,0))
+    vox.units <- rep("", 4)
+    cal.units <- rep("", 8)
+    dim.un0 <- integer(1)
+    pixdim <- numeric(8)
+    vox.offset <- cal.max <- cal.min <- compressed <- verified <- 0.0
+    glmax <- glmin <- integer(1)
+    descrip <- rep("", 80)
+    aux.file <- rep("", 24)
+    orient <- ""
+    originator <- generated <- scannum <- rep("", 10)
+    patient.id <- exp.date <- exp.time <- rep("", 10)
+    hist.un0 <- rep("", 3)
+    views <- vols.added <- start.field <- field.skip <- integer(1)
+    omax <- omin <- smax <- smin <- integer(1)
+    hdr <- list(size.of.hdr, endian, extents, session.error, dim, datatype,
+                bitpix, dim.un0, pixdim, vox.offset, cal.max, cal.min,
+                compressed, verified, glmax, glmin, views, vols.added,
+                start.field, field.skip, omax, omin, smax, smin, descrip,
+                db.type, db.name, regular, hkey.un0, vox.units,
+                cal.units, aux.file, orient, originator, generated,
+                scannum, patient.id, exp.date, exp.time, hist.un0)
+
+    names(hdr) <-
+      c("size.of.hdr", "endian", "extents", "session.error", "dim", "datatype",
+        "bitpix", "dim.un0", "pixdim", "vox.offset", "cal.max", "cal.min",
+        "compressed", "verified", "glmax", "glmin", "views", "vols.added",
+        "start.field", "field.skip", "omax", "omin", "smax", "smin",
+        "descrip",  "db.type", "db.name", "regular", "hkey.un0", "vox.units",
+        "cal.units", "aux.file","orient","originator", "generated",
+        "scannum", "patient.id", "exp.date", "exp.time", "hist.un0")
+  } else {
+    ## type = "nifti"
+    if (!(datatype %in% c("UNKNOWN","BINARY","CHAR","SHORT","INT","FLOAT",
+                          "COMPLEX","DOUBLE","RGB")))
+      stop(paste("Unrecognized NIfTI data type:", datatype))
+    sizeof.hdr <- as.integer(348)
+    ## was header_key substruct in Analyze 7.5
+    data.type <- datatype
+    db.name <- rep("", 18)
+    extents <- session.error <- integer(1)
+    regular <- ""
+    dim.info <- integer(1)
+    ## was image_dimension substruct in Analyze 7.5
+    dim <- as.integer(c(4,X,Y,Z,T,0,0,0))
+    intent.p1 <- intent.p2 <- intent.p3 <- numeric(1)
+    intent.code <- integer(1)
+    datatype <- switch(type,
+                       "UNKNOWN" = 0,
+                       "BINARY" = 1,
+                       "CHAR" = 2,
+                       "SHORT" = 4,
+                       "INT" = 8,
+                       "FLOAT" = 16,
+                       "COMPLEX" = 32,
+                       "DOUBLE" = 64,
+                       "RGB" = 128)
+    bitpix <- switch(type,
                      "UNKNOWN" = 0,
                      "BINARY" = 1,
                      "CHAR" = 8,
@@ -296,38 +352,47 @@ make.hdr <- function(X, Y, Z, T, datatype, min=0, max=0) {
                      "FLOAT" = 32,
                      "COMPLEX" = 64,
                      "DOUBLE" = 64,
-                     "RGB" = 24) # readBin(fid, integer(), size=2, endian=endian)
-  dim.un0 <- integer(1) # readBin(fid, integer(), size=2, endian=endian)
-  pixdim <- numeric(8) # readBin(fid, numeric(), 8, size=4, endian=endian)
-  vox.offset <- 0.0 # readBin(fid, numeric(), size=4, endian=endian)
-
-  cal.max <- 0.0 # readBin(fid, numeric(), size=4, endian=endian)
-  cal.min <- 0.0 # readBin(fid, numeric(), size=4, endian=endian)
-  compressed <- 0.0 # readBin(fid, numeric(), size=4, endian=endian)
-  verified <- 0.0 # readBin(fid, numeric(), size=4, endian=endian)
-  glmax <- max # readBin(fid, integer(), size=4, endian=endian)
-  glmin <- min # readBin(fid, integer(), size=4, endian=endian)
- 
-  descrip <- rep("", 80) # readChar(fid, n=80)
-  aux.file <- rep("", 24) # readChar(fid, n=24)
-
-  orient <- "" # readChar(fid, n=1)
-  originator <- rep("", 10) # readChar(fid, n=10)
-  generated <- rep("", 10) # readChar(fid, n=10)
-  scannum <- rep("", 10) # readChar(fid, n=10)
-  patient.id <- rep("", 10) # readChar(fid, n=10)
-  exp.date <- rep("", 10) # readChar(fid, n=10)
-  exp.time <- rep("", 10) # readChar(fid, n=10)
-  hist.un0 <- rep("", 3) # readChar(fid, n=3)
-  
-  views <- integer(1) # readBin(fid, integer(), size=4, endian=endian)
-  vols.added <- integer(1) # readBin(fid, integer(), size=4, endian=endian)
-  start.field <- integer(1) # readBin(fid, integer(), size=4, endian=endian)
-  field.skip <- integer(1) # readBin(fid, integer(), size=4, endian=endian)
-  omax <- integer(1) # readBin(fid, integer(), size=4, endian=endian)
-  omin <- integer(1) # readBin(fid, integer(), size=4, endian=endian)
-  smax <- integer(1) # readBin(fid, integer(), size=4, endian=endian)
-  smin <- integer(1) # readBin(fid, integer(), size=4, endian=endian)
+                     "RGB" = 24)
+    slice.start <- integer(1)
+    pixdim <- as.numeric(c(0,1,1,1,1,0,0,0))
+    vox.offset <- scl.slope <- scl.inter <- numeric(1)
+    slice.end <- slice.code <- xyzt.units <- integer(1)
+    cal.max <- cal.min <- numeric(1)
+    slice.duration <- numeric(1)
+    toffset <- numeric(1)
+    glmax <- glmin <- numeric(1)
+    ## was data_history substruct in Analyze 7.5
+    descrip <- rep("", 80)
+    aux.file <- rep("", 24)
+    qform.code <- sform.code <- integer(1)
+    quatern.b <- quatern.c <- quatern.d <- numeric(1)
+    qoffset.x <- qoffset.y <- qoffset.z <- numeric(1)
+    srow.x <- srow.y <- srow.z <- numeric(4)
+    intent.name <- rep("", 16)
+    magic <- "n+1"
+    extender <- integer(4)
+    
+    hdr <-
+      list(sizeof.hdr, endian, data.type, db.name, extents, session.error,
+           regular, dim.info, dim, intent.p1, intent.p2, intent.p3,
+           intent.code, datatype, bitpix, slice.start, pixdim, vox.offset,
+           scl.slope, scl.inter, slice.end, slice.code, xyzt.units,
+           cal.max, cal.min, slice.duration, toffset, glmax, glmin,
+           descrip, aux.file, qform.code, sform.code, quatern.b,
+           quatern.c, quatern.d, qoffset.x, qoffset.y, qoffset.z, srow.x,
+           srow.y, srow.z, intent.name, magic, extender)
+    names(hdr) <-
+      c("sizeof.hdr", "endian", "data.type", "db.name", "extents",
+        "session.error", "regular", "dim.info", "dim", "intent.p1",
+        "intent.p2", "intent.p3", "intent.code", "datatype", "bitpix",
+        "slice.start", "pixdim", "vox.offset", "scl.slope", "scl.inter",
+        "slice.end", "slice.code", "xyzt.units", "cal.max", "cal.min",
+        "slice.duration", "toffset", "glmax", "glmin", "descrip",
+        "aux.file", "qform.code", "sform.code", "quatern.b", "quatern.c",
+        "quatern.d", "qoffset.x", "qoffset.y", "qoffset.z", "srow.x",
+        "srow.y", "srow.z", "intent.name", "magic", "extender")
+  }
+  return(hdr)
 }
 
 read.img <- function(fname, verbose=FALSE, warn=-1) {
@@ -341,7 +406,7 @@ read.img <- function(fname, verbose=FALSE, warn=-1) {
 
   if (GZ) {
     if (ANALYZE) {
-      ls.img.gz <- system(paste("ls", fname), intern=TRUE)
+      ls.img.gz <- system(paste("ls", fname), intern=TRUE, ignore.stderr=TRUE)
       if (length(ls.img.gz) != 0) {
         if (verbose)
           cat(paste("  fname =", fname, "and file =", ls.img.gz), fill=TRUE)
@@ -352,7 +417,7 @@ read.img <- function(fname, verbose=FALSE, warn=-1) {
       }
     } else {
       if (NIFTI) {
-        ls.nii.gz <- system(paste("ls", fname), intern=TRUE)
+        ls.nii.gz <- system(paste("ls", fname), intern=TRUE, ignore.stderr=TRUE)
         if (length(ls.nii.gz) != 0) {
           if (verbose)
             cat(paste("  fname =", fname, "and file =", ls.nii.gz), fill=TRUE)
@@ -368,7 +433,7 @@ read.img <- function(fname, verbose=FALSE, warn=-1) {
     }    
   } else {
     if (ANALYZE) {
-      ls.img <- system(paste("ls", fname), intern=TRUE)
+      ls.img <- system(paste("ls", fname), intern=TRUE, ignore.stderr=TRUE)
       if (length(ls.img) != 0) {
         if (verbose)
           cat(paste("  fname =", fname, "and file =", ls.img), fill=TRUE)
@@ -378,7 +443,7 @@ read.img <- function(fname, verbose=FALSE, warn=-1) {
         return(img)
       } else {
         fname.img.gz <- paste(fname, "gz", sep=".")
-        ls.img.gz <- system(paste("ls", fname.img.gz), intern=TRUE)
+        ls.img.gz <- system(paste("ls", fname.img.gz), intern=TRUE, ignore.stderr=TRUE)
         if (length(ls.img.gz) != 0) {
           if (verbose)
             cat(paste("  fname =", fname, "and file =", ls.img.gz), fill=TRUE)
@@ -393,7 +458,7 @@ read.img <- function(fname, verbose=FALSE, warn=-1) {
       }
     } else {
       if (NIFTI) {
-        ls.nii <- system(paste("ls", fname), intern=TRUE)
+        ls.nii <- system(paste("ls", fname), intern=TRUE, ignore.stderr=TRUE)
         if (length(ls.nii) != 0) {
           if (verbose)
             cat(paste("  fname =", fname, "and file =", ls.nii), fill=TRUE)
@@ -403,7 +468,7 @@ read.img <- function(fname, verbose=FALSE, warn=-1) {
           return(img)
         } else {
           fname.nii.gz <- paste(fname, "gz", sep=".")
-          ls.nii.gz <- system(paste("ls", fname.nii.gz), intern=TRUE)
+          ls.nii.gz <- system(paste("ls", fname.nii.gz), intern=TRUE, ignore.stderr=TRUE)
           if (length(ls.nii.gz) != 0) {
             if (verbose)
               cat(paste("  fname =", fname, "and file =", ls.nii.gz),
@@ -419,7 +484,7 @@ read.img <- function(fname, verbose=FALSE, warn=-1) {
         }
       } else {
         fname.img <- paste(fname, "img", sep=".")
-        ls.img <- system(paste("ls", fname.img), intern=TRUE)
+        ls.img <- system(paste("ls", fname.img), intern=TRUE, ignore.stderr=TRUE)
         if (length(ls.img) != 0) {
           if (verbose)
             cat(paste("  fname =", fname, "and file =", ls.img), fill=TRUE)
@@ -429,7 +494,7 @@ read.img <- function(fname, verbose=FALSE, warn=-1) {
           return(img)
         } else {
           fname.img.gz <- paste(fname, "img.gz", sep=".")
-          ls.img.gz <- system(paste("ls", fname.img.gz), intern=TRUE)
+          ls.img.gz <- system(paste("ls", fname.img.gz), intern=TRUE, ignore.stderr=TRUE)
           if (length(ls.img.gz) != 0) {
             if (verbose)
               cat(paste("  fname =", fname, "and file =", ls.img.gz),
@@ -440,7 +505,7 @@ read.img <- function(fname, verbose=FALSE, warn=-1) {
             return(img)
           } else {
             fname.nii <- paste(fname, "nii", sep=".")
-            ls.nii <- system(paste("ls", fname.nii), intern=TRUE)
+            ls.nii <- system(paste("ls", fname.nii), intern=TRUE, ignore.stderr=TRUE)
             if (length(ls.nii) != 0) {
               if (verbose)
                 cat(paste("  fname =", fname, "and file =", ls.nii), fill=TRUE)
@@ -450,7 +515,7 @@ read.img <- function(fname, verbose=FALSE, warn=-1) {
               return(img)
             } else {
               fname.nii.gz <- paste(fname, "nii.gz", sep=".")
-              ls.nii.gz <- system(paste("ls", fname.nii.gz), intern=TRUE)
+              ls.nii.gz <- system(paste("ls", fname.nii.gz), intern=TRUE, ignore.stderr=TRUE)
               if (length(ls.nii.gz) != 0) {
                 if (verbose)
                   cat(paste("  fname =", fname, "and file =", ls.nii.gz),
@@ -929,6 +994,22 @@ read.nifti.img <- function(fname, onefile=TRUE, gzipped=TRUE,
   ## Warnings?
   options(warn=oldwarn)
 
-  ## return four-dimensional array (depends on nhdr$dim[1])
-  array(img, nhdr$dim[1:nhdr$dim[1] + 1])
+  ## convert to four-dimensional array (depends on nhdr$dim)
+  img.array <- array(img, nhdr$dim[2:5])
+
+  ## check for qform and/or sform flags
+  if (nhdr$qform.code > 0) {
+    # if (verbose)
+    stop("NIfTI-1: qform_code > 0")
+  }
+  if (nhdr$sform.code > 0) {
+    if (verbose)
+      print("NIfTI-1: sform_code > 0")
+    x <- nhdr$srow.x[1] * 1:nrow(img) + nhdr$srow.x[4]
+    y <- nhdr$srow.y[2] * 1:ncol(img) + nhdr$srow.y[4]
+    z <- nhdr$srow.z[3] * 1:nsli(img) + nhdr$srow.z[4]
+    img.array <- img.array[order(x),order(y),order(z),]
+  }
+
+  return(img.array)
 }

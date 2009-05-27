@@ -1,6 +1,6 @@
 Package: dcemri
-Version: 0.02
-Date: 2009-05-19
+Version: 0.03
+Date: 2009-05-26
 Title: R Package for the Analysis of DCE-MRI Data
 Author: Brandon Whitcher <bjw34032@users.sourceforge.net> and
   Volker Schmid <volkerschmid@users.sourceforge.net>
