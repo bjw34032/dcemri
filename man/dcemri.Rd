@@ -27,6 +27,14 @@ dcemri.lm(conc, time, img.mask, model="extended", aif="tofts.kermode",
 \seealso{
   dce.bayes, dce.spline
 }
-%\examples{}
+\examples{
+
+data("buckley")
+img <- t(breast$data)[,(1:60)*5]
+time <- seq(5,300,5)/60
+mask <- rep(TRUE,13)
+fit <- dcemri.lm(img,time,mask)
+fit$ktrans
+}
 \author{Brandon Whitcher, Volker Schmid}
 \keyword{}

@@ -141,7 +141,7 @@ parhat<-NULL
 modelTC0 <- function(time,F,E,ve)
 {
 kep<-E*F/ve
-erg <- E*exp(-kep*(time-TC))
+erg <- E*exp(-kep*(time))
 erg<-erg*F
 eval(erg)
 }

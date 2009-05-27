@@ -1,8 +1,5 @@
-\name{dce.bayes}
-\alias{dce.bayes.single}
-\alias{dce.bayes.wrapper}
-\alias{dce.bayes.single.temp}
-\alias{dce.bayes}
+\name{dcemri.bayes}
+\alias{dcemri.bayes}
 \title{Bayesian Methods for Pharmacokinetic Modeling of Dynamic
   Contrast-Enhanced MRI Data}
 \description{
@@ -10,30 +7,18 @@
   DCE-MRI.
 }
 \usage{
-dce.bayes.single(conc, time, nriters=9500, thin=30,
-                             burnin=2000, tune=267, tau.gamma=1, tau.theta=1,
-                             ab.vp=c(1,19), ab.tauepsilon=c(1,1/1000),
-                             aif.model=0, aif.parameter=c(2.4,0.62,3,0.016),
-                             vp=1, approx=FALSE)
-dce.bayes.wrapper(conc, time, nriters=9500, thin=30,
-                              burnin=2000, tune=267, ab.vp=c(1,19),
-                              ab.tauepsilon=c(1,1/1000), aif.model=0,
-                              aif.parameter=c(2.4,0.62,3,0.016), vp=1)
-dce.bayes.single.temp(conc, time, nriters, thin, burnin, tune,
-                                  tau.gamma, tau.theta, ab.vp, ab.tauepsilon,
-                                  aif.model, aif.parameter, vp, approx)
-dce.bayes(conc, time, mask=array(TRUE,dim(conc)[1:(length(dim(conc))-1)]),
-                      nriters=9500, thin=30, burnin=2000, tune=267,
-                      tau.ktrans=1, tau.kep=tau.ktrans, ab.vp=c(1,19),
-                      ab.tauepsilon=c(1,1/1000), aif.model=0,
-                      aif.parameter=c(2.4,3,0.62,0.016), vp.do=TRUE,
-                      samples=TRUE, approx=FALSE)
+dcemri.bayes(conc, time, img.mask, model="extended",
+                      aif="tofts.kermode", user=NULL, 
+	              nriters=9500, thin=30, burnin=2000, tune=267, 
+	              tau.ktrans=1, tau.kep=tau.ktrans, ab.vp=c(1,19),
+	              ab.tauepsilon=c(1,1/1000), samples=TRUE,
+	              ...)
 }
 \arguments{
   \item{conc}{Matrix or array of concentration time series.
     Last dimension must be time.}
   \item{time}{Time in minutes.}
-  \item{mask}{Mask matrix or array. Voxels with mask=0 will be excluded.}
+  \item{img.mask}{Mask matrix or array. Voxels with mask=0 will be excluded.}
   \item{nriters}{Total number of iterations.}
   \item{thin}{Thining factor.}
   \item{burnin}{Number of iterations for burn-in.}
@@ -65,6 +50,22 @@ dce.bayes(conc, time, mask=array(TRUE,dim(conc)[1:(length(dim(conc))-1)]),
 \seealso{
 }
 \examples{
+
+data("buckley")
+img <- t(breast$data)[,(1:60)*5]
+time <- seq(5,300,5)/60
+mask <- rep(TRUE,13)
+
+fit <- dcemri.bayes(img, time, mask,aif="fritz.hansen")
+plot(breast$ktrans,fit$ktrans, xlab="True Ktrans",ylab="Estimated Ktrans (Bayes)",xlim=c(0,0.5),ylim=c(0,0.5))
+lines(c(-0.1,0.6),c(-0.1,0.6),lty=3, col="grey")
+
+fit.lm <- dcemri.lm(img, time, mask,aif="fritz.hansen")
+plot(breast$ktrans, fit$ktrans, xlab="True Ktrans",ylab="Estimated Ktrans",xlim=c(0,0.75),ylim=c(0,0.75))
+points(breast$ktrans, fit.lm$ktrans, pch=2)
+legend(0.6,0.2,pch=c(2,1),legend=c("LM","Bayes"))
+lines(c(-0.1,0.8),c(-0.1,0.8),lty=3, col="grey")
+
 }
 \author{Volker Schmid}
 \keyword{}
