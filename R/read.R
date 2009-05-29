@@ -233,22 +233,24 @@ read.analyze.hdr <- function(fname, gzipped=TRUE, verbose=FALSE, warn=-1) {
   
   close(fid)
   
-  output <- list(size.of.hdr, endian, extents, session.error, dim, datatype,
-                 bitpix, dim.un0, pixdim, vox.offset, cal.max, cal.min,
-                 compressed, verified, glmax, glmin, views, vols.added,
-                 start.field, field.skip, omax, omin, smax, smin, descrip,
-                 db.type, db.name, regular, hkey.un0, vox.units,
-                 cal.units, aux.file, orient, originator, generated,
-                 scannum, patient.id, exp.date, exp.time, hist.un0)
-
-  names(output) <-
-    c("size.of.hdr", "endian", "extents", "session.error", "dim", "datatype",
-      "bitpix", "dim.un0", "pixdim", "vox.offset", "cal.max", "cal.min",
-      "compressed", "verified", "glmax", "glmin", "views", "vols.added",
-      "start.field", "field.skip", "omax", "omin", "smax", "smin",
-      "descrip",  "db.type", "db.name", "regular", "hkey.un0", "vox.units",
-      "cal.units", "aux.file","orient","originator", "generated",
-      "scannum", "patient.id", "exp.date", "exp.time", "hist.un0")
+  output <- list("size.of.hdr" = size.of.hdr, "endian" = endian,
+                 "extents" = extents, "session.error" = session.error,
+                 "dim" = dim, "datatype" = datatype, "bitpix" = bitpix,
+                 "dim.un0" = dim.un0, "pixdim" = pixdim,
+                 "vox.offset" = vox.offset, "cal.max" = cal.max,
+                 "cal.min" = cal.min, "compressed" = compressed,
+                 "verified" = verified, "glmax" = glmax, "glmin" = glmin,
+                 "views" = views, "vols.added" = vols.added,
+                 "start.field" = start.field, "field.skip" = field.skip,
+                 "omax" = omax, "omin" = omin, "smax" = smax, "smin" = smin,
+                 "descrip" = descrip, "db.type" = db.type,
+                 "db.name" = db.name, "regular" = regular,
+                 "hkey.un0" = hkey.un0, "vox.units" = vox.units,
+                 "cal.units" = cal.units, "aux.file" = aux.file,
+                 "orient" = orient, "originator" = originator,
+                 "generated" = generated, "scannum" = scannum,
+                 "patient.id" = patient.id, "exp.date" = exp.date,
+                 "exp.time" = exp.time, "hist.un0" = hist.un0)
 
   ## Warnings?
   options(warn=oldwarn)
@@ -750,6 +752,14 @@ read.nifti.hdr <- function(fname, onefile=TRUE, gzipped=TRUE,
     require("bitops")
     bitAnd(bitShiftR(di, 4), 3)
   }
+  quaternion2rotation <- function(b, c, d) {
+    a <- sqrt(1 - (b*b+c*c+d*d))
+    R <- matrix(c(a*a+b*b-c*c-d*d, 2*b*c+2*a*d, 2*b*d-2*a*c,  # column 1
+                  2*b*c-2*a*d, a*a+c*c-b*b-d*d, 2*c*d+2*a*b,  # column 2
+                  2*b*d+2*a*c, 2*c*d-2*a*b, a*a+d*d-c*c-b*b), # column 3
+                3, 3)
+    return(R)
+  }
 
   ## Open appropriate file
   if(gzipped) {
@@ -832,60 +842,58 @@ read.nifti.hdr <- function(fname, onefile=TRUE, gzipped=TRUE,
   intent.name <- rawToChar(readBin(fid, "raw", n=16))
 
   magic <- rawToChar(readBin(fid, "raw", n=4))
-  if(!(magic %in% c("n+1","ni1")))
+  if (!(magic %in% c("n+1","ni1")))
     stop(" -- Unrecognized \"magic\" field! --")
 
-  ## Additional fields...
-  freq.dim <- dim2freq(dim.info)
-  phase.dim <- dim2phase(dim.info)
-  slice.dim <- dim2slice(dim.info)
-  intent <- convert.intent(intent.code)
-  if(slice.code != 0 && slice.dim != 0 && slice.duration > 0)
-    slice.name <- convert.slice(slice.code)
-  else
-    slice.name <- "Unknown"
-  data.type <- ifelse(data.type == "", convert.datatype(datatype), "")
-  vox.units <- convert.units(xyzt2space(xyzt.units))
-  time.units <- convert.units(xyzt2time(xyzt.units))
-  qform.name <- convert.form(qform.code)
-  sform.name <- convert.form(sform.code)
-
   extender <- readBin(fid, integer(), 4, size=1, signed=FALSE, endian=endian)
-  if(extender[1] != 0)
+  if (extender[1] != 0)
     stop("WARNING: Header extensions exist!")
   
   close(fid)
 
-  nhdr <- list(sizeof.hdr, data.type, db.name, extents, session.error,
-               regular, dim.info, dim, intent.p1, intent.p2, intent.p3,
-               intent.code, datatype, bitpix, slice.start, pixdim,
-               vox.offset, scl.slope, scl.inter, slice.end, slice.code,
-               xyzt.units, cal.max, cal.min, slice.duration, toffset,
-               glmax, glmin, descrip, aux.file, qform.code,
-               sform.code, quatern.b, quatern.c, quatern.d, qoffset.x,
-               qoffset.y, qoffset.z, srow.x, srow.y, srow.z, intent.name,
-               magic, extender,
-               endian, freq.dim, phase.dim, slice.dim, intent, slice.name,
-               vox.units, time.units, qform.name, sform.name)
+  ## Additional fields...
+  slice.dim <- dim2slice(dim.info)
+  slice.name <-
+    ifelse(slice.code != 0 && slice.dim != 0 && slice.duration > 0,
+           convert.slice(slice.code), "Unknown")
 
-  names(nhdr) <- c("sizeof.hdr", "data.type", "db.name", "extents",
-                   "session.error", "regular", "dim.info", "dim",
-                   "intent.p1", "intent.p2", "intent.p3", "intent.code",
-                   "datatype", "bitpix", "slice.start", "pixdim",
-                   "vox.offset", "scl.slope", "scl.inter", "slice.end",
-                   "slice.code", "xyzt.units", "cal.max", "cal.min",
-                   "slice.duration", "toffset", "glmax", "glmin",
-                   "descrip", "aux.file", "qform.code", "sform.code",
-                   "quatern.b", "quatern.c", "quatern.d", "qoffset.x",
-                   "qoffset.y", "qoffset.z", "srow.x", "srow.y",
-                   "srow.z", "intent.name", "magic", "extender",
-                   "endian", "freq.dim", "phase.dim", "slice.dim",
-                   "intent", "slice.name", "vox.units", "time.units",
-                   "qform.name", "sform.name")
-  
+  nhdr <- list("sizeof.hdr" = sizeof.hdr, "endian" = endian,
+               "db.name" = db.name, "extents" = extents,
+               "session.error" = session.error, "regular" = regular,
+               "dim.info" = dim.info, "dim" = dim, "intent.p1" = intent.p1,
+               "intent.p2" = intent.p2, "intent.p3" = intent.p3,
+               "intent.code" = intent.code, "datatype" = datatype,
+               "bitpix" = bitpix, "slice.start" = slice.start,
+               "pixdim" = pixdim, "vox.offset" = vox.offset,
+               "scl.slope" = scl.slope, "scl.inter" = scl.inter,
+               "slice.end" = slice.end, "slice.code" = slice.code,
+               "xyzt.units" = xyzt.units, "cal.max" = cal.max,
+               "cal.min" = cal.min, "slice.duration" = slice.duration,
+               "toffset" = toffset, "glmax" = glmax, "glmin" = glmin,
+               "descrip" = descrip, "aux.file" = aux.file,
+               "qform.code" = qform.code, "sform.code" = sform.code,
+               "quatern.b" = quatern.b, "quatern.c" = quatern.c,
+               "quatern.d" = quatern.d, "qoffset.x" = qoffset.x,
+               "qoffset.y" = qoffset.y, "qoffset.z" = qoffset.z,
+               "srow.x" = srow.x, "srow.y" = srow.y, "srow.z" = srow.z,
+               "intent.name" = intent.name, "magic" = magic,
+               "extender" = extender, 
+               "freq.dim" = dim2freq(dim.info),
+               "phase.dim" = dim2phase(dim.info),
+               "slice.dim" = slice.dim,
+               "intent" = convert.intent(intent.code),
+               "slice.name" = slice.name,
+               "data.type" = ifelse(data.type == "",
+                 convert.datatype(datatype), ""),
+               "vox.units" = convert.units(xyzt2space(xyzt.units)),
+               "time.units" = convert.units(xyzt2time(xyzt.units)),
+               "qform.name" = convert.form(qform.code),
+               "sform.name" = convert.form(sform.code),
+               "qfac" = pixdim[1],
+               "R" = quaternion2rotation(quatern.b, quatern.c, quatern.d))
+
   ## Warnings?
   options(warn=oldwarn)
-
   return(nhdr)
 }
 
@@ -999,15 +1007,27 @@ read.nifti.img <- function(fname, onefile=TRUE, gzipped=TRUE,
 
   ## check for qform and/or sform flags
   if (nhdr$qform.code > 0) {
-    # if (verbose)
-    stop("NIfTI-1: qform_code > 0")
+    if (verbose)
+      print("NIfTI-1: qform_code > 0")
+    ## qoffset <- c(nhdr$qoffset.x, nhdr$qoffset.x, nhdr$qoffset.x)
+    R <- nhdr$R
+    if (nhdr$qfac < 0)
+      R[3,3] <- -R[3,3]
+    if (all(abs(R) == diag(3))) {
+      x <- 1:nrow(img.array) * R[1,1]
+      y <- 1:ncol(img.array) * R[2,2]
+      z <- 1:nsli(img.array) * R[3,3]
+      img.array <- img.array[order(x),order(y),order(z),]
+    } else {
+      stop("NIfTI-1: Rotation matrix is NOT diagonal with +/- 1s")
+    }
   }
   if (nhdr$sform.code > 0) {
     if (verbose)
       print("NIfTI-1: sform_code > 0")
-    x <- nhdr$srow.x[1] * 1:nrow(img) + nhdr$srow.x[4]
-    y <- nhdr$srow.y[2] * 1:ncol(img) + nhdr$srow.y[4]
-    z <- nhdr$srow.z[3] * 1:nsli(img) + nhdr$srow.z[4]
+    x <- nhdr$srow.x[1] * 1:nrow(img.array) + nhdr$srow.x[4]
+    y <- nhdr$srow.y[2] * 1:ncol(img.array) + nhdr$srow.y[4]
+    z <- nhdr$srow.z[3] * 1:nsli(img.array) + nhdr$srow.z[4]
     img.array <- img.array[order(x),order(y),order(z),]
   }
 

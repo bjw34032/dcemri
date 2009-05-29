@@ -278,8 +278,8 @@ write.nifti.img <- function(fname, hdr, img, type, gzipped=TRUE) {
     stop("NIfTI-1: qform_code > 0")
   }
   if (hdr$sform.code > 0) {
-    if (verbose)
-      print("NIfTI-1: sform_code > 0")
+    # if (verbose)
+    print("NIfTI-1: sform_code > 0")
     x <- (1:hdr$dim[2] - hdr$srow.x[4]) / hdr$srow.x[1]
     y <- (1:hdr$dim[3] - hdr$srow.y[4]) / hdr$srow.y[2]
     z <- (1:hdr$dim[4] - hdr$srow.z[4]) / hdr$srow.z[3]
