@@ -71,8 +71,9 @@ orton.exp.lm(tt, aif, guess=c(100, 10, 1, 0.1), nprint=0)
   \bold{53}, 1225-1239.
 }
 \seealso{
-  \code{\link{dcemri.lm}}, \code{\link{extract.aif}}, \code{\link{nls.lm}}
+  \code{\link{dcemri.lm}}, \code{\link{extract.aif}},
+  \code{\link[minpack.lm]{nls.lm}}
 }
 %\examples{}
 \author{Brandon Whitcher}
-\keyword{model}
+\keyword{models}

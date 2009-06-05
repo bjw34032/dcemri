@@ -15,7 +15,8 @@ read.nifti.img(fname, onefile=TRUE, gzipped=TRUE, verbose=FALSE, warn=-1)
   \item{onefile}{Allows the scanning of single-file format (.nii) or
     dual-file format (.hdr and .img) NIfTI files.}
   \item{gzipped}{Allows the importation of compressed (.gz) files.}
-  \item{verbose}{}
+  \item{verbose}{is a logical variable (default = \code{FALSE}) that
+    allows text-based feedback during execution of the function.}
   \item{warn}{}
 }
 \value{
@@ -30,15 +31,14 @@ read.nifti.img(fname, onefile=TRUE, gzipped=TRUE, verbose=FALSE, warn=-1)
   and 8-byte doubles.
 }
 \references{
-  NIfTI-1
-  http://nifti.nimh.nih.gov/
+  NIfTI-1 \url{http://nifti.nimh.nih.gov/}
 }
 \seealso{
-  \code{\link{read.analyze.hdr}},
-  \code{\link{read.analyze.img}},
+  \code{\link{read.analyze.hdr}}, \code{\link{read.analyze.img}},
   \code{\link{write.nifti.img}}
 }
 \examples{
+
 }
 \author{Brandon Whitcher}
 \keyword{file}

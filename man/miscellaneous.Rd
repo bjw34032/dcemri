@@ -5,7 +5,7 @@
 \alias{NTIM}
 \title{Miscellaneous Functions for Analyze/NIfTI Data}
 \description{
-  Functions to extract the dimensions from Analyze images.
+  Functions to extract the dimensions from Analyze/NIfTI data.
 }
 \usage{
 nsli(x)
@@ -14,19 +14,25 @@ NSLI(x)
 NTIM(x)
 }
 \arguments{
-  \item{x}{Three- or four-dimensional array (Analyze/NIfTI image).}
+  \item{x}{Three- or four-dimensional array (e.g., read in from an
+    Analyze/NIfTI file).}
+}
+\details{
+  Simple calls to \code{dim} to replicate the functionality of
+  \code{nrow} and \code{ncol} for higher dimensions of an array that are
+  commonly required when manipulating medical imaging data.
 }
 \value{
   Third (slice) or fourth (time) dimension of the array.
 }
-\details{
-  Simple calls to \code{dim} to replicate the functionality of
-  \code{nrow} and \code{ncol} for higher dimensions of an array.
+\references{
+  
 }
-%\references{}
 \seealso{
   \code{\link{read.hdr}}, \code{\link{read.img}}
 }
-\examples{}
+\examples{
+
+}
 \author{B. Whitcher}
 \keyword{misc}

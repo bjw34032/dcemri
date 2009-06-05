@@ -43,10 +43,10 @@ dcemri.lm(conc, time, img.mask, model="extended", aif="tofts.kermode",
   Compartmental models are the solution to the modified general rate
   equation (Kety 1951).  The specific parametric models considered here
   include the basic Kety model
-  \deqn{C_t(t)=K^\text{trans}\left[C_p(t)\otimes\exp(-k_{ep}t)\right],}
+  \deqn{C_t(t)=K^{trans}\left[C_p(t)\otimes\exp(-k_{ep}t)\right],}
   where \eqn{\otimes} is the convoluation operator, and the so-called
   extended Kety model
-  \deqn{C_t(t)=v_pC_p(t)+K^\text{trans}\left[C_p(t)\otimes\exp(-k_{ep}t)\right].}
+  \deqn{C_t(t)=v_pC_p(t)+K^{trans}\left[C_p(t)\otimes\exp(-k_{ep}t)\right].}
   The arterial input function must be either literature-based (with
   fixed parameters) or the exponential AIF from Orton \emph{et al.}
   (2008) with user-defined parameters.
@@ -107,15 +107,16 @@ Fritz-Hansen, T., Rostrup, E., Larsson, H.B.W, Sondergaard, L., Ring,
     NMR}, \bold{16}, 167-172. 
 }
 \seealso{
-  \code{\link{dce.bayes}}, \code{\link{dce.spline}}, \code{\link{nls.lm}}
+  \code{\link{dce.bayes}}, \code{\link{dce.spline}},
+  \code{\link[minpack.lm]{nls.lm}}
 }
 \examples{
 data("buckley")
-img <- t(breast$data)[,(1:60)*5]
-time <- seq(5,300,5)/60
-mask <- rep(TRUE,13)
-fit <- dcemri.lm(img,time,mask)
-fit$ktrans
+img <- array(t(breast$data)[,(1:60)*5], c(13,1,1,60))
+time <- seq(5, 300, by=5) / 60
+mask <- array(rep(TRUE, 13), c(13,1,1))
+fit <- dcemri.lm(img, time, mask)
+\dontrun{fit$ktrans}
 }
 \author{Brandon Whitcher, Volker Schmid}
 \keyword{models}

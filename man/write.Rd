@@ -1,7 +1,7 @@
-\name{Write Analyze/NIfTI}
+\name{Write Output as Analyze/NIfTI}
 \alias{write.analyze.img}
 \alias{write.nifti.img}
-\title{Save Analyze/NIfTI Format Binary Image Files}
+\title{Write Analyze/NIfTI Format Binary Image Files}
 \description{
   This function saves both the header information and multidimensional
   image array into a pair of binary files in Analyze format or a single
@@ -12,17 +12,15 @@ write.analyze.img(fname, hdr, img, type, gzipped=TRUE)
 write.nifti.img(fname, hdr, img, type, gzipped=TRUE)
 }
 \arguments{
-  \item{fname}{Pathname to save the Analzye pair of files .img and .hdr
-    or .nii NIfTI file (without the suffix).}
-  \item{hdr}{Header information as read in with \code{read.hdr}.}   
-  \item{img}{Multidimensional array of image data.}
-  \item{type}{Character string describing the image format.  Valid
+  \item{fname}{is the pathname to save the Analzye pair (.img and .hdr)
+    or NIfTI file (.nii) \bold{without} the suffix.}
+  \item{hdr}{is the appropriate header object information.}   
+  \item{img}{is the multidimensional array of image data.}
+  \item{type}{is a character string describing the image format.  Valid
     character strings include: "uint1", "uint8", "int16", "int32",
     "float32", "float64".}
-  \item{gzipped}{Allows the exportation of compressed (.gz) files.}
-}
-\value{
-  \code{write.analyze.img} and \code{write.nifti.img} return nothing.
+  \item{gzipped}{is a character string that enables exportation of
+    compressed (.gz) files (default = \code{TRUE}).}
 }
 \details{
   Both functions utilize the internal \code{writeBin} and
@@ -36,12 +34,15 @@ write.nifti.img(fname, hdr, img, type, gzipped=TRUE)
   \item{"float"}{DT FLOAT (32 bits per voxel)}
   \item{"double"}{DT DOUBLE (64 bits per voxel)}
 }
+\value{
+  \code{write.analyze.img} and \code{write.nifti.img} return nothing.
+}
 \references{
   Analyze 7.5
-  http://www.mayo.edu/bir/PDF/ANALYZE75.pdf
+  \url{http://www.mayo.edu/bir/PDF/ANALYZE75.pdf}
   
   NIfTI-1
-  http://nifti.nimh.nih.gov/
+  \url{http://nifti.nimh.nih.gov/}
 }
 \seealso{
     \code{\link{read.hdr}}, \code{\link{read.img}}
@@ -55,7 +56,7 @@ write.analyze.img("xyz64", hdr, img, "int16")
 ## NIfTI
 nhdr <- make.hdr(X, Y, Z, 1, "INT", "nifti")
 write.nifti.img("XYZ64", nhdr, img, "int16")
-## These files should be viewable in FSLview.
+## These files should be viewable in, for example, FSLview.
 ## Make sure you adjust the min/max values for proper visualization.
 data <- read.img("XYZ64.nii.gz")
 }

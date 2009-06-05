@@ -50,8 +50,8 @@ CA.fast2(dynamic, dyn.mask, dangle, flip, fangles, TR, r1=4.39, verbose=FALSE)
   a vector of observed MR signal intensities, as a function of flip
   angle, using the following relationship
   \deqn{S(\alpha) = \frac{\sin(\alpha) \left(1 -
-      \exp{-\text{TR}/\text{T}_1}\right)}{\left(1 - \cos(\alpha)
-      \exp{-\text{TR}/\text{T}_1}\right)}.}
+      \exp{-\textrm{TR}/\textrm{T}_1}\right)}{\left(1 - \cos(\alpha)
+      \exp{-\textrm{TR}/\textrm{T}_1}\right)}.}
   The only difference between the two functions is exactly what is being
   estimated in the nonlinear least squares formulation.  They both
   require the function \code{\link[minpack.lm]{nls.lm}} that uses the
@@ -62,8 +62,8 @@ CA.fast2(dynamic, dyn.mask, dangle, flip, fangles, TR, r1=4.39, verbose=FALSE)
   matrix to take advantage of internal R functions instead of loops, and
   called \code{E10.lm}.  Conversion of the dynamic signal intensities to
   contrast agent concentration is performed via
-  \deqn{[Gd] = \frac{1}{r_1}\left(\frac{1}{\text{T}_1} -
-    \frac{1}{\text{T}_{10}}\right).} 
+  \deqn{[Gd] = \frac{1}{r_1}\left(\frac{1}{\textrm{T}_1} -
+    \frac{1}{\textrm{T}_{10}}\right).} 
 
   The \code{CA2.fast} function assumes only two flip angles have been
   acquired and uses an approximation to the nonlinear relationship
@@ -91,7 +91,9 @@ CA.fast2(dynamic, dyn.mask, dangle, flip, fangles, TR, r1=4.39, verbose=FALSE)
   tumors using combined T1 and T2* contrast-enhanced dynamic MR imaging,
   \emph{Journal of Magnetic Resonance Imaging}, \bold{11}, 575-585.
 }
-%\seealso{}
+\seealso{
+  \code{\link{dcemri.lm}}, \code{\link[minpack.lm]{nls.lm}}
+}
 \examples{
 
 }
