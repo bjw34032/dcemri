@@ -9,7 +9,7 @@ R10.lm <- function(signal, alpha, TR, guess, nprint=0) {
       m0 * sin(theta) * (1 - exp(-TR*R1)) / (1 - cos(theta) * exp(-TR*R1))
   }
   require("minpack.lm") # Levenberg-Marquart fitting
-  out <- nls.lm(par=guess, fn=func, control=list(nprint=nprint),
+  out <- nls.lm(par=guess, fn=func, control=list(nprint=nprint, maxiter=150),
                y=list(signal, alpha, TR))
   list(R1=out$par[1], S0=out$par[2], info=out$info, message=out$message)
 }
@@ -23,7 +23,7 @@ E10.lm <- function(signal, alpha, guess, nprint=0) {
       m0 * sin(theta) * (1 - E1) / (1 - cos(theta) * E1)
   }
   require("minpack.lm") # Levenberg-Marquart fitting
-  out <- nls.lm(par=guess, fn=func, control=list(nprint=nprint),
+  out <- nls.lm(par=guess, fn=func, control=list(nprint=nprint, maxiter=150),
                signal=signal, alpha=alpha)
   list(E10=out$par[1], m0=out$par[2], info=out$info, message=out$message)
 }

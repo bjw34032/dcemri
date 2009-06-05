@@ -4,7 +4,7 @@
 \alias{meningioma}
 \title{Simuluted Data from Buckley (2002)}
 \description{
-  Simuluted Data from Buckley (2002).
+  Simuluted data from Buckley (2002).
 }
 \usage{
 data("buckley")
@@ -17,8 +17,8 @@ data("buckley")
   See below.
 }
 \references{
-  Buckley (2002), Uncertainty in the Analysis of Tracer Kinetics Using
-  Dynamic Contrast-Enhanced $T_1$-weighted MRI, {\em Magnetic Resonance
-    in Medicine}, 47, 601-606. 
+  Buckley, D.L. (2002) Uncertainty in the Analysis of Tracer Kinetics
+  Using Dynamic Contrast-Enhanced \eqn{T_1}-weighted MRI, \emph{Magnetic
+    Resonance in Medicine} \bold{47}, 601-606.
 }
 \keyword{datasets}

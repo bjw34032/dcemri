@@ -28,11 +28,6 @@ read.img(fname, verbose=FALSE, warn=-1)
   \item{datatype}{}
   \item{type}{}
 }
-\value{
-  \code{read.analyze.hdr} returns a list containing all the fields from
-  the header file.  \code{read.analyze.img} returns a multidimensional
-  array depending on the field read in from the header file.
-}
 \details{
   Both functions utilize the internal \code{readBin} and \code{rawToChar}
   command to efficiently extract information from a binary file.  The
@@ -44,9 +39,14 @@ read.img(fname, verbose=FALSE, warn=-1)
   compression is required.  A similar description is valid for
   \code{read.img}. 
 }
+\value{
+  \code{read.analyze.hdr} returns a list containing all the fields from
+  the header file.  \code{read.analyze.img} returns a multidimensional
+  array depending on the field read in from the header file.
+}
 \references{
   Analyze 7.5
-  http://www.mayo.edu/bir/PDF/ANALYZE75.pdf
+  \url{http://www.mayo.edu/bir/PDF/ANALYZE75.pdf}
 }
 \seealso{
   \code{\link{read.nifti.img}},
