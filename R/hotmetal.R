@@ -18,12 +18,13 @@ hotmetal <- function(n=64) {
   temp <- matrix(NA, ncol=3, nrow=n)
   x <- seq(0,1,,64)
   xg <- seq(0,1,,n)
-  require("fields")
   for(k in 1:3) {
-    hold <- splint(x, rgb.hot[,k], xg)
+    ## hold <- splint(x, rgb.hot[,k], xg)
+    hold <- interpSpline(x, rgb.hot[,k])
+    hold <- predict(hold, xg)$y
     hold[hold < 0] <- 0
     hold[hold > 255] <- 255
     temp[,k] <- round(hold)
   }
-  rgb(temp[,1], temp[,2], temp[,3], maxColorValue = 255)
+  rgb(temp[,1], temp[,2], temp[,3], maxColorValue=255)
 }

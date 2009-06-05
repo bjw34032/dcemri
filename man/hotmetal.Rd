@@ -8,10 +8,14 @@
 hotmetal(n=64)
 }
 \arguments{
-  \item{n}{Number of color levels; 64 is the default.}
+  \item{n}{is the number of color levels (default = 64).}
 }
 \details{
-  See \code{\link[fields]{tim.colors}} in the \pkg{fields} package.
+  Based on the \code{\link[fields]{tim.colors}} function in the
+  \pkg{fields} package.  The \code{hotmetal} function has been modified
+  to break any dependence on code in the \pkg{fields} package.  Spline
+  interpolation (\code{interpSpline}) is used when the number of
+  requested colors is not the default.
 }
 \value{
   A vector of character strings giving the colors in hexadecimal
@@ -21,6 +25,7 @@ hotmetal(n=64)
   \code{\link{topo.colors}}, \code{\link{terrain.colors}}
 }
 \examples{
-
+hotmetal(10) 
+image(outer(1:20,1:20,"+"), col=hotmetal(75), main="hotmetal")
 }
 \keyword{aplot}

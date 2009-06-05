@@ -66,7 +66,6 @@ return(RR)
 aifzeit<-time.input
 zeit<-time
 
-require("splines")
 #define B and A
 p<-length(knots)-k
 B<-splineDesign(knots,aifzeit,k,outer.ok=TRUE)
@@ -374,7 +373,6 @@ return(result)
 
 perfSpline<-function(data,time,aif,time.input,searchint=.25,do.plot=TRUE)
 {
-require("splines")
 interpSpline(aif~time.input,bSpline=TRUE)->XX
 time.input2<-seq(0,max(time.input),.25)
 B<-splineDesign(XX$knots,time.input2,XX$order,outer.ok=TRUE)
