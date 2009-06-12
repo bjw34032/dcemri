@@ -1,0 +1,152 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>dcemri: A Package for Medical Image Analysis</title>
+    <meta name="keywords" content="" />
+    <meta name="description" content="" />
+    <link href="default.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <div id="header">
+      <h1>dcemri</h1>
+      <h2>A package for medical image analysis</h2>
+    </div>
+    <div id="menu">
+      <!--#include file="menu.inc" -->
+    </div>
+    <div id="content">
+      <div id="left">
+	<h2>Functionality</h2>
+	<p>The following sections outline the basic image processing
+	steps that are provided in <strong>dcemri</strong>.  There are
+	numerous choices when performing a quantitative analysis for a
+	DCE-MRI study.  The methods specified below follow our data
+	analysis pipeline but are not meant to be restrictive.  If
+	there is a feature that you believe should be included, do not
+	hesitate to <a href="contact.shtml">contact us</a>.
+	Suggestions are welcome!</p>
+	<h3>Motion Correction and Co-registration</h3>
+	<p>Basic motion correction within an acquisition, and
+	co-registration between acquired series, is available using <a
+	href="http://en.wikipedia.org/wiki/Template_matching">template
+	matching</a>.  A reference volume must be pre-specified where
+	a mask has been applied to remove all voxels that should not
+	be included in the algorithm.  Note, only three-dimensional
+	translations are allowed and no interpolation is used (i.e.,
+	only whole-voxel translations) at this time.</p>
+	<h3>T1 Relaxation and Gadolinium Concentration</h3>
+	<p>Estimation of the tissue T1 relaxation rate is the first
+	step in converting signal intensity, obtained in the dynamic
+	acquisition of the DCE-MRI protocol, to contrast agent
+	concentration.  The subsequent steps provided here focus on
+	pharmacokinetic modeling and assumes one has converted the
+	dynamic acquisition to contrast agent concentration.  Please
+	see <a
+	href="http://dx.doi.org/10.1109/MEMB.2004.1360410">Collins and
+	Padhani (2004)</a> for a discussion on this point.</p>
+	<p>There are a miriad of techniques to quantify T1 using MRI.
+	Currently curve-fitting methods for two popular acquisition
+	schemes are available</p>
+	<ul>
+	  <li><a href="http://www.e-mri.org/mri-sequences/inversion-recovery-stir-flair.html">Inversion recovery</a></li>
+	  <li><a
+	  href="http://dx.doi.org/10.1002/0470869526.ch10">Multiple
+	  flip angles</a></li>
+	</ul>
+	<p>Once the tissue T1 relaxation rate has been estimated, the
+	dynamic acquisition is then converted to contrast agent
+	concentration.  Note, the B1 field is assumed to be constant
+	(and accurate) when using multiple flip angles to estimate T1.
+	At higher fields strengths (e.g., 3T) the B1 field should be
+	estimated in order to correct the prescribed flip angles.</p>
+	<h3>Arterial Input Function</h3>
+	<p>Whereas quantitative PET studies routinely perform arterial
+	<a href="http://en.wikipedia.org/wiki/Cannula">cannulation</a>
+	on the subject in order to characterize the arterial input
+	function (AIF), it has been common to use literature-based
+	AIFs in the DCE-MRI literature.  Examples include</p>
+	<ul>
+	  <li><a href="http://dx.doi.org/10.1002/mrm.1910170208">Tofts and Kermode (1991)</a></li>
+	  <li><a href="http://dx.doi.org/10.1002/mrm.1910360209">Fritz-Hansen <em>et al.</em> (1996)</a></li>
+	</ul>
+	<p>There has been progress in measuring the AIF using the
+	dynamic acquisition and fitting a parametric model to the
+	observations.  Recent models include</p>
+	<ul>
+	  <li><a href="http://dx.doi.org/10.1002/mrm.21066">Parker <em>et al.</em> (2006)</a></li>
+	  <li><a href="http://dx.doi.org/10.1088/0031-9155/53/5/005">Orton <em>et al.</em> (2008)</a></li>
+	</ul>
+	<p><strong>dcemri</strong> has incorporated all parametric
+	models given above for the AIF, except Parker <em>et al.</em>
+	(2006), into the kinetic parameter estimation step.  While
+	default values for each model are provided, there is also the
+	ability to include user-specified parameters.</p>
+	<h3>Kinetic Parameter Estimation</h3>
+	<p>The standard Kety model, a single-compartment model, or the
+	extended Kety model, the standard Kety model with an extra
+	&#8220;vascular&#8221; term, form the collection of basic
+	parametric models one can apply using <strong>dcemri</strong>.
+	Regardless of which parametric model is chosen for the
+	biological system, the contrast agent concentration curve at
+	each voxel in the region of interest (ROI) is approximated
+	using the convolution of an arterial input function (AIF) and
+	the standard/extended Kety model.</p>
+	<p>Parameter estimation is achieved using one of two options
+	in the current version of this software:</p>
+	<ul>
+	  <li><a
+	  href="http://en.wikipedia.org/wiki/Non-linear_regression">Non-linear
+	  regression</a> using <a
+	  href="http://en.wikipedia.org/wiki/Non-linear_least_squares">non-linear
+	  least squares</a></li>
+	  <li><a
+	  href="http://en.wikipedia.org/wiki/Bayes_theorem">Bayesian
+	  estimation</a> using <a
+	  href="http://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo">Markov
+	  chain Monte Carlo</a> (MCMC)</li>
+	</ul>
+	<p>Least-square estimates of the kinetic parameters
+	<var>K</var><sup>trans</sup> and <var>k</var><sub>ep</sub>
+	(also <var>v</var><sub>p</sub> for the extended Kety model)
+	are provided in <strong>dce_nlreg</strong> while the posterior
+	median is provided in <strong>dce_bayes</strong>.  When using
+	Bayesian estimation all samples from the joint posterior
+	distribution are also provided, allowing one to interrogate
+	the empirical <a
+	href="http://en.wikipedia.org/wiki/Probability_density_function">probability
+	density function</a> (PDF) of the parameter estimates.
+	</p>
+	<h3>Statistical Inference</h3>
+	<p>No specific support is provided for hypothesis testing in
+	<strong>dcemri</strong>.  We recommend one uses builtin
+	facilities in <strong>R</strong> to perform <a
+	href="http://en.wikipedia.org/wiki/Analysis_of_variance">ANOVA</a>
+	or <a
+	href="http://en.wikipedia.org/wiki/Mixed-effects_model">mixed-effects</a>
+	models based on statistical summaries of the kinetic
+	parameters over the ROI per subject per visit.  An alternative
+	to this traditional approach is to analyze an entire study
+	using a <a
+	href="http://en.wikipedia.org/wiki/Hierarchical_Bayes_model">Bayesian
+	hierarchical model</a> (BHM) in <a
+	href="http://pilfer.sourceforge.net"><strong>PILFER</strong></a>.</p>
+	<p>One may also question the rationale for hypothesis testing
+	in only one kinetic parameter.  Preliminary work has been
+	performed in looking at the joint response to treatment of
+	both <var>K</var><sup>trans</sup> and
+	<var>k</var><sub>ep</sub> in DCE-MRI by <a href="">O'Connor <em>et
+	al</em>. (2010)</a>.</p>
+      </div>
+      <div id="right">
+	<!--#include file="news.inc" -->
+	<!--#include file="links.inc" -->
+      </div>
+    </div>
+    <div id="footer">
+      <!--#include file="footer.inc" -->
+    </div>
+  </body>
+</html>
+
