@@ -8,8 +8,8 @@
   binary file in NIfTI format.
 }
 \usage{
-write.analyze.img(fname, hdr, img, type, gzipped=TRUE)
-write.nifti.img(fname, hdr, img, type, gzipped=TRUE)
+write.analyze.img(fname, hdr, img, type, gzipped=TRUE, warn=-1)
+write.nifti.img(fname, hdr, img, type, gzipped=TRUE, warn=-1)
 }
 \arguments{
   \item{fname}{is the pathname to save the Analzye pair (.img and .hdr)
@@ -21,6 +21,8 @@ write.nifti.img(fname, hdr, img, type, gzipped=TRUE)
     "float32", "float64".}
   \item{gzipped}{is a character string that enables exportation of
     compressed (.gz) files (default = \code{TRUE}).}
+  \item{warn}{is a number to regulate the display of warnings (default =
+    -1).  See \code{\link{options}} for more details.}
 }
 \details{
   Both functions utilize the internal \code{writeBin} and

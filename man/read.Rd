@@ -17,7 +17,8 @@ make.hdr(X, Y, Z, T, datatype, type)
     .hdr) or the single NIfTI file (.nii).}
   \item{verbose}{is a logical variable (default = \code{FALSE}) that
     allows text-based feedback during execution of the function.}
-  \item{warn}{}
+  \item{warn}{is a number to regulate the display of warnings (default =
+    -1).  See \code{\link{options}} for more details.}
   \item{X,Y,Z,T}{are the dimenisions (three spatial and one temporal)
     for the header file.}
   \item{datatype}{is a character string describing the image format.

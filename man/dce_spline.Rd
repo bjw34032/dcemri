@@ -2,7 +2,7 @@
 \alias{dce.spline}
 \alias{dce.spline.onset}
 \alias{perfSpline}
-\title{Bayesian P-Splines for Modeling Dynamic Contrasat-Enhanced MRI Data}}
+\title{Bayesian P-Splines for Dynamic Contrasat-Enhanced MRI Data}
 \description{
   Quantitative analysis of DCE-MRI typically involves the convolution of
   an arterial input function (AIF) with a nonlinear pharmacokinetic
@@ -10,7 +10,8 @@
   semi-parametric penalized spline smoothing approach, with which the
   AIF is convolved with a set of B-splines to produce a design matrix
   using locally adaptive smoothing parameters based on Bayesian
-  penalized spline models (P-splines).} 
+  penalized spline models (P-splines).
+} 
 \usage{
 dce.spline(data, time, input, time.input=time,
 mask=array(1,dim(data)[1:(length(dim(data))-1)]), k=4, knotpoints=25, 
@@ -49,15 +50,23 @@ perfSpline(data, time, aif, time.input, searchint=.25, do.plot=TRUE)
   \item{searchint}{}
   \item{do.plot}{}
 }
-\value{
-}
 \details{
+  
+}
+\value{
+  
 }
 \references{
+  Schmid, V., Whitcher, B., Padhani, A.R. and G.-Z. Yang (2009) A
+  semi-parametric technique for the quantitative analysis of dynamic
+  contrast-enhanced MR images based on Bayesian P-splines, \emph{IEEE
+    Transactions on Medical Imaging}, \bold{28} (6), 789-798.
 }
 \seealso{
+  \code{\link{dcemri.lm}}, \code{\link{dcemri.bayes}}
 }
 \examples{
+
 }
 \author{Volker Schmid}
-\keyword{}
+\keyword{models}
