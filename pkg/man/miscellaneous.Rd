@@ -1,3 +1,7 @@
+% Part of the dcemri package for R
+% Distributed under the BSD license: see dcemri/COPYING
+% Time-stamp: <2009-06-19 17:05:47 (bjw34032)>
+
 \name{Miscellaneous Functions for Analyze/NIfTI Data}
 \alias{nsli}
 \alias{NSLI}

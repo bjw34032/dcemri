@@ -1,3 +1,7 @@
+% Part of the dcemri package for R
+% Distributed under the BSD license: see dcemri/COPYING
+% Time-stamp: <2009-06-19 16:49:51 (bjw34032)>
+
 \name{dcemri.bayes}
 \alias{dcemri.bayes}
 \title{Bayesian Methods for Pharmacokinetic Modeling of Dynamic
@@ -23,25 +27,27 @@ dcemri.bayes(conc, time, img.mask, model="extended",
   \item{model}{}
   \item{aif}{Model for arterial input function. So far implemented:
     0 or "tofts-kermode" double exponential model by Tofts,Kermode;
-    1 or "orton" exponential model by Orton et al.}
+    1 or "orton" exponential model by Orton \emph{et al}.}
   \item{user}{Vector of AIF parameters. 
-    For Tofts/Kermode: $a_1$,$m_1$,$a_2$,$m_2$; for Orton et al.:
-    $A_b$,$\mu_b$,$A_g$,$\mu_g$.}
+    For Tofts/Kermode: \eqn{a_1},\eqn{m_1},\eqn{a_2},\eqn{m_2}; for
+    Orton et al.: \eqn{A_b},\eqn{\mu_b},\eqn{A_g},\eqn{\mu_g}.}
   \item{nriters}{Total number of iterations.}
   \item{thin}{Thining factor.}
   \item{burnin}{Number of iterations for burn-in.}
   \item{tune}{Number for iterations for tuning. Algorithm will be 
     tuned to an acceptance rate of 0.3 to 0.6.}
-  \item{tau.ktrans}{Variance parameter for prior on $\log(K^{trans})$.}
-  \item{tau.kep}{Variance parameter for prior on $\log(k_{ep})$.}
+  \item{tau.ktrans}{Variance parameter for prior on \eqn{\log(K^{trans})}.}
+  \item{tau.kep}{Variance parameter for prior on \eqn{\log(k_{ep})}.}
 %  \item{tau.gamma}{}
 %  \item{tau.theta}{}
-  \item{ab.vp}{Hyper prior parameters for $v_p$ Beta prior.}
-  \item{ab.tauepsilon}{Hyper prior parameters for observation error Gamma Prior.}
+  \item{ab.vp}{Hyper prior parameters for \eqn{v_p} Beta prior.}
+  \item{ab.tauepsilon}{Hyper prior parameters for observation error
+    Gamma Prior.} 
 %  \item{vp}{}
 %  \item{approx}{}
 %  \item{vp.do}{If TRUE, model includes vascular term.}
   \item{samples}{If TRUE, output includes samples.}
+  \item{...}{}
 }
 \details{
   

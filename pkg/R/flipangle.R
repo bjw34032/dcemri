@@ -31,6 +31,11 @@
 ## 
 ##
 
+dam <- function(low, high, low.deg) {
+  alpha <- acos(abs(high /(2*low)))
+  (180/pi * alpha) / low.deg # radians to degrees
+}
+
 R10.lm <- function(signal, alpha, TR, guess, nprint=0) {
   func <- function(x, y) {
     R1 <- x[1]

@@ -1,3 +1,7 @@
+% Part of the dcemri package for R
+% Distributed under the BSD license: see dcemri/COPYING
+% Time-stamp: <2009-06-19 17:10:41 (bjw34032)>
+
 \name{Write Output as Analyze/NIfTI}
 \alias{write.analyze.img}
 \alias{write.nifti.img}
@@ -29,12 +33,14 @@ write.nifti.img(fname, hdr, img, type, gzipped=TRUE, warn=-1)
   \code{writeChar} command to write infromation to a binary file.
 
   Current acceptable data types include
-  \item{"uint1"}{DT BINARY (1 bit per voxel)}
-  \item{"uint8"}{DT UNSIGNED CHAR (8 bits per voxel)}
-  \item{"int16"}{DT SIGNED SHORT (16 bits per voxel)}
-  \item{"int32"}{DT SINGED INT (32 bits per voxel)}
-  \item{"float"}{DT FLOAT (32 bits per voxel)}
-  \item{"double"}{DT DOUBLE (64 bits per voxel)}
+  \itemize{
+    \item{"uint1"}{DT BINARY (1 bit per voxel)}
+    \item{"uint8"}{DT UNSIGNED CHAR (8 bits per voxel)}
+    \item{"int16"}{DT SIGNED SHORT (16 bits per voxel)}
+    \item{"int32"}{DT SINGED INT (32 bits per voxel)}
+    \item{"float"}{DT FLOAT (32 bits per voxel)}
+    \item{"double"}{DT DOUBLE (64 bits per voxel)}
+    }
 }
 \value{
   \code{write.analyze.img} and \code{write.nifti.img} return nothing.

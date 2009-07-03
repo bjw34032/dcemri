@@ -1,3 +1,7 @@
+% Part of the dcemri package for R
+% Distributed under the BSD license: see dcemri/COPYING
+% Time-stamp: <2009-06-19 17:05:04 (bjw34032)>
+
 \name{Relaxivity}
 \alias{R10.lm}
 \alias{E10.lm}

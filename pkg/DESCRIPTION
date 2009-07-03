@@ -1,7 +1,7 @@
 Package: dcemri
-Version: 0.05
-Date: 2009-06-05
-Title: R Package for the Analysis of DCE-MRI Data
+Version: 0.07
+Date: 2009-07-01
+Title: A Package for Medical Image Analysis
 Author: Brandon Whitcher <bjw34032@users.sourceforge.net> and
   Volker Schmid <volkerschmid@users.sourceforge.net>
 Maintainer: Brandon Whitcher <bjw34032@users.sourceforge.net>
@@ -10,6 +10,6 @@ Suggests: bitops
 Description: A collection of routines and documentation that allows one to
   perform a quantitative analysis of dynamic contrast-enhanced or
   diffusion-weighted MRI data.  Medical imaging data should be organized 
-  using either the Analyze or NIfTI data formats.  
+  using either the Analyze or NIfTI data formats.
 License: BSD
 URL: http://www.dcemri.org/,http://dcemri.sourceforge.net/

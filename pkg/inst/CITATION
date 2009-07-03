@@ -5,7 +5,7 @@ year <- sub(".*(2[[:digit:]]{3})-.*", "\\1", desc$Date)
 vers <- paste("R package version", desc$Version)
 
 citEntry(entry="Manual",
-         title = "dcemri: A Package for Medical Image Analysis")
+         title = "dcemri: A Package for Medical Image Analysis",
          author = personList(as.person("Brandon Whitcher"),
                              as.person("Volker J. Schmid")),
          year = year,

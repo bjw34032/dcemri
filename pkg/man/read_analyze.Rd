@@ -1,3 +1,7 @@
+% Part of the dcemri package for R
+% Distributed under the BSD license: see dcemri/COPYING
+% Time-stamp: <2009-06-19 17:06:01 (bjw34032)>
+
 \name{Read Analyze}
 \alias{read.analyze.hdr}
 \alias{read.analyze.img}

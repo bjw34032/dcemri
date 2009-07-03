@@ -1,3 +1,7 @@
+% Part of the dcemri package for R
+% Distributed under the BSD license: see dcemri/COPYING
+% Time-stamp: <2009-06-19 17:04:45 (bjw34032)>
+
 \name{Seed Growing for a 4D Array}
 \alias{extract.aif}
 \title{Seed Growing for a 4D Array}

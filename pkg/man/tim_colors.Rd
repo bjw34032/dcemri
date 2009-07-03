@@ -1,3 +1,7 @@
+% Part of the dcemri package for R
+% Distributed under the BSD license: see dcemri/COPYING
+% Time-stamp: <2009-06-19 17:10:27 (bjw34032)>
+
 \name{tim.colors}
 \alias{tim.colors}
 \title{Tim's Useful Color Table}

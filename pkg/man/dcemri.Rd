@@ -1,3 +1,7 @@
+% Part of the dcemri package for R
+% Distributed under the BSD license: see dcemri/COPYING
+% Time-stamp: <2009-06-19 16:50:03 (bjw34032)>
+
 \name{dcemri}
 \alias{dcemri.lm}
 \title{Pharmacokinetic Models for Dynamic Contrast-Enhanced MRI Data}

@@ -1,52 +1,37 @@
+% Part of the dcemri package for R
+% Distributed under the BSD license: see dcemri/COPYING
+% Time-stamp: <2009-06-19 17:04:55 (bjw34032)>
+
 \name{find.center}
 \alias{find.center}
-%- Also NEED an '\alias' for EACH other topic documented here.
-\title{ ~~function to do ... ~~ }
+\title{Find the Center of a Binary Mask}
 \description{
-  ~~ A concise (1-5 lines) description of what the function does. ~~
+  The center of a binary mask is determined.
 }
 \usage{
 find.center(M)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{M}{ ~~Describe \code{M} here~~ }
+  \item{M}{is a binary mask (multidimensional array of logical values).}
 }
 \details{
-  ~~ If necessary, more details than the description above ~~
+  This method most likely only works with convex three-dimensional
+  shapes (e.g., a hyper-rectangle).  Further testing is required to
+  know the limits of the current implementation.
 }
 \value{
-  ~Describe the value returned
-  If it is a LIST, use
-  \item{comp1 }{Description of 'comp1'}
-  \item{comp2 }{Description of 'comp2'}
-  ...
+  A vector of values the same length as the input array.
 }
-\references{ ~put references to the literature/web site here ~ }
-\author{ ~~who you are~~ }
-\note{ ~~further notes~~ 
-
- ~Make other sections like Warning with \section{Warning }{....} ~
+%\references{ ~put references to the literature/web site here ~ }
+\author{Brandon Whitcher}
+\seealso{
+  \code{\link{ftm}}
 }
-\seealso{ ~~objects to See Also as \code{\link{help}}, ~~~ }
 \examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
-
-## The function is currently defined as
-function(M) {
-  X <- nrow(M)
-  Y <- ncol(M)
-  Z <- nsli(M)
-  xx <- array(1:X, dim(M))
-  yy <- array(rep(1:Y, each=X), dim(M))
-  zz <- array(rep(1:Z, each=X*Y), dim(M))
-  center <- c(mean(xx[M]), mean(yy[M]), mean(zz[M]))
-  trunc(center)
-  }
+M <- array(FALSE, rep(10,3))
+M[6:10,6:10,6:10] <- TRUE
+Mc <- find.center(M)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
-\keyword{ ~kwd1 }
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+\keyword{misc}
