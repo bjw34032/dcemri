@@ -1,6 +1,6 @@
 % Part of the dcemri package for R
 % Distributed under the BSD license: see dcemri/COPYING
-% Time-stamp: <2009-06-19 17:04:55 (bjw34032)>
+% Time-stamp: <2009-07-04 12:39:48 (bjw34032)>
 
 \name{find.center}
 \alias{find.center}
@@ -22,7 +22,7 @@ find.center(M)
 \value{
   A vector of values the same length as the input array.
 }
-%\references{ ~put references to the literature/web site here ~ }
+%\references{}
 \author{Brandon Whitcher}
 \seealso{
   \code{\link{ftm}}

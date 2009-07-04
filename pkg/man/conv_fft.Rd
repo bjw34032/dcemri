@@ -1,38 +1,38 @@
 % Part of the dcemri package for R
 % Distributed under the BSD license: see dcemri/COPYING
-% Time-stamp: <2009-06-19 16:49:39 (bjw34032)>
+% Time-stamp: <2009-07-04 12:39:20 (bjw34032)>
 
 \name{conv.fft}
 \alias{conv.fft}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{Convolution of 3D Arrays using the Fourier Transform}
 \description{
-  ~~ A concise (1-5 lines) description of what the function does. ~~
+  Convolve a 
 }
 \usage{
 conv.fft(A, B, C, FFTA=NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{A}{ ~~Describe \code{A} here~~ }
-  \item{B}{ ~~Describe \code{B} here~~ }
-  \item{C}{ ~~Describe \code{C} here~~ }
-  \item{FFTA}{ ~~Describe \code{C} here~~ }
+  \item{A}{is a three-dimensional array ("the template").}
+  \item{B}{is a three-dimensional array ("the target").}
+  \item{C}{is a three dimensional array.}
+  \item{FFTA}{is the three-dimensional Fourier transform of \code{A},
+    this may save time when looping over multiple "targets".}
 }
 \details{
-  ~~ If necessary, more details than the description above ~~
+  The arrays \eqn{A} and \eqn{B} are transformed into the Fourier domain
+  and multiplied together (equivalent to a convolution in the image
+  domain across all spatial locations simultaneously).  
 }
 \value{
-  ~Describe the value returned
-  If it is a LIST, use
-  \item{comp1 }{Description of 'comp1'}
-  \item{comp2 }{Description of 'comp2'}
-  ...
+  A three-dimensional array, the same dimension as the input arrays,
+  that is the convolution of the "target" to the "template" at all
+  spatial locations.
 }
-%\references{ ~put references to the literature/web site here ~ }
+%\references{}
 \author{Brandon Whitcher}
 \seealso{
-  \code{\link{fft}}, \code{\link{ftm}}
+  \code{\link{fft}}, \code{\link{ftm}}, \code{\link{shift3D}}
 }
 \examples{
 }
