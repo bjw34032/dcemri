@@ -1,0 +1,345 @@
+% \VignetteIndexEntry{dcemri}
+% \VignetteDepends{dcemri}
+% \VignettePackage{dcemri}
+%\VignetteKeywords{}
+\documentclass[11pt,a4paper]{article}
+\usepackage{a4wide,amsmath,color,fancyvrb,graphicx,natbib,thumbpdf}
+\definecolor{Red}{rgb}{0.7,0,0}
+\definecolor{Blue}{rgb}{0,0,0.8}
+\usepackage[colorlinks=true,linkcolor=Blue,citecolor=Blue,urlcolor=Blue]{hyperref}
+\usepackage{xspace}
+\usepackage{fancyhdr}
+\usepackage{lscape}
+\usepackage{Sweave}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\let\code=\texttt
+\let\proglang=\textsf
+\newcommand{\pkg}[1]{{\normalfont\fontseries{b}\selectfont #1}}
+\newcommand{\email}[1]{\href{mailto:#1}{\normalfont\texttt{#1}}}
+
+\newcommand{\ktrans}{K^\text{trans}}
+\newcommand{\iaugc}[1]{\text{IAUGC}_{#1}}
+\newcommand{\kep}{k_\text{ep}}
+\newcommand{\vp}{v_\text{p}}
+
+\SweaveOpts{engine=R,eps=FALSE}
+
+\setlength{\parskip}{0.7ex plus0.1ex minus0.1ex}
+\setlength{\parindent}{0em}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\pagestyle{fancy}
+\lhead{B. Whitcher and V.J. Schmid}
+\chead{}
+\rhead{Using the {\tt dcemri} Package}
+\lfoot{}
+\cfoot{\thepage}
+\rfoot{}
+\renewcommand{\headrulewidth}{1pt}
+\renewcommand{\footrulewidth}{1pt}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+<<preliminaries,echo=FALSE,results=hide>>=
+library("dcemri")
+options(width=70)
+@
+
+\title{{\tt dcemri}: A Package for Medical Image Analysis}
+\author{Brandon Whitcher \\ \email{bjw34032@users.sourceforge.net} \\ %
+  Volker J. Schmid \\ \email{volkerschmid@users.sourceforge.net}}
+
+
+\begin{document}
+
+\maketitle
+
+\thispagestyle{empty}
+
+\section{Introduction}
+
+Quantitative analysis of perfusion imaging using dynamic
+contrast-enhanced MRI (DCE-MRI) is achieved through a series of
+processing steps, starting with the raw data acquired from the MRI
+scanner, and involves a combination of physics, mathematics,
+engineering and statistics.  The purpose of the \pkg{dcemri} package
+is to provide a collection of functions that move the experimental
+data through all steps of the data analysis pipeline using standard
+data formats that may be visualized and manipulated across a wide
+variety of software packages.  To this end, the \pkg{dcemri} package
+requires incoming data to be in the ANALYZE~7.5 or NIfTI formats.
+Data conversion (e.g., from DICOM to NIfTI) must be performed by the
+user before \pkg{dcemri} may be used to summarize the data.
+
+
+
+\section{Data Input}
+
+\subsection{Labelled LR Standard (MNI152) Images in NIfTI Format}
+
+The first example of reading in, and displaying, medical imaging data
+in NIfTI format (\texttt{avg152T1\_LR\_nifti.nii.gz}) was obtained
+from the NIfTI website (\url{nifti.nimh.nih.gov/nifti-1/}).  
+Successful execution of the command
+
+<<avg152T1_LR_nifti>>=
+mni <- read.img("avg152T1_LR_nifti.nii.gz")
+dim(mni)
+@ 
+<<echo=FALSE,results=hide>>=
+png(filename="avg152T1_LR_nifti.png", width=400, height=400)
+X <- nrow(mni) ; Y <- ncol(mni) ; Z <- nsli(mni)
+zrange <- range(mni)
+par(mfrow=c(10,10), mar=rep(0,4))
+for (z in 1:Z) {
+  image(1:X, 1:Y, mni[,,z], zlim=zrange, col=grey(0:64/64),
+        xlab="", ylab="", axes=FALSE)
+}
+dev.off()
+@ 
+produces a 3D array of the image data that may be displayed in a
+$10{\times}10$ grid of images (Figure~\ref{fig:avg152T1_LR_nifti}).
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics{avg152T1_LR_nifti.png}
+  \caption{Axial slices of MNI volume \texttt{avg152T1\_LR\_nifti}
+  stored in radiological convention.}
+  \label{fig:avg152T1_LR_nifti}
+\end{figure}
+
+The second example of reading in, and displaying, medical imaging data
+in NIfTI format (\texttt{avg152T1\_RL\_nifti.nii}) was also obtained
+from the NIfTI website (\url{nifti.nimh.nih.gov/nifti-1/}).
+Successful execution of the command
+
+<<avg152T1_RL_nifti>>=
+mni <- read.img("avg152T1_RL_nifti.nii.gz")
+dim(mni)
+@ 
+<<echo=FALSE,results=hide>>=
+png(filename="avg152T1_RL_nifti.png", width=400, height=400)
+X <- nrow(mni) ; Y <- ncol(mni) ; Z <- nsli(mni)
+zrange <- range(mni)
+par(mfrow=c(10,10), mar=rep(0,4))
+for (z in 1:Z) {
+  image(1:X, 1:Y, mni[,,z], zlim=zrange, col=grey(0:64/64),
+        xlab="", ylab="", axes=FALSE)
+}
+dev.off()
+@ 
+produces a 3D array of the image data that may be displayed in a
+$10{\times}10$ grid of images (Figure~\ref{fig:avg152T1_RL_nifti}).
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics{avg152T1_RL_nifti.png}
+  \caption{Axial slices of MNI volume \texttt{avg152T1\_RL\_nifti}
+  stored in neurological convention.}
+  \label{fig:avg152T1_RL_nifti}
+\end{figure}
+
+The first image (LR) is stored in radiological convention.  The second
+image (RL) is stored in neurological convention.  Any NIfTI-1 compliant
+viewing software should display these images identically.
+
+\subsection{Simple Time-series or Multi-volume Image}
+
+This is an example of reading in, and displaying, a four-dimensional
+medical imaging data set in NIfTI format
+(\texttt{filtered\_func\_data.nii}) obtained from the NIfTI website
+(\url{nifti.nimh.nih.gov/nifti-1/}).  Successful execution of the
+command
+
+<<filtered_func_data>>=
+ffd <- read.img("filtered_func_data.nii.gz")
+dim(ffd)
+@ 
+<<echo=FALSE,results=hide>>=
+png(filename="ffd.png", width=400, height=400)
+X <- nrow(ffd) ; Y <- ncol(ffd) ; Z <- nsli(ffd) ; W <- ntim(ffd)
+zrange <- range(ffd)
+w <- 1
+par(mfrow=c(5,5), mar=rep(0,4))
+for (z in 1:Z) {
+  image(1:X, 1:Y, ffd[,,z,w], zlim=zrange,
+        col=grey(0:64/64), xlab="", ylab="", axes=FALSE)
+}
+dev.off()
+@ 
+produces a four-dimensional (4D) array of imaging data that may be
+displayed in a $5{\times}5$ grid of images (Figure~\ref{fig:ffd}).
+The first three dimensions are spatial locations of the voxel (volume
+element) and the fourth dimension is time.
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics{ffd.png}
+  \caption{Axial slices of the functional MRI ``volume''
+  \texttt{filtered\_func\_data} from the first acquisition.}
+  \label{fig:ffd}
+\end{figure}
+
+\subsection{Statistic Image}
+
+This is an example of reading in and displaying a statistical image so
+that it may be overlayed on the EPI (echo planar imaging) data taken
+from the functional MRI experiment.  The original NIfTI files
+(\texttt{filtereted\_func\_data.nii} and \texttt{zstat1.nii}) were
+obtained from the NIfTI website (\url{nifti.nimh.nih.gov/nifti-1/}).
+Successful execution of the command
+
+<<zstat1>>=
+zstat1 <- read.img("zstat1.nii.gz")
+dim(zstat1)
+@ 
+<<echo=FALSE,results=hide>>=
+png("ffd_zstat1.png", width=400, height=400)
+par(mfrow=c(5,5), mar=rep(0,4))
+w <- 1
+for (z in 1:Z) {
+  image(1:X, 1:Y, ffd[,,z,w], zlim=zrange, col=grey(0:64/64), 
+        xlab="", ylab="", axes=FALSE)
+  image(1:X, 1:Y, ifelse(abs(zstat1[,,z]) > 4, zstat1[,,z], NA),
+        zlim=range(zstat1), col=hotmetal(), add=TRUE)
+}
+dev.off()
+@ 
+produces a 3D array of parameter estimates (essentially coefficients
+from a linear regression performed at each voxel) that may be
+overlayed on the original data for anatomical reference
+(Figure~\ref{fig:zstat1}).
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics{ffd_zstat1.png}
+  \caption{Axial slices of the functional MRI data with 
+  with the statistical image overlayed.  The test statistics were
+  thresholded at $|Z|\geq{4}$.}
+  \label{fig:zstat1}
+\end{figure}
+
+\section{Motion Correction and Co-registration}
+
+Basic motion correction within an acquisition, and co-registration
+between acquired series, is available using template matching
+(\url{en.wikipedia.org/wiki/Template_matching}).  A reference volume
+must be pre-specified where a mask has been applied to remove all
+voxels that should not be included in the algorithm.  Note, only
+three-dimensional translations are allowed and no interpolation is
+used (i.e., only whole-voxel translations) at this time.
+
+\section{T1 Relaxation and Gadolinium Concentration}
+
+Estimation of the tissue T1 relaxation rate is the first step in
+converting signal intensity, obtained in the dynamic acquisition of
+the DCE-MRI protocol, to contrast agent concentration.  The subsequent
+steps provided here focus on pharmacokinetic modeling and assumes one
+has converted the dynamic acquisition to contrast agent concentration.
+Please see \cite{col-pad:ieee} for a discussion on this point.
+
+There are a miriad of techniques to quantify T1 using MRI.  Currently
+curve-fitting methods for two popular acquisition schemes are
+available
+\begin{itemize}
+\item Inversion recovery (\url{www.e-mri.org/mri-sequences/inversion-recovery-stir-flair.html})
+\item Multiple flip angles \citep{par-pad:DCE-MRI}
+\end{itemize}
+Once the tissue T1 relaxation rate has been estimated, the dynamic
+acquisition is then converted to contrast agent concentration.  Note,
+the B1 field is assumed to be constant (and accurate) when using
+multiple flip angles to estimate T1.  At higher fields strengths
+(e.g., 3T) the B1 field should be estimated in order to correct the
+prescribed flip angles.
+
+\subsection{B1 Mapping Via the Saturated Double-Angle Method}
+
+For in vivo MRI at high field ($\geq{3}$~T) it is essential to
+consider the homogeneity of the active B1 field (B1+).  The B1$+$
+field is the transverse, circularly polarized component of B1 that is
+rotating in the same sense as the magnetization.  When exciting or
+manipulating large collections of spins, nonuniformity in B1$+$
+results in nonuniform treatment of spins.  This leads to spatially
+varying image signal and image contrast and to difficulty in image
+interpretation and image-based quantification
+\citep{cun-pau-nay:saturated}.
+
+  \subsection{Arterial Input Function}
+
+Whereas quantitative PET studies routinely perform arterial
+cannulation (\url{en.wikipedia.org/wiki/Cannula}) on the subject in
+order to characterize the arterial input function (AIF), it has been
+common to use literature-based AIFs in the DCE-MRI literature.
+Examples include
+\begin{itemize}
+\item \cite{tof-ker:measurement}
+\item \cite{fri-etal:measurement}
+\end{itemize}
+
+There has been progress in measuring the AIF using the dynamic
+acquisition and fitting a parametric model to the observations.
+Recent models include
+\begin{itemize}
+\item \cite{par-etal:derived}
+\item \cite{ort-etal:efficient}
+\end{itemize}
+
+\pkg{dcemri} has incorporated all parametric models given above for
+the AIF, except \cite{par-etal:derived}, into the kinetic parameter
+estimation step.  While default values for each model are provided,
+there is also the ability to include user-specified parameters.
+
+\section{Kinetic Parameter Estimation}
+
+The standard Kety model, a single-compartment model, or the extended
+Kety model, the standard Kety model with an extra ``vascular'' term,
+form the collection of basic parametric models one can apply using
+\pkg{dcemri}.  Regardless of which parametric model is chosen for the
+biological system, the contrast agent concentration curve at each
+voxel in the region of interest (ROI) is approximated using the
+convolution of an arterial input function (AIF) and the
+standard/extended Kety model.
+
+Parameter estimation is achieved using one of two options in the
+current version of this software:
+\begin{itemize}
+\item Non-linear regression
+  (\url{en.wikipedia.org/wiki/Non-linear\_regression}) using
+   non-linear least squares
+  (\url{en.wikipedia.org/wiki/Non-linear\_least\_squares})
+\item Bayesian estimation (\url{en.wikipedia.org/wiki/Bayes\_theorem})
+  using Markov chain Monte Carlo (MCMC)
+  (\url{en.wikipedia.org/wiki/Markov\_chain\_Monte\_Carlo})
+\end{itemize}
+
+Least-square estimates of the kinetic parameters $\ktrans$ and $\kep$
+(also $\vp$ for the extended Kety model) are provided in
+\code{dce.nlreg} while the posterior median is provided in
+\code{dce.bayes}.  When using Bayesian estimation all samples from the
+joint posterior distribution are also provided, allowing one to
+interrogate the empirical probability density function (PDF) of the
+parameter estimates.
+
+\section{Statistical Inference}
+
+No specific support is provided for hypothesis testing in
+\pkg{dcemri}.  We recommend one uses builtin facilities in
+\proglang{R} to perform ANOVA (analysis of variance) or mixed-effects
+models based on statistical summaries of the kinetic parameters over
+the ROI per subject per visit.  An alternative to this traditional
+approach is to analyze an entire study using a Bayesian hierarchical
+model (\url{en.wikipedia.org/wiki/Hierarchical_Bayes_model}) in
+\pkg{PILFER} (\url{pilfer.sourceforge.net}).
+
+One may also question the rationale for hypothesis testing in only one
+kinetic parameter.  Preliminary work has been performed in looking at
+the joint response to treatment of both $\ktrans$ and $\kep$ in
+DCE-MRI by \cite{oco-etal:fPCA}.
+
+\bibliography{/home/bjw34032/Biblio/gsk}
+\bibliographystyle{chicago}
+
+\end{document}
+
