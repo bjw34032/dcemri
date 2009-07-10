@@ -1,10 +1,11 @@
 % Part of the dcemri package for R
 % Distributed under the BSD license: see dcemri/COPYING
-% Time-stamp: <2009-06-19 17:05:04 (bjw34032)>
+% Time-stamp: <2009-07-10 11:46:06 (bjw34032)>
 
 \name{Relaxivity}
 \alias{R10.lm}
 \alias{E10.lm}
+\alias{R1.fast}
 \alias{CA.fast}
 \alias{CA.fast2}
 \title{Estimate Intrinsic Tissue Relaxivity}
@@ -16,8 +17,9 @@
 \usage{
 R10.lm(signal, alpha, TR, guess, nprint=0)
 E10.lm(signal, alpha, guess, nprint=0)
-CA.fast(dynamic, dyn.mask, dangle, flip, fangles, TR, r1=4.39, verbose=FALSE)
-CA.fast2(dynamic, dyn.mask, dangle, flip, fangles, TR, r1=4.39, verbose=FALSE)
+R1.fast(flip, flip.mask, fangles, TR, r1=4, verbose=FALSE)
+CA.fast(dynamic, dyn.mask, dangle, flip, fangles, TR, r1=4, verbose=FALSE)
+CA.fast2(dynamic, dyn.mask, dangle, flip, fangles, TR, r1=4, verbose=FALSE)
 }
 \arguments{
   \item{signal}{is the vector of signal intensities as a function of
@@ -26,7 +28,7 @@ CA.fast2(dynamic, dyn.mask, dangle, flip, fangles, TR, r1=4.39, verbose=FALSE)
   \item{TR}{is the relaxation time (in seconds) used in the acquisition
     of the MRI data.}
   \item{guess}{is the vector of initial values for the parameters of
-    interest: \eqn{m_0} and \eqn{R_{10}}.}
+    interest: \eqn{m_0}{M0} and \eqn{R_{10}}{R10}.}
   \item{nprint}{is an integer, that enables controlled printing of
     iterates if it is positive.  In this case, estimates of \code{par}
     are printed at the beginning of the first iteration and every
@@ -36,8 +38,8 @@ CA.fast2(dynamic, dyn.mask, dangle, flip, fangles, TR, r1=4.39, verbose=FALSE)
   \item{dynamic}{a multidimensional array of contrast agent
     concentrations.  The last dimension is assumed to be temporal, while
     the previous dimenions are assued to be spatial.}
-  \item{dyn.mask}{is a (logical) multidimensional array that identifies
-    the voxels to be analyzed.}
+  \item{flip.mask,dyn.mask}{is a (logical) multidimensional array that
+    identifies the voxels to be analyzed.}
   \item{dangle}{is the flip angle used to acquire the dynamic MRI data.}
   \item{flip}{a multidimensional array of contrast agent
     concentrations.  The last dimension is assumed to be a function of
@@ -61,13 +63,14 @@ CA.fast2(dynamic, dyn.mask, dangle, flip, fangles, TR, r1=4.39, verbose=FALSE)
   require the function \code{\link[minpack.lm]{nls.lm}} that uses the
   Levenberg-Marquardt algorithm.
 
-  The \code{CA.fast} function rearranges the assumed multidimensional
-  (2D or 3D) structure of the multiple flip-angle data into a single
-  matrix to take advantage of internal R functions instead of loops, and
-  called \code{E10.lm}.  Conversion of the dynamic signal intensities to
-  contrast agent concentration is performed via
+  The \code{CA.fast} function calls on \code{R1.fast} to rearrange the
+  assumed multidimensional (2D or 3D) structure of the multiple
+  flip-angle data into a single matrix to take advantage of internal R
+  functions instead of loops when calling \code{E10.lm}.  Conversion of
+  the dynamic signal intensities to contrast agent concentration is
+  performed via 
   \deqn{[Gd] = \frac{1}{r_1}\left(\frac{1}{\textrm{T}_1} -
-    \frac{1}{\textrm{T}_{10}}\right).} 
+    \frac{1}{\textrm{T}_{10}}\right).}
 
   The \code{CA2.fast} function assumes only two flip angles have been
   acquired and uses an approximation to the nonlinear relationship
@@ -75,9 +78,20 @@ CA.fast2(dynamic, dyn.mask, dangle, flip, fangles, TR, r1=4.39, verbose=FALSE)
   signal intensity to contrast agent concentration.
 }
 \value{
-  A list structure is produced with estimates of \eqn{m_0}, \eqn{R_{10}}
+  A list structure is produced with (all or some of the) parameter
+  estimates
+  \item{M0}{}
+  \item{R10}{}
+  \item{R1t}{}
+  \item{conc}{}
   and information about the convergence of the nonlinear optimization
   routine.
+}
+\note{
+  The longitudinal relaxivity is set, by default, to
+  \eqn{r_1=4(mM\cdot{s})^{-1}}{r1=4/(mM s)} which is a reasonable
+  value for gadolinium contrast agents at 1.5 Tesla.  Double-check the 
+  scanning procedure manual to ensure the correct value is used.
 }
 \references{
   Buxton, R.B. (2002) \emph{Introduction to Functional Magnetic
@@ -94,12 +108,16 @@ CA.fast2(dynamic, dyn.mask, dangle, flip, fangles, TR, r1=4.39, verbose=FALSE)
   endothelial permeability, leakage space, and blood volume in brain
   tumors using combined T1 and T2* contrast-enhanced dynamic MR imaging,
   \emph{Journal of Magnetic Resonance Imaging}, \bold{11}, 575-585.
+
+  Parker, G.J.M. and Padhani, A.R. (2003) \eqn{T_1}{T1}-w DCE-MRI:
+  \eqn{T_1}{T1}-weighted Dynamic Contrast-enhanced MRI, in
+  \emph{Quantiative MRI of the Brain} (P. Tofts ed.), Wiley: Chichester,
+  UK, pp. 341-364.
 }
 \seealso{
   \code{\link{dcemri.lm}}, \code{\link[minpack.lm]{nls.lm}}
 }
 \examples{
-
 }
 \author{B. Whitcher}
 \keyword{misc}

@@ -66,31 +66,31 @@ E10.lm <- function(signal, alpha, guess, nprint=0) {
   list(E10=out$par[1], m0=out$par[2], info=out$info, message=out$message)
 }
 
-CA.fast <- function(dynamic, dyn.mask, dangle, flip, fangles, TR, r1=4.39,
-                    verbose=FALSE) {
+R1.fast <- function(flip, flip.mask, fangles, TR, r1=4, verbose=FALSE) {
 
   if (length(dim(flip)) != 4)  # Check flip is a 4D array
     stop("Flip-angle data must be a 4D array.")
-  if (!is.logical(dyn.mask))  # Check dyn.mask is logical
+  if (!is.logical(flip.mask))  # Check flip.mask is logical
     stop("Mask must be logical.")
-  
-  nangles <- length(fangles)
-  nvoxels <- sum(dyn.mask)
-  M <- nrow(flip)
-  N <- ncol(flip)
-  Z <- nsli(dynamic)
-  W <- ntim(dynamic)
+    
+  X <- nrow(flip) ; Y <- ncol(flip) ; Z <- nsli(flip)
+  nvoxels <- sum(flip.mask)
   
   if (verbose)
     cat("  Deconstructing data...", fill=TRUE)
-  dyn.mat <- matrix(dynamic[dyn.mask], nvoxels)
-  flip.mat <- matrix(flip[dyn.mask], nvoxels)
+  flip.mat <- matrix(flip[flip.mask], nrow=nvoxels)
   R10 <- M0 <- numeric(nvoxels)
+  if (is.array(fangles))
+    fangles.mat <- matrix(fangles[flip.mask], nrow=nvoxels)
+  else
+    fangles.mat <- matrix(fangles, nrow=nvoxels, ncol=length(fangles),
+                          byrow=TRUE)
 
   if (verbose)
     cat("  Calculating R10 and M0...", fill=TRUE)
   for(k in 1:nvoxels) {
-    fit <- E10.lm(flip.mat[k,], fangles, guess=c(1, mean(flip.mat[k,])))
+    fit <- E10.lm(flip.mat[k,], fangles.mat[k,],
+                  guess=c(1, mean(flip.mat[k,])))
     if(fit$info == 1 || fit$info == 2 || fit$info == 3) {
       R10[k] <- log(fit$E10) / -TR
       M0[k] <- fit$m0
@@ -100,29 +100,38 @@ CA.fast <- function(dynamic, dyn.mask, dangle, flip, fangles, TR, r1=4.39,
   }
 
   if (verbose)
-    cat("  Calculating concentration...", fill=TRUE)
-  theta <- dangle * pi/180
-  CD <- conc <- matrix(NA, nvoxels, W)
-  B <- (1 - exp(-TR * R10)) / (1 - cos(theta) * exp(-TR * R10))
-  A <- (dyn.mat - dyn.mat[,1]) / M0 / sin(theta)
-  R1t <- -(1/TR) * log((1 - (A+B)) / (1 - cos(theta) * (A+B)))
-  conc <- (R1t - R10) / r1
-  rm(A,B,CD)
-
-  if (verbose)
     cat("  Reconstructing results...", fill=TRUE)
-  R10.array <- M0.array <- array(NA, c(M,N,Z,1))
-  R10.array[dyn.mask] <- R10
-  M0.array[dyn.mask] <- M0
-  conc.array <- R1t.array <- array(NA, c(M,N,Z,W))
-  mask4D <- array(dyn.mask, c(M,N,Z,W))
-  conc.array[mask4D] <- unlist(conc)
-  R1t.array[mask4D] <- unlist(R1t)
+  R10.array <- M0.array <- array(NA, c(X,Y,Z,1))
+  R10.array[flip.mask] <- R10
+  M0.array[flip.mask] <- M0
   
-  list(M0 = M0.array, R10 = R10.array, R1t = R1t.array, conc = conc.array)
+  list(M0 = M0.array, R10 = R10.array)
 }
 
-CA.fast2 <- function(dynamic, dyn.mask, dangle, flip, fangles, TR, r1=4.39,
+CA.fast <- function(dynamic, dyn.mask, dangle, flip, fangles, TR,
+                     r1=4, verbose=FALSE) {
+
+  if (length(dim(flip)) != 4)  # Check flip is a 4D array
+    stop("Flip-angle data must be a 4D array.")
+  if (!is.logical(dyn.mask))  # Check dyn.mask is logical
+    stop("Mask must be logical.")
+  
+  R1est <- R1.fast(flip, dyn.mask, fangles, TR, r1, verbose)
+  
+  if (verbose)
+    cat("  Calculating concentration...", fill=TRUE)
+  theta <- dangle * pi/180
+  B <- (1 - exp(-TR * R1est$R10)) / (1 - cos(theta) * exp(-TR * R1est$R10))
+  A <- sweep(sweep(dynamic, 1:3, dynamic[,,,1], "-"),
+             1:3, R1est$M0, "/") / sin(theta)
+  R1t <- -(1/TR) * log((1 - sweep(A, 1:3, B, "+")) /
+                       (1 - cos(theta) * sweep(A, 1:3, B, "+")))
+  conc <- sweep(R1t, 1:3, R1est$R10, "-") / r1
+
+  list(M0 = R1est$M0, R10 = R1est$R10, R1t = R1t, conc = conc)
+}
+
+CA.fast2 <- function(dynamic, dyn.mask, dangle, flip, fangles, TR, r1=4,
                      verbose=FALSE) {
   
   if (length(dim(flip)) != 4)  # Check flip is a 4D array
