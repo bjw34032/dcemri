@@ -30,6 +30,8 @@
 ## OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ## 
 ##
+## Time-stamp: <2009-07-14 09:47:30 (bjw34032)>
+##
 
 read.hdr <- function(fname, verbose=FALSE, warn=-1) {
   ## Warnings?
@@ -1066,3 +1068,9 @@ read.nifti.img <- function(fname, onefile=TRUE, gzipped=TRUE,
 
   return(img.array)
 }
+
+##
+## $Author$
+## $Id$
+## $Revision$
+##

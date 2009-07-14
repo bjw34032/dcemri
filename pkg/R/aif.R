@@ -93,36 +93,36 @@ extract.aif <- function(img, x, y, z, thresh=0.9) {
     }
   }
 
-  check <- function(xx, yy, zz, aif.mask) {
+  check <- function(xx, yy, zz, aif.mask, thresh) {
     if (xx != 1 && aif.mask[xx-1,yy,zz] == 0)
       if (c.test[xx-1,yy,zz] > thresh) {
         aif.mask[xx-1,yy,zz] <- 1
-        aif.mask <- check(xx-1, yy, zz, aif.mask)
+        aif.mask <- check(xx-1, yy, zz, aif.mask, thresh)
       }
     if (xx != X && aif.mask[xx+1,yy,zz] == 0)
       if (c.test[xx+1,yy,zz] > thresh) {
         aif.mask[xx+1,yy,zz] <- 1
-        aif.mask <- check(xx+1, yy, zz, aif.mask)
+        aif.mask <- check(xx+1, yy, zz, aif.mask, thresh)
       }
     if (yy != 1 && aif.mask[xx,yy-1,zz] == 0)
       if (c.test[xx,yy-1,zz] > thresh) {
         aif.mask[xx,yy-1,zz] <- 1
-        aif.mask <- check(xx, yy-1, zz, aif.mask)
+        aif.mask <- check(xx, yy-1, zz, aif.mask, thresh)
       }
     if (yy != Y && aif.mask[xx,yy+1,zz] == 0)
       if (c.test[xx,yy+1,zz] > thresh) {
         aif.mask[xx,yy+1,zz] <- 1
-        aif.mask <- check(xx, yy+1, zz, aif.mask)
+        aif.mask <- check(xx, yy+1, zz, aif.mask, thresh)
       }
     if (zz != 1 && aif.mask[xx,yy,zz-1] == 0)
       if (c.test[xx,yy,zz-1] > thresh) {
         aif.mask[xx,yy,zz-1] <- 1
-        aif.mask <- check(xx, yy, zz-1, aif.mask)
+        aif.mask <- check(xx, yy, zz-1, aif.mask, thresh)
       }
     if (zz != Z && aif.mask[xx,yy,zz+1] == 0)
       if (c.test[xx,yy,zz+1] > thresh) {
         aif.mask[xx,yy,zz+1] <- 1
-        aif.mask <- check(xx, yy, zz+1, aif.mask)
+        aif.mask <- check(xx, yy, zz+1, aif.mask, thresh)
       }
     return(aif.mask)
   }
@@ -138,7 +138,7 @@ extract.aif <- function(img, x, y, z, thresh=0.9) {
   aif.mask <- array(0, c(X,Y,Z))
   aif.mask[x,y,z] <- 1
   
-  aif.mask <- check(x, y, z, aif.mask)
+  aif.mask <- check(x, y, z, aif.mask, thresh)
   n <- sum(aif.mask, na.rm=TRUE)
   test <- array(NA, c(n,W))
   coord <- array(NA, c(n,3))

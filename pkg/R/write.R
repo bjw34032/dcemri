@@ -30,6 +30,8 @@
 ## OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ## 
 ##
+## Time-stamp: <>
+##
 
 write.analyze.img <- function(fname, hdr, img, type, gzipped=TRUE, warn=-1) {
   ## Warnings?
@@ -282,8 +284,8 @@ write.nifti.img <- function(fname, hdr, img, type, gzipped=TRUE, warn=-1) {
   writeBin(hdr$slice.end, fid, endian=hdr$endian, size=2)
   writeBin(hdr$slice.code, fid, endian=hdr$endian, size=1)
   writeBin(hdr$xyzt.units, fid, endian=hdr$endian, size=1)
-  writeBin(as.integer(hdr$cal.max), fid, endian=hdr$endian, size=4)
-  writeBin(as.integer(hdr$cal.min), fid, endian=hdr$endian, size=4)
+  writeBin(hdr$cal.max, fid, endian=hdr$endian, size=4)
+  writeBin(hdr$cal.min, fid, endian=hdr$endian, size=4)
   writeBin(hdr$slice.duration, fid, endian=hdr$endian, size=4)
   writeBin(hdr$toffset, fid, endian=hdr$endian, size=4)
   writeBin(hdr$glmax, fid, endian=hdr$endian, size=4)
