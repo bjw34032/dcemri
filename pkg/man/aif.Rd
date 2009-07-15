@@ -1,6 +1,7 @@
 % Part of the dcemri package for R
 % Distributed under the BSD license: see dcemri/COPYING
-% Time-stamp: <2009-06-19 16:45:28 (bjw34032)>
+% Time-stamp: <2009-07-14 17:54:57 (bjw34032)>
+% $Id$
 
 \name{Arterial Input Functions}
 \alias{aif.orton.exp}
@@ -26,8 +27,8 @@ orton.exp.lm(tt, aif, guess=c(100, 10, 1, 0.1), nprint=0)
   \item{aparams}{is the vector of parameters (\eqn{A_B}, \eqn{\mu_B},
     \eqn{A_G}, \eqn{\mu_G}) associated with the AIF.}
   \item{kparams}{is the vector of parameters (\eqn{v_p},
-    \eqn{K^{trans}}, \eqn{k_{ep}}) associated with the "extended Kety
-    model" for contrast agent concentration.}
+    \eqn{K^{trans}}, \eqn{k_{ep}}) associated with the \dQuote{extended
+      Kety model} for contrast agent concentration.}
   \item{aif}{is the vector of observed contrast agent concentrations
     (data) used to estimate the parametric model.}
   \item{guess}{Initial parameter values for the nonlinear optimization.}

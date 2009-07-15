@@ -1,6 +1,7 @@
 % Part of the dcemri package for R
 % Distributed under the BSD license: see dcemri/COPYING
-% Time-stamp: <2009-06-19 16:50:03 (bjw34032)>
+% Time-stamp: <2009-07-14 18:11:40 (bjw34032)>
+% $Id$
 
 \name{dcemri}
 \alias{dcemri.lm}
@@ -25,7 +26,7 @@ dcemri.lm(conc, time, img.mask, model="extended", aif="tofts.kermode",
     the voxels to be analyzed.}
   \item{model}{is a character string that identifies the type of
     compartmental model to be used.  Acceptable models include:
-    "extended" (default), ...}
+    \dQuote{extended} (default), ...}
   \item{aif}{is a character string that identifies the type of arterial
     input function (AIF) to be used.  Acceptable AIF models include:
     \code{tofts.kermode}, \code{fritz.hansen}, \code{orton.exp},
@@ -63,7 +64,7 @@ dcemri.lm(conc, time, img.mask, model="extended", aif="tofts.kermode",
   \item{kep}{Rate parameter for transport from the EES to plasma.}
   \item{ve}{Fractional occupancy by EES (the ratio between ktrans and
     kep).}
-  \item{vp}{Fractional occupancy by bolld plasma.}
+  \item{vp}{Fractional occupancy by plasma.}
   \item{ktranserror}{Standard error for ktrans.}
   \item{keperror}{Standard error for kep.}
   \item{vperror}{Standard error for vp.}

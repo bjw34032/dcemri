@@ -1,6 +1,7 @@
 % Part of the dcemri package for R
 % Distributed under the BSD license: see dcemri/COPYING
-% Time-stamp: <2009-06-19 16:49:27 (bjw34032)>
+% Time-stamp: <2009-07-14 17:55:22 (bjw34032)>
+% $Id$
 
 \name{Buckley}
 \alias{buckley}
@@ -22,7 +23,7 @@ data("buckley")
 }
 \references{
   Buckley, D.L. (2002) Uncertainty in the Analysis of Tracer Kinetics
-  Using Dynamic Contrast-Enhanced \eqn{T_1}-weighted MRI, \emph{Magnetic
-    Resonance in Medicine} \bold{47}, 601-606.
+  Using Dynamic Contrast-Enhanced \eqn{T_1}{T1}-weighted MRI,
+  \emph{Magnetic Resonance in Medicine} \bold{47}, 601-606.
 }
 \keyword{datasets}

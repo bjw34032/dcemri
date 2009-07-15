@@ -1,13 +1,14 @@
 % Part of the dcemri package for R
 % Distributed under the BSD license: see dcemri/COPYING
-% Time-stamp: <2009-06-19 17:10:27 (bjw34032)>
+% Time-stamp: <2009-07-14 17:51:42 (bjw34032)>
+% $Id$
 
 \name{tim.colors}
 \alias{tim.colors}
 \title{Tim's Useful Color Table}
 \description{
   A pleasing rainbow style color table patterned after that used in 
-  Matlab by Tim.
+  Matlab.
 }
 \usage{
 tim.colors(n=64)
@@ -27,10 +28,14 @@ tim.colors(n=64)
   format.
 }
 \seealso{
-  \code{\link{topo.colors}}, \code{\link{terrain.colors}}
+  \code{\link{hotmetal}}, \code{\link{topo.colors}},
+  \code{\link{terrain.colors}}
+}
+\author{
+   Tim Hoar (GSP-NCAR); modified by B. Whitcher
 }
 \examples{
 tim.colors(10) 
-image(outer(1:20,1:20,"+"), col=tim.colors(75), main="tim.colors")
+image(outer(1:20, 1:20, "+"), col=tim.colors(75), main="tim.colors")
 }
 \keyword{aplot}

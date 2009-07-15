@@ -1,6 +1,7 @@
 % Part of the dcemri package for R
 % Distributed under the BSD license: see dcemri/COPYING
-% Time-stamp: <2009-06-19 16:49:51 (bjw34032)>
+% Time-stamp: <2009-07-14 18:10:38 (bjw34032)>
+% $Id$
 
 \name{dcemri.bayes}
 \alias{dcemri.bayes}
@@ -26,11 +27,12 @@ dcemri.bayes(conc, time, img.mask, model="extended",
     excluded.}
   \item{model}{}
   \item{aif}{Model for arterial input function. So far implemented:
-    0 or "tofts-kermode" double exponential model by Tofts,Kermode;
-    1 or "orton" exponential model by Orton \emph{et al}.}
+    0 or \dQuote{tofts-kermode} double exponential model by Tofts and
+    Kermode; 1 or \dQuote{orton} exponential model by Orton \emph{et
+      al}.}
   \item{user}{Vector of AIF parameters. 
-    For Tofts/Kermode: \eqn{a_1},\eqn{m_1},\eqn{a_2},\eqn{m_2}; for
-    Orton et al.: \eqn{A_b},\eqn{\mu_b},\eqn{A_g},\eqn{\mu_g}.}
+    For Tofts and Kermode: \eqn{a_1},\eqn{m_1},\eqn{a_2},\eqn{m_2}; for
+    Orton \emph{et al.}: \eqn{A_b},\eqn{\mu_b},\eqn{A_g},\eqn{\mu_g}.}
   \item{nriters}{Total number of iterations.}
   \item{thin}{Thining factor.}
   \item{burnin}{Number of iterations for burn-in.}
@@ -38,25 +40,34 @@ dcemri.bayes(conc, time, img.mask, model="extended",
     tuned to an acceptance rate of 0.3 to 0.6.}
   \item{tau.ktrans}{Variance parameter for prior on \eqn{\log(K^{trans})}.}
   \item{tau.kep}{Variance parameter for prior on \eqn{\log(k_{ep})}.}
-%  \item{tau.gamma}{}
-%  \item{tau.theta}{}
-  \item{ab.vp}{Hyper prior parameters for \eqn{v_p} Beta prior.}
-  \item{ab.tauepsilon}{Hyper prior parameters for observation error
-    Gamma Prior.} 
-%  \item{vp}{}
-%  \item{approx}{}
-%  \item{vp.do}{If TRUE, model includes vascular term.}
-  \item{samples}{If TRUE, output includes samples.}
+  \item{ab.vp}{Hyper-prior parameters for \eqn{v_p}{vp} Beta prior.}
+  \item{ab.tauepsilon}{Hyper-prior parameters for observation error
+    Gamma prior.} 
+  \item{samples}{If \code{TRUE}, then the output includes samples drawn
+    from the posterior distribution for all parameters.}
   \item{...}{}
 }
 \details{
-  
+  See Schmid \emph{et al.} (2006) for details.
 }
 \value{
-  
+  Parameter estimates and their standard errors are provided for the
+  masked region of the multidimensional array.  They include
+  \item{ktrans}{Transfer rate from plasma to the extracellular,
+    extravascular space (EES).}
+  \item{ktranserror}{Error on \eqn{K^{trans}}{ktrans}.}
+  \item{kep}{Rate parameter for transport from the EES to plasma.}
+  \item{keperror}{Error on \eqn{k_{ep}}{kep}.}
+  \item{ve}{Fractional occupancy by EES (the ratio between ktrans and
+    kep).}
+  \item{vperror}{Error on \eqn{v_e}{ve}.}
+  \item{vp}{Fractional occupancy by plasma.}
+  \item{sigma2}{The residual sum-of-squares from the model fit.}
+  \item{time}{Acquisition times (for plotting purposes).}
+  Note, not all parameters are available under all models choices.
 }
 \references{
-  Schmid, V., Whitcher, B., Padhani, A.R., Taylor, N.J.  and G.-Z. Yang
+  Schmid, V., Whitcher, B., Padhani, A.R., Taylor, N.J. and Yang, G.-Z. 
   (2006) Bayesian methods for pharmacokinetic models in dynamic
   contrast-enhanced magnetic resonance imaging, \emph{IEEE Transactions
     on Medical Imaging}, \bold{25} (12), 1627-1636.

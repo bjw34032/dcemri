@@ -1,6 +1,7 @@
 % Part of the dcemri package for R
 % Distributed under the BSD license: see dcemri/COPYING
-% Time-stamp: <2009-06-19 17:10:41 (bjw34032)>
+% Time-stamp: <2009-07-14 17:53:16 (bjw34032)>
+% $Id$
 
 \name{Write Output as Analyze/NIfTI}
 \alias{write.analyze.img}
@@ -21,8 +22,8 @@ write.nifti.img(fname, hdr, img, type, gzipped=TRUE, warn=-1)
   \item{hdr}{is the appropriate header object information.}   
   \item{img}{is the multidimensional array of image data.}
   \item{type}{is a character string describing the image format.  Valid
-    character strings include: "uint1", "uint8", "int16", "int32",
-    "float32", "float64".}
+    character strings include:\dQuote{uint1}, \dQuote{uint8},
+    \dQuote{int16}, \dQuote{int32}, \dQuote{float32}, \dQuote{float64}.}
   \item{gzipped}{is a character string that enables exportation of
     compressed (.gz) files (default = \code{TRUE}).}
   \item{warn}{is a number to regulate the display of warnings (default =
@@ -34,12 +35,12 @@ write.nifti.img(fname, hdr, img, type, gzipped=TRUE, warn=-1)
 
   Current acceptable data types include
   \itemize{
-    \item{"uint1"}{DT BINARY (1 bit per voxel)}
-    \item{"uint8"}{DT UNSIGNED CHAR (8 bits per voxel)}
-    \item{"int16"}{DT SIGNED SHORT (16 bits per voxel)}
-    \item{"int32"}{DT SINGED INT (32 bits per voxel)}
-    \item{"float"}{DT FLOAT (32 bits per voxel)}
-    \item{"double"}{DT DOUBLE (64 bits per voxel)}
+    \item{\dQuote{uint1}}{DT BINARY (1 bit per voxel)}
+    \item{\dQuote{uint8}}{DT UNSIGNED CHAR (8 bits per voxel)}
+    \item{\dQuote{int16}}{DT SIGNED SHORT (16 bits per voxel)}
+    \item{\dQuote{int32}}{DT SINGED INT (32 bits per voxel)}
+    \item{\dQuote{float}}{DT FLOAT (32 bits per voxel)}
+    \item{\dQuote{double}}{DT DOUBLE (64 bits per voxel)}
     }
 }
 \value{

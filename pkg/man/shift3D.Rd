@@ -1,6 +1,7 @@
 % Part of the dcemri package for R
 % Distributed under the BSD license: see dcemri/COPYING
-% Time-stamp: <2009-07-04 12:47:56 (bjw34032)>
+% Time-stamp: <2009-07-14 17:49:45 (bjw34032)>
+% $Id$
 
 \name{shift3D}
 \alias{shift3D}
@@ -17,15 +18,13 @@ shift3D(A, s, type, fill=0)
   \item{A}{is a three-dimensional array.}
   \item{s}{is the integer number of translation steps.}
   \item{type}{is a character string using anatomical coordinates
-    assuming a transverse acquisition scheme ("LR" = left-right =
-    x-axis, "AP" = anterior-posterior = y-axis, "SI" = superior-inferior
-    = z-axis).}
+    assuming a transverse acquisition scheme (\dQuote{LR} = left-right =
+    x-axis, \dQuote{AP} = anterior-posterior = y-axis, \dQuote{SI} =
+    superior-inferior = z-axis).}
   \item{fill}{is the quantity used to fill gaps induced by the
     translations (circular boundary conditions are NOT used).}
 }
-\details{
-  ~~ If necessary, more details than the description above ~~
-}
+%\details{}
 \value{
   A three-dimensional array is returned, the same dimension as the
   original array, with one dimension translated.

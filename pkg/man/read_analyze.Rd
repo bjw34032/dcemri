@@ -1,6 +1,7 @@
 % Part of the dcemri package for R
 % Distributed under the BSD license: see dcemri/COPYING
-% Time-stamp: <2009-06-19 17:06:01 (bjw34032)>
+% Time-stamp: <2009-07-14 17:46:55 (bjw34032)>
+% $Id$
 
 \name{Read Analyze}
 \alias{read.analyze.hdr}

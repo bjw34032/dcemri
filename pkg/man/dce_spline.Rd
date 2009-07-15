@@ -1,6 +1,7 @@
 % Part of the dcemri package for R
 % Distributed under the BSD license: see dcemri/COPYING
-% Time-stamp: <2009-06-19 16:50:13 (bjw34032)>
+% Time-stamp: <2009-07-15 09:44:00 (bjw34032)>
+% $Id$
 
 \name{dce.spline}
 \alias{dce.spline}
@@ -55,7 +56,7 @@ perfSpline(data, time, aif, time.input, searchint=.25, do.plot=TRUE)
   \item{do.plot}{}
 }
 \details{
-  
+  See Schmid \emph{et al.} for more details.
 }
 \value{
   
@@ -69,8 +70,6 @@ perfSpline(data, time, aif, time.input, searchint=.25, do.plot=TRUE)
 \seealso{
   \code{\link{dcemri.lm}}, \code{\link{dcemri.bayes}}
 }
-\examples{
-
-}
+% \examples{}
 \author{Volker Schmid}
 \keyword{models}

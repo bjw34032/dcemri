@@ -1,6 +1,7 @@
 % Part of the dcemri package for R
 % Distributed under the BSD license: see dcemri/COPYING
-% Time-stamp: <2009-07-04 12:39:20 (bjw34032)>
+% Time-stamp: <2009-07-14 17:59:01 (bjw34032)>
+% $Id$
 
 \name{conv.fft}
 \alias{conv.fft}
@@ -17,7 +18,7 @@ conv.fft(A, B, C, FFTA=NULL)
   \item{B}{is a three-dimensional array ("the target").}
   \item{C}{is a three dimensional array.}
   \item{FFTA}{is the three-dimensional Fourier transform of \code{A},
-    this may save time when looping over multiple "targets".}
+    this may save time when looping over multiple \dQuote{targets}.}
 }
 \details{
   The arrays \eqn{A} and \eqn{B} are transformed into the Fourier domain
@@ -26,10 +27,13 @@ conv.fft(A, B, C, FFTA=NULL)
 }
 \value{
   A three-dimensional array, the same dimension as the input arrays,
-  that is the convolution of the "target" to the "template" at all
-  spatial locations.
+  that is the convolution of the \dQuote{target} to the
+  \dQuote{template} at all spatial locations.
 }
-%\references{}
+\references{
+  Briggs, W.L. and Henson, V.E. (1995) \emph{The DFT: An Owner's Manual
+    for the Discrete Fourier Transform}, SIAM: Philadelphia.
+}
 \author{Brandon Whitcher}
 \seealso{
   \code{\link{fft}}, \code{\link{ftm}}, \code{\link{shift3D}}

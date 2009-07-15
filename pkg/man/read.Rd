@@ -1,6 +1,7 @@
 % Part of the dcemri package for R
 % Distributed under the BSD license: see dcemri/COPYING
-% Time-stamp: <2009-06-19 17:06:53 (bjw34032)>
+% Time-stamp: <2009-07-14 17:48:49 (bjw34032)>
+% $Id$
 
 \name{Read Headers and Images}
 \alias{read.hdr}
@@ -26,8 +27,9 @@ make.hdr(X, Y, Z, T, datatype, type)
   \item{X,Y,Z,T}{are the dimenisions (three spatial and one temporal)
     for the header file.}
   \item{datatype}{is a character string describing the image format.
-    Valid character strings include: "uint1", "uint8", "int16", "int32",
-    "float32", "float64".}
+    Valid character strings include: \dQuote{uint1}, \dQuote{uint8},
+      \dQuote{int16}, \dQuote{int32}, \dQuote{float32},
+      \dQuote{float64}.}
   \item{type}{is a character string declaring either the Analyze or
     NIfTI format (default = \code{"analyze"}).}
 }
@@ -35,9 +37,9 @@ make.hdr(X, Y, Z, T, datatype, type)
   The function \code{read.hdr} decides whether the input file should be
   read using \code{read.analyze.hdr} or \code{read.nifti.hdr} and if
   compression is required.  A similar description is valid for
-  the \code{read.img} function. They are essentially "wrapper" functions
-  for calls to the functions that are specific to the Analyze or NIfTI
-  formats.
+  the \code{read.img} function.  They are essentially \dQuote{wrapper}
+  functions for calls to the functions that are specific to the Analyze
+  or NIfTI formats.
 
   The \code{make.hdr} function provides an empty header, in Analyze or
   NIfTI format, to use for data exportation.  Note, it is probably

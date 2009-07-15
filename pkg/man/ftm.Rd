@@ -1,6 +1,7 @@
 % Part of the dcemri package for R
 % Distributed under the BSD license: see dcemri/COPYING
-% Time-stamp: <2009-06-19 17:05:13 (bjw34032)>
+% Time-stamp: <2009-07-14 17:34:11 (bjw34032)>
+% $Id$
 
 \name{ftm}
 \alias{ftm}
@@ -29,9 +30,9 @@ ftm(input, mask, template, plot=FALSE, ...)
 }
 \details{
   An extremely basic method of motion correction/co-registration is
-  implemented by estimating "local" cross-correlations based on a binary
-  mask that is a subset of the original three-dimensional volume.  All
-  convolutions are preformed via the FFT (\code{\link{fft}}) and
+  implemented by estimating \dQuote{local} cross-correlations based on a
+  binary mask that is a subset of the original three-dimensional volume.
+  All convolutions are preformed via the FFT (\code{\link{fft}}) and
   repetitive calculations are minimized where possible.
 
   Only whole-voxel translations are considered.  This does not begin to

@@ -30,6 +30,9 @@
 ## OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ## 
 ##
+## Time-stamp: <2009-07-14 09:47:30 (bjw34032)>
+## $Id$
+##
 
 aif.orton.exp <- function(tt, AB, muB, AG, muG) {
   out <- AB * tt * exp(-muB * tt) + AG * (exp(-muG * tt) - exp(-muB * tt))

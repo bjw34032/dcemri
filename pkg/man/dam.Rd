@@ -1,6 +1,7 @@
 % Part of the dcemri package for R
 % Distributed under the BSD license: see dcemri/COPYING
-% Time-stamp: <2009-07-03 15:35:52 (bjw34032)>
+% Time-stamp: <2009-07-14 18:00:32 (bjw34032)>
+% $Id$
 
 \name{dam}
 \alias{dam}

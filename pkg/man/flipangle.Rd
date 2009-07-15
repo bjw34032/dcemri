@@ -1,6 +1,7 @@
 % Part of the dcemri package for R
 % Distributed under the BSD license: see dcemri/COPYING
-% Time-stamp: <2009-07-10 11:46:06 (bjw34032)>
+% Time-stamp: <2009-07-14 17:31:57 (bjw34032)>
+% $Id$
 
 \name{Relaxivity}
 \alias{R10.lm}
@@ -55,7 +56,7 @@ CA.fast2(dynamic, dyn.mask, dangle, flip, fangles, TR, r1=4, verbose=FALSE)
   The \code{E10.lm} and \code{R10.lm} functions estimate parameters for
   a vector of observed MR signal intensities, as a function of flip
   angle, using the following relationship
-  \deqn{S(\alpha) = \frac{\sin(\alpha) \left(1 -
+  \deqn{S(\alpha) = m_0 \frac{\sin(\alpha) \left(1 -
       \exp{-\textrm{TR}/\textrm{T}_1}\right)}{\left(1 - \cos(\alpha)
       \exp{-\textrm{TR}/\textrm{T}_1}\right)}.}
   The only difference between the two functions is exactly what is being
@@ -80,10 +81,12 @@ CA.fast2(dynamic, dyn.mask, dangle, flip, fangles, TR, r1=4, verbose=FALSE)
 \value{
   A list structure is produced with (all or some of the) parameter
   estimates
-  \item{M0}{}
-  \item{R10}{}
-  \item{R1t}{}
-  \item{conc}{}
+  \item{M0}{Scaling factor between signal intensity and T1.}
+  \item{R10}{Pre-injection tissue relaxation rate (3D array);
+    \eqn{R1_{0}=1/T1_{0}}{R10=1/T10}.}
+  \item{R1t}{Time-varying tissue relaxation rate (4D array);
+    \eqn{R1(t)=1/T1(t)}{R1(t)=1/T1(t)}.}
+  \item{conc}{Contrast agent concentration (4D array).}
   and information about the convergence of the nonlinear optimization
   routine.
 }
