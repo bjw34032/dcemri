@@ -344,9 +344,9 @@ void dce_spline_run(int* NRI, int* thin, int* dims, double* data,
  
   for (i=0; i<*NRI; i++)
     {
-      if (fmod(i,50)==0){
-	Rprintf("Iteration %i\n",i+1);
-      }
+/*       if (fmod(i,50)==0){ */
+/* 	Rprintf("Iteration %i\n",i+1); */
+/*       } */
       for (j=0; j<*thin; j++)
 	{
 	  for (x=0; x<dims[0]; x++)

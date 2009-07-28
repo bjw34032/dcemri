@@ -16,7 +16,7 @@ dcemri.bayes(conc, time, img.mask, model="extended",
                       aif="tofts.kermode", user=NULL, 
 	              nriters=9500, thin=30, burnin=2000, tune=267, 
 	              tau.ktrans=1, tau.kep=tau.ktrans, ab.vp=c(1,19),
-	              ab.tauepsilon=c(1,1/1000), samples=TRUE,
+	              ab.tauepsilon=c(1,1/1000), samples=FALSE,
 	              ...)
 }
 \arguments{
@@ -43,9 +43,9 @@ dcemri.bayes(conc, time, img.mask, model="extended",
   \item{ab.vp}{Hyper-prior parameters for \eqn{v_p}{vp} Beta prior.}
   \item{ab.tauepsilon}{Hyper-prior parameters for observation error
     Gamma prior.} 
-  \item{samples}{If \code{TRUE}, then the output includes samples drawn
+  \item{samples}{If \code{TRUE} output includes samples drawn
     from the posterior distribution for all parameters.}
-  \item{...}{}
+  \item{multicore}{If \code{TRUE} algorithm is parallelised using multicore (requires multicore package and R > 2.9.0).}
 }
 \details{
   See Schmid \emph{et al.} (2006) for details.
@@ -81,17 +81,21 @@ img <- t(breast$data)[,(1:60)*5]
 time <- seq(5,300,5) / 60
 mask <- rep(TRUE, 13)
 
-fit <- dcemri.bayes(img, time, mask, aif="fritz.hansen")
+system.time(fit <- dcemri.bayes(img, time, mask, aif="fritz.hansen"))
 plot(breast$ktrans, fit$ktrans, xlim=c(0,0.5), ylim=c(0,0.5),
      xlab="True Ktrans", ylab="Estimated Ktrans (Bayes)")
 lines(c(-0.1,0.6), c(-0.1,0.6), lty=3, col="grey")
 
-fit.lm <- dcemri.lm(img, time, mask, aif="fritz.hansen")
+system.time(fit.lm <- dcemri.lm(img, time, mask, aif="fritz.hansen"))
 plot(breast$ktrans, fit$ktrans, xlim=c(0,0.75), ylim=c(0,0.75),
      xlab="True Ktrans", ylab="Estimated Ktrans")
 points(breast$ktrans, fit.lm$ktrans, pch=2)
 legend(0.6, 0.2, pch=c(2,1), legend=c("LM","Bayes"))
 lines(c(-0.1,0.8), c(-0.1,0.8), lty=3, col="grey")
+
+system.time(fit <- dcemri.bayes(img, time, mask, aif="fritz.hansen", samples=TRUE, multicore=TRUE))
+system.time(fit <- dcemri.spline(img, time, mask, aif="fritz.hansen", samples=TRUE, multicore=FALSE))
+system.time(fit <- dcemri.spline(img, time, mask, aif="fritz.hansen", samples=TRUE, multicore=TRUE))
 }
 \author{Volker Schmid}
 \keyword{models}

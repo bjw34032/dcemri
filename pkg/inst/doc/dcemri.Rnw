@@ -529,7 +529,7 @@ kinetic parameter.  Preliminary work has been performed in looking at
 the joint response to treatment of both $\ktrans$ and $\kep$ in
 DCE-MRI by \cite{oco-etal:fPCA}.
 
-\bibliography{/home/bjw34032/Biblio/gsk}
+\bibliography{gsk}
 \bibliographystyle{chicago}
 
 \end{document}

@@ -257,7 +257,6 @@ void dce_bayes_run_single(int* NRI,
   if (settings[0]==1)
     vp=ab_vp[0]/ab_vp[1];
   double tau_epsilon=ab_epsilon[0]/ab_epsilon[1];
-  char test;
   int sample=-1;
   double sigmagamma=1;
   double sigmatheta=1;
@@ -269,8 +268,7 @@ void dce_bayes_run_single(int* NRI,
   while (iter<NRI[0])
     { 
       iter++;
-      //Rprintf("%i \t",iter);
-    temp=update_gamma2(log(ktrans), kep, vp,  tau_gamma[0], tau_epsilon, conc, time, sigmagamma, T[0], aif_settings);
+      temp=update_gamma2(log(ktrans), kep, vp,  tau_gamma[0], tau_epsilon, conc, time, sigmagamma, T[0], aif_settings);
      
     if (temp!=log(ktrans))
 	{
@@ -301,13 +299,7 @@ void dce_bayes_run_single(int* NRI,
 
       if (iter==NRI[3])
 	{
-	  /*      Rprintf("%f ",sigmagamma);
-      Rprintf("%i \t",acc_gamma);
-      Rprintf("%f ",sigmatheta);
-      Rprintf("%i \t",acc_theta);
-      Rprintf("%f ",sigmaeta);
-      Rprintf("%i \n",acc_eta);
-	  */ 
+
 	  tu=0;
 	     temp=tune(sigmagamma,acc_gamma,NRI[3]);
 	     if (sigmagamma!=temp)
@@ -350,8 +342,6 @@ void dce_bayes_run_single(int* NRI,
 	 vp_trace[sample]=vp;
 	 tau_epsilon_trace[sample]=tau_epsilon;
 	 sample++;
-	 //Rprintf("%i \t",iter);
-	 //Rprintf("%i \t",sample);
        }
 
 
@@ -361,184 +351,3 @@ void dce_bayes_run_single(int* NRI,
   PutRNGstate();
 
 }
-
-int indx(int x,int y,int z,int t,int* dims,int T)
-{
-
-  int ix=x*dims[1]*dims[2]*T+y*dims[2]*T+z*T+t;
-return(ix);
-}
-
-
-void dce_bayes_run(int* NRI, 
-		   double* conc_matrix, double* conc,
-	 double* tau_gamma, double* tau_theta,
-	 double* ab_vp,
-	 double* ab_epsilon, 
-		   double* aif_settings, int* settings, double* time, int* dims, int* T,
-	 double *ktrans_trace, double* kep_trace, double* vp_trace, double* tau_epsilon_trace)
-	 
-{
-
-  GetRNGstate();
-  int iter,tu;
-  double temp;
-  double ktrans=.5;
-  double kep=1;
-  double vp=0.0;
-  if (settings[0]==1)
-    vp=ab_vp[0]/ab_vp[1];
-  double tau_epsilon=ab_epsilon[0]/ab_epsilon[1];
-  char test;
-  int sample=0;
-  double sigmagamma=1;
-  double sigmatheta=1;
-  double sigmaeta=1;
-  int acc_gamma=0;
-  int acc_theta=0;
-  int acc_eta=0;
-  int x,y,z,t;
-  int N=dims[0]*dims[1]*dims[2];
-  //int samplesize=floor((NRI[0]-NRI[2])/NRI[1]);
-
-  for (x=0; x<dims[0]; x++)
-    {
-      for (y=0; y<dims[1]; y++)
-	{
-	  for (z=0; z<dims[2]; z++)
-	    {
-	      temp=0.0;
-	      for (t=0; t<T[0]; t++)
-		{
-		  tu=indx(x,y,z,t,dims,T[0]);
-		  
-		  conc[t]=conc_matrix[indx(x,y,z,t,dims,T[0])];
-		  temp+=conc[t];
-		}
-	      if (temp!=0)
-		{
-		 ktrans=.5;
-		 kep=1;
-		 vp=0.0;
-		  if (settings[0]==1)
-		    vp=ab_vp[0]/ab_vp[1];
-		 tau_epsilon=ab_epsilon[0]/ab_epsilon[1];
-		 sample=0;
-		 sigmagamma=1;
-		 sigmatheta=1;
-		 sigmaeta=1;
-		 acc_gamma=0;
-		 acc_theta=0;
-		 acc_eta=0;
-		  
-	      iter=0;
-	      while (iter<NRI[0])
-		{ 
-		  iter++;
-		  //Rprintf("%i\n",iter);
-		 
-		  temp=update_gamma2(log(ktrans), kep, vp, tau_gamma[0], tau_epsilon, conc, time, sigmagamma, T[0], aif_settings);
-		  
-		  if (temp!=log(ktrans))
-		    {
-		      acc_gamma++;
-		      ktrans=exp(temp);
-		    }
-      
-		  temp=update_theta2(log(kep), ktrans, vp, conc, time, tau_epsilon, tau_theta[0], sigmatheta, T[0], aif_settings);
-		  if (temp!=log(kep))
-		    {
-		      acc_theta++;
-		      kep=exp(temp);
-		    }
-		  
-		  
-		  if (settings[0]==1)
-		    {
-		      temp=update_eta3(vp, kep, ktrans, ab_vp[0], ab_vp[1], tau_epsilon, conc, time, sigmaeta, T[0], aif_settings);
-		      if (temp!=vp)
-			{
-			  acc_eta++;
-			  vp=temp;
-			}
-		    }
-		  
-		  tau_epsilon=update_tau_epsilon1(tau_epsilon, ab_epsilon[0], ab_epsilon[1], conc, vp,ktrans,kep,time,T[0], aif_settings);
-		  
-		  
-		  if (iter==NRI[3])
-		    {
-		      /*      Rprintf("%f ",sigmagamma);
-			      Rprintf("%i \t",acc_gamma);
-			      Rprintf("%f ",sigmatheta);
-			      Rprintf("%i \t",acc_theta);
-			      Rprintf("%f ",sigmaeta);
-			      Rprintf("%i \n",acc_eta);
-		      */ 
-		      tu=0;
-		      temp=tune(sigmagamma,acc_gamma,NRI[3]);
-		      if (sigmagamma!=temp)
-			{
-			  sigmagamma=temp;
-			  tu=1;
-			}
-		      temp=tune(sigmatheta,acc_theta,NRI[3]);
-		      if (sigmatheta!=temp)
-			{
-			  sigmatheta=temp;
-			  tu=1;
-			}
-		      if(settings[0]==1)
-			{
-			  temp=tune(sigmaeta,acc_eta,NRI[3]);
-			  if (sigmaeta!=temp)
-			    {
-			      sigmaeta=temp;
-			      tu=1;
-			    }
-			}
-		      if (tu!=0)
-			{
-			  iter=0;
-			  acc_gamma=0;
-			  acc_theta=0;
-			  acc_eta=0;
-			}
-		    }
-		  
-		  
-		  if (iter>NRI[2] && fmod(iter,NRI[1])==0)
-		    {
-		      tu = sample*N+indx(x,y,z,0,dims,1);
-		      ktrans_trace[sample*N+indx(x,y,z,0,dims,1)]=ktrans;
-		      kep_trace[sample*N+indx(x,y,z,0,dims,1)]=kep;
-		      vp_trace[sample*N+indx(x,y,z,0,dims,1)]=vp;
-		      tau_epsilon_trace[sample*N+indx(x,y,z,0,dims,1)]=tau_epsilon;
-		      sample++;
-			
-		    }
-		}
-		}
-	      else
-		{
-		  for (iter=0; iter<((NRI[0]-NRI[2])/NRI[1]); iter++)
-		    {
-		      if (iter>NRI[2] && fmod(iter,NRI[1])==0)
-			{
-			  ktrans_trace[sample*N+indx(x,y,z,0,dims,1)]=-1;
-			  kep_trace[sample*N+indx(x,y,z,0,dims,1)]=-1;
-			  vp_trace[sample*N+indx(x,y,z,0,dims,1)]=-1;
-			  tau_epsilon_trace[sample*N+indx(x,y,z,0,dims,1)]=-1;
-			  sample++;
-			}
-		    }
-		}
-	    }
-	}
-    }
-
-  PutRNGstate();
-
-}
-
-	

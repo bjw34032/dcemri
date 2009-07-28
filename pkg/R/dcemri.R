@@ -247,7 +247,7 @@ dcemri.bayes <- function(conc, time, img.mask, model="extended",
                       aif="tofts.kermode", user=NULL, 
 	              nriters=9500, thin=30, burnin=2000, tune=267, 
 	              tau.ktrans=1, tau.kep=tau.ktrans, ab.vp=c(1,19),
-	              ab.tauepsilon=c(1,1/1000), samples=TRUE,
+	              ab.tauepsilon=c(1,1/1000), samples=FALSE, multicore=FALSE,
 	              ...) {
 
   ## dcemri.bayes - a function for fitting 1-compartment PK models to
@@ -261,15 +261,13 @@ dcemri.bayes <- function(conc, time, img.mask, model="extended",
   ##        img.mask: array of voxels to fit,
   ##        D(=0.1): Gd dose in mmol/kg,
   ##        model: AIF... "weinman" or "parker",
-  ##        update: re-do given parameter maps where parameters not fitted,
-  ##        ktransmap, kepmap, ktranserror, keperror: given parameter maps.
   ##
   ## output: list with ktrans, kep, ve, std.error of ktrans and kep
-  ##         (ktranserror and keperror)
+  ##         (ktranserror and keperror), samples if samples=TRUE
   ##
 
 
-dce.bayes.single<-function(conc,time,nriters=9500,thin=30,burnin=2000,tune=267,tau.gamma=1,tau.theta=1,ab.vp=c(1,19),ab.tauepsilon=c(1,1/1000),
+dce.bayes.single<-function(conc,time,nriters=7000,thin=10,burnin=2000,tune=267,tau.gamma=1,tau.theta=1,ab.vp=c(1,19),ab.tauepsilon=c(1,1/1000),
 aif.model=0,aif.parameter=c(2.4,0.62,3,0.016),vp=1)
   {
   if (sum(is.na(conc))>0)return(NA)
@@ -279,12 +277,12 @@ aif.model=0,aif.parameter=c(2.4,0.62,3,0.016),vp=1)
  n<-floor((nriters-burnin)/thin)
 if (tune>(0.5*nriters))tune=floor(nriters/2);
 
-  test<-.C("dce_bayes_run_single",as.integer(c(nriters,thin,burnin,tune)),as.double(conc),
+  singlerun<-.C("dce_bayes_run_single",as.integer(c(nriters,thin,burnin,tune)),as.double(conc),
     as.double(tau.gamma),as.double(tau.theta),as.double(ab.vp),as.double(ab.tauepsilon),
     as.double(c(aif.model,aif.parameter)),as.integer(vp),as.double(time),as.integer(length(time)),
     as.double(rep(0,n)),as.double(rep(0,n)),as.double(rep(0,n)),as.double(rep(0,n),as.integer(0)), PACKAGE="dcemri")
     
-    return(list("ktrans"=test[[11]],"kep"=test[[12]],"vp"=test[[13]],"sigma2"=1/test[[14]]))
+    return(list("ktrans"=singlerun[[11]],"kep"=singlerun[[12]],"vp"=singlerun[[13]],"sigma2"=1/singlerun[[14]]))
     }
 }
 
@@ -340,24 +338,56 @@ if (tune>(0.5*nriters))tune=floor(nriters/2);
   if (mod %in% c("extended","weinmann")){aif.parameter=c(D*a1,D*a2,m1,m2)}
 	else{ aif.parameter=c(D*aB,D*aG,muB,muG)}
 
+  if (samples)
+	{
+	sigma2.samples <- ktrans.samples <- kep.samples <- c()
+        if(mod %in% c("extended","orton.exp","orton.cos")) {
+	     Vp.samples <- c()
+             }
+	}
+
   cat("  Estimating the kinetic parameters...", fill=TRUE)
-  for(k in 1:nvoxels) {
-    fit <- dce.bayes.single(conc.mat[k,],time,nriters,thin,burnin,tune,tau.ktrans,tau.kep,ab.vp,ab.tauepsilon,
-		aif.model,aif.parameter,vp.do)
-      ktrans$par[k] <- median(fit$ktrans)
-      kep$par[k] <- median(fit$kep)
-      ktrans$error[k] <- sqrt(var(fit$ktrans))
-      kep$error[k] <- sqrt(var(fit$kep))
-      if(mod %in% c("extended","orton.exp","orton.cos")) {
-        Vp$par[k] <- median(fit$vp)
-        Vp$error[k] <- sqrt(var(fit$vp))
-       }
-     sigma2[k] <- median(fit$sigma2)
+
+
+   conc.list<-list()
+   for (i in 1:nvoxels)
+    conc.list[[i]]=conc.mat[i,]
+
+  if (!multicore)
+  {
+   fit <- lapply(conc.list,dce.bayes.single,time,nriters,thin,burnin,tune,tau.ktrans,
+   tau.kep,ab.vp,ab.tauepsilon,aif.model,aif.parameter,vp.do) 
   }
-    
-  
+  else
+  {
+   require(multicore)
+   fit <- mclapply(conc.list,dce.bayes.single,time,nriters,thin,burnin,tune,tau.ktrans,
+   tau.kep,ab.vp,ab.tauepsilon,aif.model,aif.parameter,vp.do) 
+  }
 
   cat("  Reconstructing results...", fill=TRUE)
+
+   for(k in 1:nvoxels) {
+      ktrans$par[k] <- median(fit[[k]]$ktrans)
+      kep$par[k] <- median(fit[[k]]$kep)
+      ktrans$error[k] <- sqrt(var(fit[[k]]$ktrans))
+      kep$error[k] <- sqrt(var(fit[[k]]$kep))
+      if(mod %in% c("extended","orton.exp","orton.cos")) {
+        Vp$par[k] <- median(fit[[k]]$vp)
+        Vp$error[k] <- sqrt(var(fit[[k]]$vp))
+	if (samples){Vp.samples<-c(Vp.samples,fit[[k]]$v)}
+       }
+     sigma2[k] <- median(fit[[k]]$sigma2)
+     if (samples)
+	{
+	   ktrans.samples<-c(ktrans.samples,fit[[k]]$ktrans)
+	   kep.samples<-c(kep.samples,fit[[k]]$kep)
+	   sigma2.samples<-c(sigma2.samples,fit[[k]]$sigma2)
+ 	}
+      }
+   
+  
+
   A <- B <- array(NA, c(I,J,K))
   A[img.mask] <- ktrans$par
   B[img.mask] <- ktrans$error
@@ -376,12 +406,369 @@ if (tune>(0.5*nriters))tune=floor(nriters/2);
   A[img.mask] <- sigma2
   sigma2.out <- A
   
+
+  if (samples)
+	{
+	  extract.samples <- function(sample,I,J,K,NRI)
+		{
+		A <- array(NA, c(I,J,K,NRI))
+		for (i in 1:I)
+		for (j in 1:J)
+		for (k in 1:K)
+		{
+		voxelcount = i+(j-1)*I+(k-1)*I*J-1
+		A[i,j,k,] <- sample[(1:NRI) + voxelcount*NRI]
+		}
+		return(A)
+		}
+
+            NRI <- length(ktrans.samples)/length(ktrans$par)
+     	    ktrans.out <- list(par = ktrans.out$par, error=ktrans.out$error, samples = extract.samples(ktrans.samples,I,J,K,NRI))
+     	    kep.out <- list(par = kep.out$par, error=kep.out$error, samples = extract.samples(kep.samples,I,J,K,NRI))
+ 	  if(mod %in% c("extended","orton.exp","orton.cos")) {
+             	Vp.out <- list(par = Vp.out$par, error=Vp.out$error, samples = extract.samples(Vp.samples,I,J,K,NRI))
+	   }
+             sigma2.samples <- extract.samples(sigma2.samples,I,J,K,NRI)
+	}
+
   if(mod %in% c("extended","orton.exp","orton.cos"))
-    list(ktrans=ktrans.out$par, kep=kep.out$par, ktranserror=ktrans.out$error,
+     {
+    if (samples)
+	{
+	list(ktrans=ktrans.out$par, kep=kep.out$par, ktranserror=ktrans.out$error,
+         keperror=kep.out$error, ve=ktrans.out$par/kep.out$par, vp=Vp.out$par,
+         vperror=Vp.out$error, sigma2=sigma2.out, ktrans.samples=ktrans.out$samples, 
+         kep.samples = kep.out$samples, vp.samples = Vp.out$samples,
+	 sigma2.samples = sigma2.samples, time=time)
+	}
+	else
+	{
+	list(ktrans=ktrans.out$par, kep=kep.out$par, ktranserror=ktrans.out$error,
          keperror=kep.out$error, ve=ktrans.out$par/kep.out$par, vp=Vp.out$par,
          vperror=Vp.out$error, sigma2=sigma2.out, time=time)
+	}
+      }
   else
-    list(ktrans=ktrans.out$par, kep=kep.out$par, ktranserror=ktrans.out$error,
-         keperror=kep.out$error, ve=ktrans.out$par/kep.out$par, sigma2=sigma2.out,
-         time=time)
+	{
+	if (samples)
+	{
+	    list(ktrans=ktrans.out$par, kep=kep.out$par, ktranserror=ktrans.out$error,
+        	 keperror=kep.out$error, ve=ktrans.out$par/kep.out$par, sigma2=sigma2.out,
+         	 ktrans.samples=ktrans.out$samples, kep.samples = kep.out$samples, 
+		 sigma2.samples = sigma2.samples, time=time)
+	}
+	else
+	{
+	    list(ktrans=ktrans.out$par, kep=kep.out$par, ktranserror=ktrans.out$error,
+        	 keperror=kep.out$error, ve=ktrans.out$par/kep.out$par, sigma2=sigma2.out,
+         	time=time)
+	}
+	}
+}
+
+
+dcemri.spline <- function(conc, time, img.mask, time.input=time, model="weinmann", aif="tofts.kermode", user=NULL, aif.observed=NULL,
+	       nriters=500, thin=5, burnin=100, 
+	       ab.hyper=c(1e-5,1e-5), ab.tauepsilon=c(1,1/1000), 
+	       k=4,knotpoints=25,rw=2,
+               knots=seq(min(time)-1e-3-(k-1)*(max(time)-min(time))/(knotpoints-k+1),1e-3+max(time)+k*(max(time)-min(time))/(knotpoints-k+1),(2e-3+max(time)-min(time))/(knotpoints-k+1)), 
+	       nlr = FALSE, t0.compute=FALSE, samples=FALSE, multicore=FALSE,
+                       
+	              ...) {
+
+  ## dcemri.spline - a function for fitting Bayesian Penalty Splines to 
+  ## DCE-MRI images and computing kinetic parameters
+  ##
+  ## authors: Volker Schmid, Brandon Whitcher
+  ##
+  ## input:
+  ##        conc: array of Gd concentration,
+  ##        time: timepoints of aquisition,
+  ##        img.mask: array of voxels to fit,
+  ##        D(=0.1): Gd dose in mmol/kg,
+  ##        model: AIF... "weinman" or "parker",
+  ##
+  ## output: list with ktrans, kep, ve, std.error of ktrans and kep
+  ##         (ktranserror and keperror)
+  ##
+
+##internal function
+    q05 <- function(x)
+      quantile(x, .005, na.rm=TRUE)
+    med.na <- function(x)
+      median(x, na.rm=TRUE)
+
+  ##function to make precision matrix for random walk
+  R <- function(taux,rw) {
+    RR <- matrix(0,nrow=length(taux)+rw,ncol=length(taux)+rw)
+    if (rw==0) {
+      for (i in 1:length(taux))
+        RR[i,i] <- taux[i]
+    }
+    if (rw==1) {
+      for (i in 1:length(taux)) {
+        RR[i,i] <- RR[i,i]+taux[i]
+        RR[i+1,i+1] <- RR[i+1,i+1]+taux[i]
+        RR[i+1,i] <- RR[i+1,i]-taux[i]
+        RR[i,i+1] <- RR[i,i+1]-taux[i]
+      }
+    }
+    if (rw==2) {
+      for (i in 1:length(taux)) {
+        RR[i,i] <- RR[i,i]+taux[i]
+        RR[i+1,i+1] <- RR[i+1,i+1]+4*taux[i]
+        RR[i+2,i+2] <- RR[i+2,i+2]+taux[i]
+        RR[i+1,i] <- RR[i+1,i]-2*taux[i]
+        RR[i,i+1] <- RR[i,i+1]-2*taux[i]
+        RR[i+2,i+1] <- RR[i+2,i+1]-2*taux[i]
+        RR[i+1,i+2] <- RR[i+1,i+2]-2*taux[i]
+        RR[i+2,i] <- RR[i+2,i]+taux[i]
+        RR[i,i+2] <-RR [i,i+2]+taux[i]
+      }
+    }
+    return(RR)
+  }
+
+dce.spline.single<-function(conc, time, D, inputtime, p, rw, knots, t0.compute=FALSE, nlr=FALSE, nriters=500,thin=5, burnin=100,ab.hyper=c(1e-5,1e-5),ab.tauepsilon=c(1,1/1000),silent=0, multicore=FALSE,model=NULL)
+  {
+  if (sum(is.na(conc))>0)return(NA)
+  else
+    {
+      T=length(time)
+
+  tau <- array(1000, c(p-rw,nriters))
+  beta <- array(0, c(p,nriters))
+  MAX <- array(0, c(nriters))
+  tauepsilon <- array(1000, c(nriters))
+  burnin <- min(burnin, nriters)
+
+  result <- .C("dce_spline_run",
+               as.integer(1),
+               as.integer(burnin),
+               as.integer(c(1,1,1,T)),
+               as.double(conc),
+               as.double(tau),
+               as.double(tauepsilon),
+               as.double(D),
+               as.integer(rw),
+               as.double(beta),
+               as.double(c(ab.hyper[1], ab.hyper[2], ab.tauepsilon[1], ab.tauepsilon[2])),
+               as.integer(p),
+               as.double(1:T),
+               as.double(1:T),
+               as.double(1:T),
+               as.double(1:(T^2)),
+               as.double(1:(T^2)),
+               as.double(1:(T^2)),
+               as.double(1:(T^2)),
+               as.double(t(D)),
+               as.integer(silent),
+               PACKAGE="dcemri")
+	}
+
+  tau <- array(result[[5]], c(p-rw,nriters))
+  beta <- array(result[[9]], c(p,nriters))
+  tauepsilon <- array(result[[6]], c(nriters))
+
+  result <- .C("dce_spline_run",
+               as.integer(nriters),
+               as.integer(thin),
+               as.integer(c(1,1,1,T)),
+               as.double(conc),
+               as.double(tau),
+               as.double(tauepsilon),
+               as.double(D),
+               as.integer(rw),
+               as.double(beta),
+               as.double(c(ab.hyper[1], ab.hyper[2], ab.tauepsilon[1], ab.tauepsilon[2])),
+               as.integer(p),
+               as.double(1:T),
+               as.double(1:T),
+               as.double(1:T),
+               as.double(1:(T^2)),
+               as.double(1:(T^2)),
+               as.double(1:(T^2)),
+               as.double(1:(T^2)),
+               as.double(t(D)),
+               as.integer(silent),
+               PACKAGE="dcemri")
+	
+  tau <- array(result[[5]], c(p-rw,nriters))
+  beta <- array(result[[9]], c(p,nriters))
+  tauepsilon <- array(result[[6]], c(nriters))
+
+
+  t0=time[1]
+  if(t0.compute)
+        {
+	    d <- array(NA, c(T, nriters))
+    for (j in 1:nriters)
+        d[,j] <- D %*% beta[,j]
+    d1 <- apply(d, 1, q05)
+    d2 <- apply(d, 1, med.na)
+
+    du <- min(which(d1 > 0))
+                
+    beta.abl <- beta.abl2 <- rep(0, p)
+    
+    B2 <- splineDesign(knots, inputtime, k-2)
+    B2 <- B2[,(1:p)+1]
+    
+    for (j in 1:nriters) {
+            beta.abl <- 1:p
+            for (q in 1:(p-1))
+              beta.abl[q] <- (beta[q+1,j] - beta[q,j]) * k / (knots[q+k+1] - knots[q+1])
+            beta.abl[p] <- 0
+            ABL2 <- A %*% B2 %*% beta.abl
+            du2 <- time[du] - d2[du] / ABL2[du]  
+            t0[j] <- du2
+    	}
+  	if (t0<0) t0<-0
+  	if (t0>max(time)) t0<-0
+    }
+
+	fitted=list()
+	for (i in 1:nriters)
+	fitted[[i]] <- B%*% beta[,i]
+	if (multicore)
+		MAX0= mclapply(fitted,max)
+	else
+		MAX0= lapply(fitted,max)
+	MAX = c()
+	for (i in 1:nriters)
+	   MAX=c(MAX,MAX0[[i]])
+
+parameters=list()
+
+if (nlr)
+	{
+
+	if (multicore)
+	response <- mclapply(fitted,nls.lm, par=model.guess,
+                         fn=fcn, fcall = model.func,
+                         time=time-t0, x=fitted, N.Err=sqrt(300),
+                         control=list(nprint=-1,ftol=10^-20))
+	else
+	response <- lapply(fitted,nls.lm, par=model.guess,
+                         fn=fcn, fcall = model.func,
+                         time=time-t0, x=fitted, N.Err=sqrt(300),
+                         control=list(nprint=-1,ftol=10^-20))
+	
+	if (model=="AATH")
+	{
+	E=F=TC=ve=c()
+	for (i in 1:nriters)
+	{
+		E=c(E,response$per$E)
+		F=c(F,response$per$F)
+		TC=c(TC,response$per$TC)
+		ve=c(ve,response$per$ve)
+	}
+	parameters=list("E"=E,"F"=F,"TC"=TC,"ve"=ve)
+	}
+	if (model=="weinmann")
+	{
+	ktrans=kep=c()
+	for (i in 1:nriters)
+	{
+		ktrans=c(ktrans,response$per$ktrans)
+		kep=c(kep,response$per$kep)
+	}
+	parameters=list("ktrans"=ktrans,"kep"=kep)
+	}
+
+	}
+
+  return(list("beta"=beta,"tau"=tau,"tauepsilon"=tauepsilon,"t0"=t0,"par"=parameters))
+}
+
+  mod <- model
+  nvoxels <- sum(img.mask)
+  I <- nrow(conc)
+  J <- ncol(conc)
+  K <- nsli(conc)
+
+  if (!is.numeric(dim(conc))) {I <- J <- K <- 1} 
+	else if (length(dim(conc))==2) {J <- K <-1}
+
+  cat("  Deconstructing data...", fill=TRUE)
+  conc.mat <- matrix(conc[img.mask], nvoxels)
+  conc.mat[is.na(conc.mat)] <- 0
+   conc.list<-list()
+   for (i in 1:nvoxels)
+    conc.list[[i]]=conc.mat[i,]
+
+  switch(aif,
+         tofts.kermode = {
+           D <- 0.1; a1 <- 3.99; a2 <- 4.78; m1 <- 0.144; m2 <- 0.0111
+           input <- D*(a1*exp(-m1*time)+a2*exp(-m2*time))
+         },
+         fritz.hansen = {
+           D <- 1; a1 <- 2.4; a2 <- 0.62; m1 <- 3.0; m2 <- 0.016
+           input <- D*(a1*exp(-m1*time)+a2*exp(-m2*time))	 
+	},
+	observed = {
+	   input = aif.observed
+       },
+         print("WARNING: AIF parameters must be specified!"))
+  
+  if (mod=="weinmann")
+	{
+	  ktrans <- kep <- list(par=rep(NA, nvoxels), error=rep(NA, nvoxels))
+  	  sigma2 <- rep(NA, nvoxels)
+	}
+  if (mod=="AATH")
+	{
+	  E <- F <- TC <- ve <- list(par=rep(NA, nvoxels), error=rep(NA, nvoxels))
+  	  sigma2 <- rep(NA, nvoxels)
+	}
+
+
+  ##define B and A
+  p <- length(knots)-k
+  B <- splineDesign(knots, time.input, k, outer.ok=TRUE)
+  if (sum(B[,dim(B)[2]]==0) == dim(B)[1])
+    B <- B[,-dim(B)[2]]
+  if (sum(B[,1]==0) == dim(B)[1])
+    B <- B[,-1]
+  p <- dim(B)[2]
+  A <- matrix(0, nrow=length(time), ncol=length(time.input))
+  ni <- time
+  for (i in 1:length(time)) {
+    for (j in 1:length(time.input)) {
+      if (time.input[j]<=time[i])
+        ni[i] <- j
+    }
+  }
+  for (i in 1:length(time)) {
+    for (j in 1:ni[i])
+      A[i,j] <- input[1+ni[i]-j]
+  }
+  A <- A*mean(diff(time.input))
+  D <- A%*%B
+  T <- length(time)
+
+
+
+  cat("  Estimating the kinetic parameters...", fill=TRUE)
+
+  if (!multicore)
+  {
+   fit <- lapply(conc.list,dce.spline.single, time, D, time.input, p, rw, knots, nriters=500,thin=5, burnin=100,ab.hyper=c(1e-5,1e-5),ab.tauepsilon=c(1,1/1000),t0.compute=t0.compute,nlr=nlr,multicore=multicore,model=model)
+  }
+  else
+  {
+   require(multicore)
+   fit <- mclapply(conc.list,dce.spline.single, time, D, time.input, p, rw, knots, nriters=500,thin=5, burnin=100,ab.hyper=c(1e-5,1e-5),ab.tauepsilon=c(1,1/1000),t0.compute=t0.compute,nlr=nlr,multicore=multicore,model=mod)
+  }
+
+  cat("  Reconstructing results...", fill=TRUE)
+
+  beta.samples=c()
+#   for(k in 1:nvoxels) {
+#	beta.samples<-c(beta.samples,fit[[k]]$beta)
+# 	}
+
+return(fit)
+
 }
