@@ -95,8 +95,7 @@ dcemri.lm <- function(conc, time, img.mask, model="extended",
                            (exp(-(time * exp(th3))) - exp(-(time * m1))) +
                            (a2 / (m2 - exp(th3))) *
                            (exp(-(time * exp(th3))) - exp(-(time * m2))))
-    erg[time <= 0] <-   mod <- model
-0
+    erg[time <= 0] <- 0
     return(erg)
   }
 
@@ -470,7 +469,7 @@ if (tune>(0.5*nriters))tune=floor(nriters/2);
 dcemri.spline <- function(conc, time, img.mask, time.input=time, model="weinmann", aif="tofts.kermode", user=NULL, aif.observed=NULL,
 	       nriters=500, thin=5, burnin=100, 
 	       ab.hyper=c(1e-5,1e-5), ab.tauepsilon=c(1,1/1000), 
-	       k=4,knotpoints=25,rw=2,
+	       k=4,p=25,rw=2,
                knots=seq(min(time)-1e-3-(k-1)*(max(time)-min(time))/(knotpoints-k+1),1e-3+max(time)+k*(max(time)-min(time))/(knotpoints-k+1),(2e-3+max(time)-min(time))/(knotpoints-k+1)), 
 	       nlr = FALSE, t0.compute=FALSE, samples=FALSE, multicore=FALSE,
                        
@@ -497,6 +496,9 @@ dcemri.spline <- function(conc, time, img.mask, time.input=time, model="weinmann
       quantile(x, .005, na.rm=TRUE)
     med.na <- function(x)
       median(x, na.rm=TRUE)
+
+  fcn <- function(p, time, x, N.Err, fcall, jcall)
+    (x - do.call("fcall", c(list(time = time), as.list(p))))
 
   ##function to make precision matrix for random walk
   R <- function(taux,rw) {
@@ -529,7 +531,24 @@ dcemri.spline <- function(conc, time, img.mask, time.input=time, model="weinmann
     return(RR)
   }
 
-dce.spline.single<-function(conc, time, D, inputtime, p, rw, knots, t0.compute=FALSE, nlr=FALSE, nriters=500,thin=5, burnin=100,ab.hyper=c(1e-5,1e-5),ab.tauepsilon=c(1,1/1000),silent=0, multicore=FALSE,model=NULL)
+nls.lm.single <- function(fitted, par,
+                         fn, fcall,model,time)
+	{
+	fcall2=fcall
+	if (length(fcall)>1) fcall2=fcall[[1]]
+	fit=nls.lm(par=par, fn=fn, fcall=fcall2, time=time, x=fitted, N.Err=sqrt(300),
+                            control=list(nprint=0,ftol=10^-20))
+	if (model=="AATH")
+	if(fit$par$TC<1e-6)
+	{
+	fit=nls.lm(par=par[-3], fn=fn, fcall=fcall[[2]], time=time, x=fitted, N.Err=sqrt(300),
+                            control=list(nprint=0,ftol=10^-20))
+	fit$par$TC=0
+	}
+	return(fit)
+}
+
+dce.spline.single<-function(conc, time, D, inputtime, p, rw, knots, t0.compute=FALSE, nlr=FALSE, nriters=500,thin=5, burnin=100,ab.hyper=c(1e-5,1e-5),ab.tauepsilon=c(1,1/1000),silent=0, multicore=FALSE,model=NULL,model.func=NULL,model.guess=NULL,samples=FALSE)
   {
   if (sum(is.na(conc))>0)return(NA)
   else
@@ -642,51 +661,55 @@ parameters=list()
 
 if (nlr)
 	{
-
+	if(model=="AATH") model.guess[2]=median(MAX)
 	if (multicore)
-	response <- mclapply(fitted,nls.lm, par=model.guess,
-                         fn=fcn, fcall = model.func,
-                         time=time-t0, x=fitted, N.Err=sqrt(300),
-                         control=list(nprint=-1,ftol=10^-20))
+	response <- mclapply(fitted,nls.lm.single, par=model.guess,
+                         fn=fcn, fcall = model.func, model=model,
+                         time=time-t0)
 	else
-	response <- lapply(fitted,nls.lm, par=model.guess,
-                         fn=fcn, fcall = model.func,
-                         time=time-t0, x=fitted, N.Err=sqrt(300),
-                         control=list(nprint=-1,ftol=10^-20))
+	response <- lapply(fitted,nls.lm.single, par=model.guess,
+                         fn=fcn, fcall = model.func, model=model,
+                         time=time-t0)
 	
 	if (model=="AATH")
 	{
 	E=F=TC=ve=c()
 	for (i in 1:nriters)
 	{
-		E=c(E,response$per$E)
-		F=c(F,response$per$F)
-		TC=c(TC,response$per$TC)
-		ve=c(ve,response$per$ve)
+		E=c(E,response[[i]]$par$E)
+		F=c(F,response[[i]]$par$F)
+		TC=c(TC,response[[i]]$par$TC)
+		ve=c(ve,response[[i]]$par$ve)
 	}
-	parameters=list("E"=E,"F"=F,"TC"=TC,"ve"=ve)
+	parameters=list("E"=median(E),"F"=median(F),"TC"=median(TC),"ve"=median(ve))
+	if(samples)parameters=list("E.samples"=E,"F.samples"=F,"TC.samples"=TC,"ve.samples"=ve)
 	}
 	if (model=="weinmann")
 	{
 	ktrans=kep=c()
 	for (i in 1:nriters)
 	{
-		ktrans=c(ktrans,response$per$ktrans)
-		kep=c(kep,response$per$kep)
+		ktrans=c(ktrans,response[[i]]$par$logktrans)
+		kep=c(kep,response[[i]]$par$logkep)
 	}
-	parameters=list("ktrans"=ktrans,"kep"=kep)
+	parameters=list("ktrans"=median(exp(ktrans)),"kep"=median(exp(kep)))
+	if (samples) parameters=list("ktrans.sample"=exp(ktrans),"kep.sample"=exp(kep))
 	}
 
 	}
 
-  return(list("beta"=beta,"tau"=tau,"tauepsilon"=tauepsilon,"t0"=t0,"par"=parameters))
+  return(list("beta"=beta,"tau"=tau,"tauepsilon"=tauepsilon,"t0"=t0,"Fp"=median(MAX),"Fp.samples"=MAX,"fitted"=fitted,"par"=parameters))
 }
 
+# main function
+
+  knotpoints=p
   mod <- model
   nvoxels <- sum(img.mask)
   I <- nrow(conc)
   J <- ncol(conc)
   K <- nsli(conc)
+  T <- length(time)
 
   if (!is.numeric(dim(conc))) {I <- J <- K <- 1} 
 	else if (length(dim(conc))==2) {J <- K <-1}
@@ -712,15 +735,47 @@ if (nlr)
        },
          print("WARNING: AIF parameters must be specified!"))
   
-  if (mod=="weinmann")
+  model.func <- model.guess <- NULL
+
+  if (model=="weinmann")
 	{
 	  ktrans <- kep <- list(par=rep(NA, nvoxels), error=rep(NA, nvoxels))
   	  sigma2 <- rep(NA, nvoxels)
+	model.func <- function(time, logktrans, logkep) {
+             ktrans=exp(logktrans)
+	     kep=exp(logkep)
+             erg <- ktrans*exp(-kep*(time))
+             eval(erg)
+                }
+ 
+	model.guess <- list("logktrans"=-1,"logkep"=0)
 	}
-  if (mod=="AATH")
+
+  if (model=="AATH")
 	{
 	  E <- F <- TC <- ve <- list(par=rep(NA, nvoxels), error=rep(NA, nvoxels))
   	  sigma2 <- rep(NA, nvoxels)
+
+  	model.func <- list()
+	model.func[[1]] <- function(time, F, E, TC, ve) {
+    		TC2<-2*TC
+    		if (TC < 0) { TC2 <- 0 }
+    		kep <- E*F/ve
+    		erg <- E*exp(-kep*(time-TC))
+     		erg[time<TC] <- 1 - time[time<TC2]*(1-E) / TC
+    		erg <- erg*F
+    		if (TC < 0)
+      			erg <- rep(-10^16, length(time))
+	        eval(erg)
+  		}
+	model.func[[2]] <- function(time, F, E, ve) {
+             kep <- E*F/ve
+             erg <- E*exp(-kep*(time))
+             erg <- erg*F
+             eval(erg)
+                }
+ 
+	model.guess <- list("E"=.6,"F"=2,"TC"=0,"ve"=.05)
 	}
 
 
@@ -750,25 +805,200 @@ if (nlr)
 
 
 
-  cat("  Estimating the kinetic parameters...", fill=TRUE)
+  cat("  Estimating the parameters...", fill=TRUE)
 
   if (!multicore)
   {
-   fit <- lapply(conc.list,dce.spline.single, time, D, time.input, p, rw, knots, nriters=500,thin=5, burnin=100,ab.hyper=c(1e-5,1e-5),ab.tauepsilon=c(1,1/1000),t0.compute=t0.compute,nlr=nlr,multicore=multicore,model=model)
+   fit <- lapply(conc.list,dce.spline.single, time, D, time.input, p, rw, knots, nriters=500,thin=5, burnin=100,ab.hyper=c(1e-5,1e-5),ab.tauepsilon=c(1,1/1000),t0.compute=t0.compute,nlr=nlr,multicore=multicore,model=model,model.func=model.func,model.guess=model.guess,samples=samples)
   }
   else
   {
    require(multicore)
-   fit <- mclapply(conc.list,dce.spline.single, time, D, time.input, p, rw, knots, nriters=500,thin=5, burnin=100,ab.hyper=c(1e-5,1e-5),ab.tauepsilon=c(1,1/1000),t0.compute=t0.compute,nlr=nlr,multicore=multicore,model=mod)
+   fit <- mclapply(conc.list,dce.spline.single, time, D, time.input, p, rw, knots, nriters=500,thin=5, burnin=100,ab.hyper=c(1e-5,1e-5),ab.tauepsilon=c(1,1/1000),t0.compute=t0.compute,nlr=nlr,multicore=multicore,model=model,model.func=model.func,model.guess=model.guess,samples=samples)
   }
 
   cat("  Reconstructing results...", fill=TRUE)
 
-  beta.samples=c()
-#   for(k in 1:nvoxels) {
-#	beta.samples<-c(beta.samples,fit[[k]]$beta)
-# 	}
+  t0 <- c()
+  for (k in 1:nvoxels)t0<-c(t0,fit[[k]]$t0)
+  t0.img <- array(NA,c(I,J,K))
+  t0.img[img.mask]=t0
+  t0=t0.img
 
-return(fit)
+  Fp <- c()
+  for (k in 1:nvoxels)Fp<-c(Fp,fit[[k]]$Fp)
+  Fp.img <- array(NA,c(I,J,K))
+  Fp.img[img.mask]=Fp
+  Fp.samples <- array(NA,c(nvoxels,nriters))
+  for (i in 1:nvoxels)Fp.samples[i,]=fit[[k]]$Fp.samples
+  if(samples)Fp=array(NA,c(I,J,K,nriters))
+  if(samples)for (j in 1:nriters)Fp[,,,j][img.mask]=Fp.samples[,j]
 
+	
+  if (nlr)
+  {
+    ktrans<-ve<-c()
+    if (model=="weinmann")
+    {
+	kep=c()
+    	if (samples)ktrans.sample <- array(NA,c(nvoxels,nriters))
+    	for (k in 1:nvoxels)
+    	{
+    	ktrans<-c(ktrans,fit[[k]]$par$ktrans)
+    	if (samples)ktrans[k,]=fit[[k]]$par$ktrans.samples
+    	}
+    	if (samples)kep.sample <- array(NA,c(nvoxels,nriters))
+    	for (k in 1:nvoxels)
+    	{
+    	kep<-c(kep,fit[[k]]$par$kep)
+    	if (samples)kep[k,]=fit[[k]]$par$kep.samples
+    	}
+	ve = ktrans/kep
+	if (samples) ve.samples=ktrans.samples/kep.samples
+    }
+    if (model=="AATH")
+    {
+	E<-F<-TC<-c()
+   	if (samples)E.sample <- array(NA,c(nvoxels,nriters))
+    	for (k in 1:nvoxels)
+    	{
+    	E<-c(E,fit[[k]]$par$E)
+    	if (samples)E[k,]=fit[[k]]$par$E.samples
+    	}
+   	if (samples)F.sample <- array(NA,c(nvoxels,nriters))
+    	for (k in 1:nvoxels)
+    	{
+    	F<-c(F,fit[[k]]$par$F)
+    	if (samples)F[k,]=fit[[k]]$par$F.samples
+    	}
+   	if (samples)TC.sample <- array(NA,c(nvoxels,nriters))
+    	for (k in 1:nvoxels)
+    	{
+    	TC<-c(TC,fit[[k]]$par$TC)
+    	if (samples)TC[k,]=fit[[k]]$par$TC.samples
+    	}
+   	if (samples)ve.sample <- array(NA,c(nvoxels,nriters))
+    	for (k in 1:nvoxels)
+    	{
+    	ve<-c(ve,fit[[k]]$par$ve)
+    	if (samples)ve[k,]=fit[[k]]$par$ve.samples
+    	}
+	ktrans = E*F
+	if (samples) ktrans.samples=E.samples/F.samples
+    }
+  }
+
+
+  beta.sample=array(NA,c(nvoxels,p,nriters))
+  for(k in 1:nvoxels) {
+		beta.sample[k,,]<-fit[[k]]$beta
+ 	}
+  response.sample=array(NA,c(nvoxels,T,nriters))
+  for(k in 1:nvoxels) 
+  for(j in 1:nriters) {
+		response.sample[k,,j]<-fit[[k]]$fitted[[j]]
+ 	}
+
+  fitted.sample = array(NA,c(nvoxels,T,nriters))
+  for (i in 1:nvoxels)
+  for (j in 1:nriters)
+	fitted.sample[i,,j]=D%*%beta.sample[i,,j]
+
+  beta <- array(NA,c(I,J,K,p,nriters))
+  beta.med <- array(NA,c(I,J,K,p))
+  fitted <- array(NA,c(I,J,K,T,nriters))
+  fitted.med <- array(NA,c(I,J,K,T))
+  response <- array(NA,c(I,J,K,T,nriters))
+  response.med <- array(NA,c(I,J,K,T))
+
+  if (nlr)
+	{
+         ktrans.med <- ve.med <- array(NA,c(I,J,K))
+         ktrans.med[img.mask]=ktrans
+	 ve.med[img.mask]=ve
+	if (model=="weinmann")
+	{
+        kep.med <- array(NA,c(I,J,K))
+	kep.med[img.mask]=kep
+	}
+	if (model=="AATH")
+	{
+        E.med <- F.med <- TC.med <- array(NA,c(I,J,K))
+	E.med[img.mask]=E
+	F.med[img.mask]=F
+	TC.med[img.mask]=TC
+	} 
+	if (samples)
+	  {
+	  ktrans <- ve <- array(NA,c(I,J,K,nriters))
+  	  for (i in 1:nriters)
+		{
+		  ktrans[,,,i][img.mask]<-ktrans.sample[,i]
+		  ve[,,,i][img.mask]<-ve.sample[,i]
+		}
+	   if (model=="weinmann")
+		{
+		  kep <- array(NA,c(I,J,K,nriters))
+	  	  for (i in 1:nriters)
+			{
+			  kep[,,,i][img.mask]<-kep.sample[,i]
+			}
+		}
+	   if (model=="AATH")
+		{
+		  E <- F <- TC <- array(NA,c(I,J,K,nriters))
+	  	  for (i in 1:nriters)
+			{
+			  E[,,,i][img.mask]<-E.sample[,i]
+			  F[,,,i][img.mask]<-F.sample[,i]
+			  TC[,,,i][img.mask]<-TC.sample[,i]
+			}
+		}
+          }
+       }
+	
+  for (j in 1:p)
+   {
+    beta.med[,,,j][img.mask]<-apply(beta.sample[,j,],1,median)
+	for (i in 1:nriters)
+	beta[,,,j,i][img.mask]<-beta.sample[,j,i]
+   }
+
+  for (j in 1:T)
+   {
+      response.med[,,,j][img.mask]<-apply(response.sample[,j,],1,median)
+	for (i in 1:nriters)
+	response[,,,j,i][img.mask]<-response.sample[,j,i]
+     fitted.med[,,,j][img.mask]<-apply(fitted.sample[,j,],1,median)
+	for (i in 1:nriters)
+	fitted[,,,j,i][img.mask]<-fitted.sample[,j,i]
+   }
+
+return.list<-list("beta"=beta.med)
+return.list <- c(return.list,list("beta.sample"=beta))
+return.list <- c(return.list,list("beta.test"=beta.sample))
+return.list <- c(return.list,list("fit"=fitted.med))
+return.list <- c(return.list,list("fit.sample"=fitted))
+return.list <- c(return.list,list("response"=response.med))
+return.list <- c(return.list,list("response.sample"=response))
+return.list <- c(return.list,list("Fp"=Fp.img))
+if(samples)return.list <- c(return.list,list("Fp.samples"=Fp))
+return.list <- c(return.list,list("A"=A))
+return.list <- c(return.list,list("B"=B))
+return.list <- c(return.list,list("D"=D))
+if (nlr)return.list <- c(return.list,list("ktrans"=ktrans.med))
+if (nlr)return.list <- c(return.list,list("ve"=ve.med))
+if (nlr&(model=="weinmann"))return.list <- c(return.list,list("kep"=kep.med))
+if (nlr&(model=="AATH"))return.list <- c(return.list,list("E"=E.med))
+if (nlr&(model=="AATH"))return.list <- c(return.list,list("F"=F.med))
+if (nlr&(model=="AATH"))return.list <- c(return.list,list("TC"=TC.med))
+if (nlr&samples)return.list <- c(return.list,list("ktrans.sample"=ktrans))
+if (nlr&samples)return.list <- c(return.list,list("ve.sample"=ve))
+if (nlr&samples&(model=="weinmann"))return.list <- c(return.list,list("kep.samples"=kep))
+if (nlr&samples&(model=="AATH"))return.list <- c(return.list,list("E.samples"=E))
+if (nlr&samples&(model=="AATH"))return.list <- c(return.list,list("F.samples"=F))
+if (nlr&samples&(model=="AATH"))return.list <- c(return.list,list("TC.samples"=TC))
+return.list <- c(return.list,list("t0"=t0))
+
+return(return.list)
 }

@@ -16,17 +16,24 @@ dcemri.lm(conc, time, img.mask, model="extended", aif="tofts.kermode",
           nprint=0, user=NULL, ...)
 }
 \arguments{
-  \item{conc}{is a multidimensional array of contrast agent
+  \item{conc}{is a multidimensional (1d to 4d) array of contrast agent
     concentrations.  The last dimension is assumed to be temporal, while
-    the previous dimenions are assued to be spatial.}
+    the previous dimensions are assued to be spatial.}
   \item{time}{is a vector of acquisition times (in minutes) relative to 
     injection of the contrast agent.  Negative values should be used
     prior to the injection.}
   \item{img.mask}{is a (logical) multidimensional array that identifies
-    the voxels to be analyzed.}
+    the voxels to be analyzed. Has to have same dimension as \code{conc}
+    minus temporal dimension.}
   \item{model}{is a character string that identifies the type of
     compartmental model to be used.  Acceptable models include:
-    \dQuote{extended} (default), ...}
+    \dQuote{weinmann} Tofts & Kermode AIF convolved with single compartment
+	 model 
+    \dQuote{extended} (default) Weinmann model extended with additional
+	vascular compartment, ...
+    \dQuote{orton.exp} extended model using Orton's exponential AIF
+    \dQuote{orton.cos} extended model using Orton's raised cosine AIF
+    }
   \item{aif}{is a character string that identifies the type of arterial
     input function (AIF) to be used.  Acceptable AIF models include:
     \code{tofts.kermode}, \code{fritz.hansen}, \code{orton.exp},

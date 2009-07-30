@@ -57,7 +57,7 @@ void loese2(double* A, double* z, int* n, int* lda, int* incx)
 
 void copy(double* A,double* B,int n1,int n2)
 {
-  int i,j;
+  int i;
   for (i=0;i<n1*n2;i++)
     {
       A[i]=B[i];
@@ -117,7 +117,7 @@ void multiplyvA(double* E,double* A,double* B, int* n2, int* n3)
 
 void add(double* E,double* A,double* B,int n1,int n2)
 {
-  int i,j,k;
+  int i;
   for (i=0;i<n1*n2;i++)
     {
 	  E[i]=A[i]+B[i];
@@ -306,7 +306,7 @@ void vector4(double* res,double* arra,int l,int n,int a,int b,int c, int A, int 
 void draw_normal(double* x, double* L, int* n, double* temp)
 {
 
-  int i,j,c,k,d;
+  int i,c,d;
   c=1;
   d=0;
   cholesky(n, L, n, &d);
@@ -330,10 +330,8 @@ void dce_spline_run(int* NRI, int* thin, int* dims, double* data,
   double* Mx3,	 double* Dt)
 {
   GetRNGstate();
-  int i,j,t,x,y,z,k,l;
+  int i,j,x,y,z,k;
   double tmp,tmp1;
-  char test;
-  int bla;
   int X=dims[0];
   int Y=dims[1];
   int Z=dims[2];

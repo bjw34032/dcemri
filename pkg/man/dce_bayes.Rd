@@ -14,9 +14,9 @@
 \usage{
 dcemri.bayes(conc, time, img.mask, model="extended",
                       aif="tofts.kermode", user=NULL, 
-	              nriters=9500, thin=30, burnin=2000, tune=267, 
+	              nriters=7000, thin=10, burnin=2000, tune=267, 
 	              tau.ktrans=1, tau.kep=tau.ktrans, ab.vp=c(1,19),
-	              ab.tauepsilon=c(1,1/1000), samples=FALSE,
+	              ab.tauepsilon=c(1,1/1000), samples=FALSE, multicore=FALSE
 	              ...)
 }
 \arguments{
@@ -25,7 +25,13 @@ dcemri.bayes(conc, time, img.mask, model="extended",
   \item{time}{Time in minutes.}
   \item{img.mask}{Mask matrix or array. Voxels with mask=0 will be
     excluded.}
-  \item{model}{}
+  \item{model}{is a character string that identifies the type of
+    compartmental model to be used.  Acceptable models include:
+    \dQuote{weinmann} Tofts & Kermode AIF convolved with single compartment
+	 model 
+    \dQuote{extended} (default) Weinmann model extended with additional
+	vascular compartment, ...
+    }
   \item{aif}{Model for arterial input function. So far implemented:
     0 or \dQuote{tofts-kermode} double exponential model by Tofts and
     Kermode; 1 or \dQuote{orton} exponential model by Orton \emph{et
@@ -94,8 +100,6 @@ legend(0.6, 0.2, pch=c(2,1), legend=c("LM","Bayes"))
 lines(c(-0.1,0.8), c(-0.1,0.8), lty=3, col="grey")
 
 system.time(fit <- dcemri.bayes(img, time, mask, aif="fritz.hansen", samples=TRUE, multicore=TRUE))
-system.time(fit <- dcemri.spline(img, time, mask, aif="fritz.hansen", samples=TRUE, multicore=FALSE))
-system.time(fit <- dcemri.spline(img, time, mask, aif="fritz.hansen", samples=TRUE, multicore=TRUE))
 }
 \author{Volker Schmid}
 \keyword{models}

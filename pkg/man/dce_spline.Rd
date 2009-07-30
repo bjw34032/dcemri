@@ -3,10 +3,8 @@
 % Time-stamp: <2009-07-15 09:44:00 (bjw34032)>
 % $Id$
 
-\name{dce.spline}
-\alias{dce.spline}
-\alias{dce.spline.onset}
-\alias{perfSpline}
+\name{dcemri.spline}
+\alias{dcemri.spline}
 \title{Bayesian P-Splines for Dynamic Contrasat-Enhanced MRI Data}
 \description{
   Quantitative analysis of DCE-MRI typically involves the convolution of
@@ -18,17 +16,11 @@
   penalized spline models (P-splines).
 } 
 \usage{
-dce.spline(data, time, input, time.input=time,
+dcemri.spline(data, time, input, time.input=time,
 mask=array(1,dim(data)[1:(length(dim(data))-1)]), k=4, knotpoints=25, 
 knots=seq(min(time)-1e-3-(k-1)*(max(time)-min(time))/(knotpoints-k+1),1e-3+max(time)+k*(max(time)-min(time))/(knotpoints-k+1),(2e-3+max(time)-min(time))/(knotpoints-k+1)),
 rw=2, nriters=500, thin=5, burnin=100, nlr=TRUE, hyper.a=1e-5,
 hyper.b=1e-5, epsilon.a=1, epsilon.b=1e-5, silent=FALSE)
-dce.spline.onset(data, time, input, time.input=time,
-mask=array(1,dim(data)[1:(length(dim(data))-1)]), k=4, knotpoints=25,
-knots=seq(min(time)-1e-3-(k-1)*(max(time)-min(time))/(knotpoints-k+1),1e-3+max(time)+k*(max(time)-min(time))/(knotpoints-k+1),(2e-3+max(time)-min(time))/(knotpoints-k+1)),
-rw=2, nriters=500, thin=5, burnin=100, nlr=TRUE, hyper.a=1e-5,
-hyper.b=1e-5, epsilon.a=1, epsilon.b=1e-5, t0=0, t0.compute=TRUE)
-perfSpline(data, time, aif, time.input, searchint=.25, do.plot=TRUE)
 }
 \arguments{
   \item{data}{}
@@ -70,6 +62,19 @@ perfSpline(data, time, aif, time.input, searchint=.25, do.plot=TRUE)
 \seealso{
   \code{\link{dcemri.lm}}, \code{\link{dcemri.bayes}}
 }
-% \examples{}
+\examples{
+data("buckley")
+img <- t(breast$data)[,(1:60)*5]
+time <- seq(5,300,5) / 60
+mask <- rep(TRUE, 13)
+
+fit <- dcemri.spline(img, time, mask, aif="fritz.hansen")
+
+
+plot(breast$ktrans, fit$ktrans, xlim=c(0,0.5), ylim=c(0,0.5),
+     xlab="True Ktrans", ylab="Estimated Ktrans (Bayes)")
+lines(c(-0.1,0.6), c(-0.1,0.6), lty=3, col="grey")
+
+}
 \author{Volker Schmid}
 \keyword{models}
