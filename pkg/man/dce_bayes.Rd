@@ -99,6 +99,7 @@ points(breast$ktrans, fit.lm$ktrans, pch=2)
 legend(0.6, 0.2, pch=c(2,1), legend=c("LM","Bayes"))
 lines(c(-0.1,0.8), c(-0.1,0.8), lty=3, col="grey")
 
+# not for windows, yet
 system.time(fit <- dcemri.bayes(img, time, mask, aif="fritz.hansen", samples=TRUE, multicore=TRUE))
 }
 \author{Volker Schmid}

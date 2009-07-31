@@ -75,6 +75,10 @@ curve <- kineticmodel(time,list("ktrans"=fit$ktrans[3],"kep"=fit$kep[3],"vp"=fit
 
 plot(time,img[3,1,1,],xlab="time",ylab="conc")
 lines(time,curve)
+
+fit <- dcemri.bayes(img, time, mask, aif="fritz.hansen",multicore=TRUE)
+curve <- kineticmodel(time,list("ktrans"=fit$ktrans[3],"kep"=fit$kep[3],"vp"=fit$vp[3]))
+lines(time,curve,col="blue")
 }
 
 \author{Brandon Whitcher, Volker Schmid}
