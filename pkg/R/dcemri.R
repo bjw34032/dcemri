@@ -430,6 +430,7 @@ if (tune>(0.5*nriters))tune=floor(nriters/2);
              sigma2.samples <- extract.samples(sigma2.samples,I,J,K,NRI)
 	}
 
+
   if(mod %in% c("extended","orton.exp","orton.cos"))
      {
     if (samples)
@@ -762,7 +763,8 @@ if (nlr)
     		if (TC < 0) { TC2 <- 0 }
     		kep <- E*F/ve
     		erg <- E*exp(-kep*(time-TC))
-     		erg[time<TC] <- 1 - time[time<TC2]*(1-E) / TC
+     		#erg[time<TC] <- 1 - time[time<TC2]*(1-E) / TC
+    		erg[time<TC] <- 1# - time[time<TC2]*(1-E) / TC
     		erg <- erg*F
     		if (TC < 0)
       			erg <- rep(-10^16, length(time))
@@ -800,10 +802,9 @@ if (nlr)
       A[i,j] <- input[1+ni[i]-j]
   }
   A <- A*mean(diff(time.input))
+  A[is.na(A)]<-0
   D <- A%*%B
   T <- length(time)
-
-
 
   cat("  Estimating the parameters...", fill=TRUE)
 
@@ -893,7 +894,9 @@ if (nlr)
   for(k in 1:nvoxels) {
 		beta.sample[k,,]<-fit[[k]]$beta
  	}
-  response.sample=array(NA,c(nvoxels,T,nriters))
+ 
+  T2 <- length(time.input)
+  response.sample=array(NA,c(nvoxels,T2,nriters))
   for(k in 1:nvoxels) 
   for(j in 1:nriters) {
 		response.sample[k,,j]<-fit[[k]]$fitted[[j]]
