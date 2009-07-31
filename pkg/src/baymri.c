@@ -106,7 +106,7 @@ double aif(double t, double* settings)
 
 double extraterm(double vp,double time,double* settings)
 {
-  return(vp*aif(time,settings));
+      return(vp*aif(time,settings));
 }
 
 
@@ -223,11 +223,11 @@ double update_eta3(double vp, double kep, double ktrans, double a_vp, double b_v
 }
 double update_tau_epsilon1(double tau, double aa, double bb, double* conc, double vp, double ktrans, double kep, double* time, int T, double* settings)
 {
-  int t;
-  for (t=0;t<T; t++)
+  int i;
+  for (i=0;i<T; i++)
     {
       aa+=0.5;
-      bb += .5*pow(conc[t]-extraterm(vp, time[t],settings)-ktrans*convterm(kep, time[t],settings),2.0);
+      bb += .5*pow(conc[i]-extraterm(vp, time[i],settings)-ktrans*convterm(kep, time[i],settings),2.0);
     }
 
   tau=RNDGAM(aa,bb);
@@ -247,7 +247,6 @@ void dce_bayes_run_single(int* NRI,
 	 double *ktrans_trace, double* kep_trace, double* vp_trace, double* tau_epsilon_trace)
 	 
 {
-
   GetRNGstate();
   int iter,tu;
   double temp;
@@ -265,10 +264,11 @@ void dce_bayes_run_single(int* NRI,
   int acc_theta=0;
   int acc_eta=0;
   iter=0;
+
   while (iter<NRI[0])
     { 
       iter++;
-      temp=update_gamma2(log(ktrans), kep, vp,  tau_gamma[0], tau_epsilon, conc, time, sigmagamma, T[0], aif_settings);
+     temp=update_gamma2(log(ktrans), kep, vp,  tau_gamma[0], tau_epsilon, conc, time, sigmagamma, T[0], aif_settings);
      
     if (temp!=log(ktrans))
 	{

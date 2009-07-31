@@ -70,10 +70,8 @@ mask <- rep(TRUE, 13)
 
 fit <- dcemri.spline(img, time, mask, aif="fritz.hansen")
 
-
-plot(breast$ktrans, fit$ktrans, xlim=c(0,0.5), ylim=c(0,0.5),
-     xlab="True Ktrans", ylab="Estimated Ktrans (Bayes)")
-lines(c(-0.1,0.6), c(-0.1,0.6), lty=3, col="grey")
+# not for windows, yet
+system.time(fit <- dcemri.spline(img, time, mask, aif="fritz.hansen",nlr=TRUE,multicore=TRUE)
 
 }
 \author{Volker Schmid}

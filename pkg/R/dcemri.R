@@ -267,7 +267,7 @@ dcemri.bayes <- function(conc, time, img.mask, model="extended",
 
 
 dce.bayes.single<-function(conc,time,nriters=7000,thin=10,burnin=2000,tune=267,tau.gamma=1,tau.theta=1,ab.vp=c(1,19),ab.tauepsilon=c(1,1/1000),
-aif.model=0,aif.parameter=c(2.4,0.62,3,0.016),vp=1)
+aif.model=0,aif.parameter=c(2.4,,3,0.62,0.016),vp=1)
   {
   if (sum(is.na(conc))>0)return(NA)
   else
@@ -278,9 +278,9 @@ if (tune>(0.5*nriters))tune=floor(nriters/2);
 
   singlerun<-.C("dce_bayes_run_single",as.integer(c(nriters,thin,burnin,tune)),as.double(conc),
     as.double(tau.gamma),as.double(tau.theta),as.double(ab.vp),as.double(ab.tauepsilon),
-    as.double(c(aif.model,aif.parameter)),as.integer(vp),as.double(time),as.integer(length(time)),
-    as.double(rep(0,n)),as.double(rep(0,n)),as.double(rep(0,n)),as.double(rep(0,n),as.integer(0)), PACKAGE="dcemri")
-    
+    as.double(c(aif.model,aif.parameter)),as.double(vp),as.double(time),as.integer(length(time)),
+    as.double(rep(0,n)),as.double(rep(0,n)),as.double(rep(0,n)),as.double(rep(0,n)), PACKAGE="dcemri")    
+
     return(list("ktrans"=singlerun[[11]],"kep"=singlerun[[12]],"vp"=singlerun[[13]],"sigma2"=1/singlerun[[14]]))
     }
 }
@@ -306,10 +306,10 @@ if (tune>(0.5*nriters))tune=floor(nriters/2);
            D <- 1; a1 <- 2.4; a2 <- 0.62; m1 <- 3.0; m2 <- 0.016
          },
          orton.exp = {
-           D <- 1; AB <- 323; muB <- 20.2; AG <- 1.07; muG <- 0.172
+           D <- 1; a1 <- 323; m1 <- 20.2; a2 <- 1.07; m2 <- 0.172
          },
          orton.cos = {
-           D <- 1; aB <- 2.84; muB <- 22.8; aG <- 1.36; muG <- 0.171
+           D <- 1; a1 <- 2.84; m1 <- 22.8; a2 <- 1.36; m2 <- 0.171
          },
          user = {
            cat("  User-specified AIF parameters...", fill=TRUE);
@@ -319,6 +319,9 @@ if (tune>(0.5*nriters))tune=floor(nriters/2);
          },
          print("WARNING: AIF parameters must be specified!"))
   
+	
+	aif.parameter=c(D*a1,m1,D*a2,m2)
+
 	# translate "model" to "aif.model" and "vp.do"
 	switch(model,
 	weinmann={aif.model=0
@@ -334,10 +337,7 @@ if (tune>(0.5*nriters))tune=floor(nriters/2);
   sigma2 <- rep(NA, nvoxels)
   Vp <- list(par=rep(NA, nvoxels), error=rep(NA, nvoxels))
 
-  if (mod %in% c("extended","weinmann")){aif.parameter=c(D*a1,D*a2,m1,m2)}
-	else{ aif.parameter=c(D*aB,D*aG,muB,muG)}
-
-  if (samples)
+   if (samples)
 	{
 	sigma2.samples <- ktrans.samples <- kep.samples <- c()
         if(mod %in% c("extended","orton.exp","orton.cos")) {
@@ -351,6 +351,7 @@ if (tune>(0.5*nriters))tune=floor(nriters/2);
    conc.list<-list()
    for (i in 1:nvoxels)
     conc.list[[i]]=conc.mat[i,]
+
 
   if (!multicore)
   {
@@ -385,8 +386,6 @@ if (tune>(0.5*nriters))tune=floor(nriters/2);
  	}
       }
    
-  
-
   A <- B <- array(NA, c(I,J,K))
   A[img.mask] <- ktrans$par
   B[img.mask] <- ktrans$error
@@ -411,12 +410,14 @@ if (tune>(0.5*nriters))tune=floor(nriters/2);
 	  extract.samples <- function(sample,I,J,K,NRI)
 		{
 		A <- array(NA, c(I,J,K,NRI))
+		count = -1
 		for (i in 1:I)
 		for (j in 1:J)
 		for (k in 1:K)
+		if(img.mask[i,j,k])
 		{
-		voxelcount = i+(j-1)*I+(k-1)*I*J-1
-		A[i,j,k,] <- sample[(1:NRI) + voxelcount*NRI]
+		count = count + 1
+		A[i,j,k,] <- sample[(1:NRI) + count*NRI]
 		}
 		return(A)
 		}
