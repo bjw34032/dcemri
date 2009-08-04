@@ -124,11 +124,14 @@ Fritz-Hansen, T., Rostrup, E., Larsson, H.B.W, Sondergaard, L., Ring,
 }
 \examples{
 data("buckley")
+#Set up breast data for dcemri
 img <- array(t(breast$data)[,(1:60)*5], c(13,1,1,60))
 time <- seq(5, 300, by=5) / 60
 mask <- array(rep(TRUE, 13), c(13,1,1))
-fit <- dcemri.lm(img, time, mask)
-\dontrun{fit$ktrans}
+#Generate AIF params using the orton.exp function from Buckley's AIF
+aifparams <- with(buckley, orton.exp.lm(time.min,input))
+aifparams$D<-1
+fit <- dcemri.lm(img, time, mask, model="orton.exp", aif="user", user=aifparams)
 }
 \author{Brandon Whitcher, Volker Schmid}
 \keyword{models}
