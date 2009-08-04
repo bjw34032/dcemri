@@ -1,6 +1,6 @@
 % Part of the dcemri package for R
 % Distributed under the BSD license: see dcemri/COPYING
-% Time-stamp: <2009-07-14 18:10:38 (bjw34032)>
+% Time-stamp: <2009-07-29 15:59:19 (bjw34032)>
 % $Id$
 
 \name{dcemri.bayes}
@@ -84,7 +84,7 @@ dcemri.bayes(conc, time, img.mask, model="extended",
 \examples{
 data("buckley")
 img <- t(breast$data)[,(1:60)*5]
-time <- seq(5,300,5) / 60
+time <- seq(5, 300, by=5) / 60
 mask <- rep(TRUE, 13)
 
 system.time(fit <- dcemri.bayes(img, time, mask, aif="fritz.hansen"))
