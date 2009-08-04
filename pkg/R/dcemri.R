@@ -301,26 +301,30 @@ if (tune>(0.5*nriters))tune=floor(nriters/2);
   switch(aif,
          tofts.kermode = {
            D <- 0.1; a1 <- 3.99; a2 <- 4.78; m1 <- 0.144; m2 <- 0.0111
+	   aif.parameter=c(D*a1,m1,D*a2,m2)
          },
          fritz.hansen = {
            D <- 1; a1 <- 2.4; a2 <- 0.62; m1 <- 3.0; m2 <- 0.016
+	   aif.parameter=c(D*a1,m1,D*a2,m2)
          },
          orton.exp = {
            D <- 1; a1 <- 323; m1 <- 20.2; a2 <- 1.07; m2 <- 0.172
+	   aif.parameter=c(D*a1,m1,D*a2,m2)
          },
          orton.cos = {
            D <- 1; a1 <- 2.84; m1 <- 22.8; a2 <- 1.36; m2 <- 0.171
+	   aif.parameter=c(D*a1,m1,D*a2,m2)
          },
          user = {
            cat("  User-specified AIF parameters...", fill=TRUE);
            D <- try(user$D); AB <- try(user$AB); aB <- try(user$aB);
            muB <- try(user$muB); AG <- try(user$AG); aG <- try(user$aG); 
            muG <- try(user$muG)
+	   aif.parameter=c(D*AB,muB,D*AG,muG)
          },
          print("WARNING: AIF parameters must be specified!"))
   
-	
-	aif.parameter=c(D*a1,m1,D*a2,m2)
+	#aif.parameter=c(D*a1,m1,D*a2,m2)
 
 	# translate "model" to "aif.model" and "vp.do"
 	switch(model,
