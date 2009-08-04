@@ -132,6 +132,10 @@ mask <- array(rep(TRUE, 13), c(13,1,1))
 aifparams <- with(buckley, orton.exp.lm(time.min,input))
 aifparams$D<-1
 fit <- dcemri.lm(img, time, mask, model="orton.exp", aif="user", user=aifparams)
+
+plot(breast$ktrans, fit$ktrans, xlim=c(0,0.75), ylim=c(0,0.75), xlab="True Ktrans", ylab="Estimated Ktrans")
+lines(c(-0.1,0.8), c(-0.1,0.8), lty=3, col="grey")
+
 }
 \author{Brandon Whitcher, Volker Schmid}
 \keyword{models}
