@@ -81,9 +81,10 @@ points(breast$ktrans, fit.spline.aif$ktrans, pch=2)
 legend(0.4, 0.2, pch=c(2,1), legend=c("Modelled AIF","Fritz Hansen"))
 lines(c(-0.1,0.8), c(-0.1,0.8), lty=3, col="grey")
 
-# not for windows, yet
+# Multicore options, not working for windows yet
+\dontrun{
 system.time(fit <- dcemri.spline(img, time, mask, aif="fritz.hansen",nlr=TRUE,multicore=TRUE)
-
+}
 }
 \author{Volker Schmid}
 \keyword{models}
