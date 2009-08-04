@@ -161,13 +161,13 @@ dcemri.lm <- function(conc, time, img.mask, model="extended",
   switch(mod,
          weinmann = {
            model <- model.weinmann
-           func <- function(theta, signal, time)
+           func <- function(theta, signal, time, ...)
              signal - model(time, theta[1], theta[2])
            guess <- c("th1"=0, "th3"=0.1)
          },
          extended = {
            model <- model.extended
-           func <- function(theta, signal, time)
+           func <- function(theta, signal, time, ...)
              signal - model.extended(time, theta[1], theta[2], theta[3])
            guess <- c("th0"=-1, "th1"=0, "th3"=0.1)
            Vp <- list(par=rep(NA, nvoxels), error=rep(NA, nvoxels))
