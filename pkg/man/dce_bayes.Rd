@@ -79,7 +79,7 @@ dcemri.bayes(conc, time, img.mask, model="extended",
     on Medical Imaging}, \bold{25} (12), 1627-1636.
 }
 \seealso{
-  \code{\link{dcemri.lm}}, \code{\link{dce.spline}}
+  \code{\link{dcemri.lm}}, \code{\link{dcemri.spline}}
 }
 \examples{
 data("buckley")
