@@ -854,14 +854,14 @@ if (nlr)
     	if (samples)ktrans.sample <- array(NA,c(nvoxels,nriters))
     	for (k in 1:nvoxels)
     	{
-    	ktrans<-c(ktrans,fit[[k]]$par$ktrans)
-    	if (samples)ktrans[k,]=fit[[k]]$par$ktrans.samples
+	  ktrans<-c(ktrans,fit[[k]]$par$ktrans)
+	  if (samples)ktrans[k,]=fit[[k]]$par$ktrans.samples
     	}
     	if (samples)kep.sample <- array(NA,c(nvoxels,nriters))
     	for (k in 1:nvoxels)
     	{
-    	kep<-c(kep,fit[[k]]$par$kep)
-    	if (samples)kep[k,]=fit[[k]]$par$kep.samples
+	  kep<-c(kep,fit[[k]]$par$kep)
+	  if (samples)kep[k,]=fit[[k]]$par$kep.samples
     	}
 	ve = ktrans/kep
 	if (samples) ve.samples=ktrans.samples/kep.samples
