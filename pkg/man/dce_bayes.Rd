@@ -85,7 +85,7 @@ dcemri.bayes(conc, time, img.mask, model="extended",
 data("buckley")
 img <- t(breast$data)[,(1:60)*5]
 time <- seq(5, 300, by=5) / 60
-mask <- rep(TRUE, 13)
+mask <- array(rep(TRUE, 13), c(13,1,1))
 #Generate AIF params using the orton.exp function from Buckley's AIF
 aifparams <- with(buckley, orton.exp.lm(time.min,input))
 aifparams$D<-1
