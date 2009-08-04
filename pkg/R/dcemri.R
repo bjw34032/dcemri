@@ -656,9 +656,12 @@ dce.spline.single<-function(conc, time, D, inputtime, p, rw, knots, t0.compute=F
 	for (i in 1:nriters)
 	fitted[[i]] <- B%*% beta[,i]
 	if (multicore)
+	{
+		require(multicore)
 		MAX0= mclapply(fitted,max)
-	else
+	} else {
 		MAX0= lapply(fitted,max)
+	}
 	MAX = c()
 	for (i in 1:nriters)
 	   MAX=c(MAX,MAX0[[i]])
@@ -668,14 +671,15 @@ parameters=list()
 if (nlr)
 	{
 	if(model=="AATH") model.guess[2]=median(MAX)
-	if (multicore)
-	response <- mclapply(fitted,nls.lm.single, par=model.guess,
-                         fn=fcn, fcall = model.func, model=model,
-                         time=time-t0)
-	else
-	response <- lapply(fitted,nls.lm.single, par=model.guess,
-                         fn=fcn, fcall = model.func, model=model,
-                         time=time-t0)
+	if (multicore) {
+	  require(multicore)
+	  response <- mclapply(fitted,nls.lm.single, par=model.guess,
+	    fn=fcn, fcall = model.func, model=model,
+	    time=time-t0)
+	} else
+	  response <- lapply(fitted,nls.lm.single, par=model.guess,
+	    fn=fcn, fcall = model.func, model=model,
+	    time=time-t0)
 	
 	if (model=="AATH")
 	{
