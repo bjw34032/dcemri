@@ -1,6 +1,6 @@
 % Part of the dcemri package for R
 % Distributed under the BSD license: see dcemri/COPYING
-% Time-stamp: <2009-08-05 15:33:54 (bjw34032)>
+% Time-stamp: <2009-08-05 15:47:57 (bjw34032)>
 % $Id$
 
 \name{conv.fft}

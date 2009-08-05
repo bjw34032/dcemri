@@ -1,6 +1,6 @@
 % Part of the dcemri package for R
 % Distributed under the BSD license: see dcemri/COPYING
-% Time-stamp: <2009-07-14 17:31:57 (bjw34032)>
+% Time-stamp: <2009-08-05 16:11:53 (bjw34032)>
 % $Id$
 
 \name{Relaxivity}
@@ -121,6 +121,28 @@ CA.fast2(dynamic, dyn.mask, dangle, flip, fangles, TR, r1=4, verbose=FALSE)
   \code{\link{dcemri.lm}}, \code{\link[minpack.lm]{nls.lm}}
 }
 \examples{
+## Parameters for simulated data
+S0 <- 100
+TR <- 5 / 1000            # seconds
+T1 <- 1.5                 # seconds
+alpha <- seq(2,24,by=2)   # degrees
+
+## Signal intensities for spoiled gradient echo image
+gre <- function(S0, TR, T1, alpha) {
+  theta <- alpha * pi/180 # radians
+  S0 * (1 - exp(-TR/T1)) * sin(theta) / (1 - cos(theta) * exp(-TR/T1))
+}
+set.seed(1234)
+signal <- array(gre(S0, TR, T1, alpha) + rnorm(length(alpha), sd=.15),
+                c(rep(1,3), length(alpha)))
+
+out <- R1.fast(signal, array(TRUE, rep(1,3)), alpha, TR)
+unlist(out)
+
+par(mfrow=c(1,1))
+plot(alpha, signal, xlab="Flip angle", ylab="Signal intensity")
+lines(alpha, gre(S0, TR, T1, alpha), lwd=2, col=1)
+lines(alpha, gre(drop(out$M0), TR, 1/drop(out$R10), alpha), lwd=2, col=2)
 }
 \author{B. Whitcher}
 \keyword{misc}

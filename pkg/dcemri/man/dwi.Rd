@@ -1,6 +1,6 @@
 % Part of the dcemri package for R
 % Distributed under the BSD license: see dcemri/COPYING
-% Time-stamp: <2009-06-19 17:04:28 (bjw34032)>
+% Time-stamp: <2009-08-05 15:51:37 (bjw34032)>
 
 \name{Apparent Diffusion Coefficient}
 \alias{adc.lm}
@@ -67,7 +67,6 @@ ADC.fast(dwi, bvalues, dwi.mask, verbose=FALSE)
   \code{\link[minpack.lm]{nls.lm}}
 }
 \examples{
-
 }
 \author{Brandon Whitcher}
 \keyword{models}
