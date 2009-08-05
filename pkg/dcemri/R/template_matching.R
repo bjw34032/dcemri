@@ -5,13 +5,16 @@ conv.fft <- function(A, B, C, FFTA=NULL) {
       Y <- ncol(A)
       Z <- nsli(A)
       if (is.null(FFTA)) {
-        out <- Re(fft(fft(A) * Conj(fft(B)), inv=TRUE))[X:1,Y:1,Z:1] / (X*Y*Z)
+        out <- Re(fft(fft(A) * Conj(fft(B)), inv=TRUE))[X:1,Y:1,Z:1,drop=FALSE] / (X*Y*Z)
       } else {
-        out <- Re(fft(FFTA * Conj(fft(B)), inv=TRUE))[X:1,Y:1,Z:1] / (X*Y*Z)
+        out <- Re(fft(FFTA * Conj(fft(B)), inv=TRUE))[X:1,Y:1,Z:1,drop=FALSE] / (X*Y*Z)
       }
-      out <- out[c((X-C[1]+1):X, 1:(X-C[1])),,]
-      out <- out[,c((Y-C[2]+1):Y, 1:(Y-C[2])),]
-      out <- out[,,c((Z-C[3]+1):Z, 1:(Z-C[3]))]
+      if (X > 1)
+        out <- out[c((X-C[1]+1):X, 1:(X-C[1])),,,drop=FALSE]
+      if (Y > 1)
+        out <- out[,c((Y-C[2]+1):Y, 1:(Y-C[2])),,drop=FALSE]
+      if (Z > 1)
+        out <- out[,,c((Z-C[3]+1):Z, 1:(Z-C[3])),drop=FALSE]
       return(out)
     } else {
       stop("Objects are not all the same dimension!")
