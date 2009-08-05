@@ -68,18 +68,19 @@ Weinmann, H.J., Laniado, M. and Mutzel, W. (1984) Pharmacokinetics of
 \examples{
 data("buckley")
 img <- array(t(breast$data)[,(1:60)*5], c(13,1,1,60))
-time <- seq(5, 300, by=5) / 60
+time <- buckley$time.min[(1:60)*5]
 mask <- array(rep(TRUE, 13), c(13,1,1))
-fit <- dcemri.lm(img, time, mask, aif="fritz.hansen")
-curve <- kineticmodel(time,list("ktrans"=fit$ktrans[3],"kep"=fit$kep[3],"vp"=fit$vp[3]))
-\dontrun{curve}
+fit.lm <- dcemri.lm(img, time, mask, aif="fritz.hansen")
+curve.lm <- kineticmodel(time,list("ktrans"=fit.lm$ktrans[3],"kep"=fit.lm$kep[3],"vp"=fit.lm$vp[3]))
+\dontrun{curve.lm}
 
 plot(time,img[3,1,1,],xlab="time",ylab="conc")
-lines(time,curve)
+lines(time,curve.lm)
 
-fit <- dcemri.bayes(img, time, mask, aif="fritz.hansen",multicore=TRUE)
-curve <- kineticmodel(time,list("ktrans"=fit$ktrans[3],"kep"=fit$kep[3],"vp"=fit$vp[3]))
-lines(time,curve,col="blue")
+fit.bayes <- dcemri.bayes(img, time, mask, aif="fritz.hansen",multicore=TRUE)
+curve.bayes <- kineticmodel(time,list("ktrans"=fit.bayes$ktrans[3],"kep"=fit.bayes$kep[3],"vp"=fit.bayes$vp[3]))
+lines(time,curve.bayes,col="blue")
+cbind(time,img[3,1,1,],curve.lm, curve.bayes)[20:30,]
 }
 
 \author{Brandon Whitcher, Volker Schmid}
