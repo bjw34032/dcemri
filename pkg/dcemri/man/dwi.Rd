@@ -1,6 +1,6 @@
 % Part of the dcemri package for R
 % Distributed under the BSD license: see dcemri/COPYING
-% Time-stamp: <2009-08-05 15:51:37 (bjw34032)>
+% Time-stamp: <2009-08-05 17:07:17 (bjw34032)>
 
 \name{Apparent Diffusion Coefficient}
 \alias{adc.lm}
@@ -67,6 +67,25 @@ ADC.fast(dwi, bvalues, dwi.mask, verbose=FALSE)
   \code{\link[minpack.lm]{nls.lm}}
 }
 \examples{
+S0 <- 10
+b <- c(0,50,400,800)  # units?
+D <- 0.7e-3           # mm^2 / s (normal white matter)
+
+## Signal intensities based on the (simplified) Bloch-Torry equation
+dwi <- function(S0, b, D) {
+  S0 * exp(-b*D)
+}
+
+set.seed(1234)
+signal <- array(dwi(S0, b, D) + rnorm(length(b), sd=.15),
+                c(rep(1,3), length(b)))
+ADC <- ADC.fast(signal, b, array(TRUE, rep(1,3)))
+unlist(ADC) # text output
+
+par(mfrow=c(1,1)) # graphical output
+plot(b, signal, xlab="b-value", ylab="Signal intensity")
+lines(seq(0,800,10), dwi(S0, seq(0,800,10), D), lwd=2, col=1)
+lines(seq(0,800,10), dwi(ADC$S0, seq(0,800,10), ADC$D), lwd=2, col=2)
 }
 \author{Brandon Whitcher}
 \keyword{models}
