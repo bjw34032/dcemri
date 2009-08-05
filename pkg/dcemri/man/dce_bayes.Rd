@@ -84,14 +84,14 @@ dcemri.bayes(conc, time, img.mask, model="extended",
 \examples{
 data("buckley")
 img <- array(t(breast$data)[, (1:60)*5], c(13, 1, 1, 60))
-time <- seq(5, 300, by=5) / 60
+time.min <- buckley$time.min[(1:60)*5]
 mask <- array(rep(TRUE, 13), c(13,1,1))
 #Generate AIF params using the orton.exp function from Buckley's AIF
 aifparams <- with(buckley, orton.exp.lm(time.min,input))
 aifparams$D<-1
 
-system.time(fit.bayes <- dcemri.bayes(img, time, mask, aif="fritz.hansen"))
-system.time(fit.bayes.aif <- dcemri.bayes(img, time, mask, model="orton.exp", aif="user", user=aifparams))
+fit.bayes <- dcemri.bayes(img, time.min, mask, aif="fritz.hansen")
+fit.bayes.aif <- dcemri.bayes(img, time.min, mask, model="orton.exp", aif="user", user=aifparams)
 plot(breast$ktrans, fit.bayes$ktrans, xlim=c(0,0.75), ylim=c(0,0.75),
      xlab="True Ktrans", ylab="Estimated Ktrans (Bayes)")
 points(breast$ktrans, fit.bayes.aif$ktrans, pch=2)
@@ -99,19 +99,21 @@ legend(0.4, 0.2, pch=c(2,1), legend=c("Orton Exp (modelled)","Fritz Hansen"))
 lines(c(-0.1,0.8), c(-0.1,0.8), lty=3, col="grey")
 
 
-system.time(fit.lm <- dcemri.lm(img, time, mask, aif="fritz.hansen"))
-system.time(fit.lm.aif <- dcemri.lm(img, time, mask, model="orton.exp", aif="user", user=aifparams))
+fit.lm <- dcemri.lm(img, time.min, mask, aif="fritz.hansen")
+fit.lm.aif <- dcemri.lm(img, time.min, mask, model="orton.exp", aif="user", user=aifparams)
 plot(breast$ktrans, fit.bayes$ktrans, xlim=c(0,0.75), ylim=c(0,0.75),
      xlab="True Ktrans", ylab="Estimated Ktrans")
 points(breast$ktrans, fit.bayes.aif$ktrans, pch=3)
 points(breast$ktrans, fit.lm$ktrans, pch=2)
 points(breast$ktrans, fit.lm.aif$ktrans, pch=4)
-
 legend(0.6, 0.2, pch=c(4,3,2,1), legend=c("LM OE","Bayes OE","LM FH","Bayes FH"))
 lines(c(-0.1,0.8), c(-0.1,0.8), lty=3, col="grey")
+cbind(breast$ktrans, fit.bayes$ktrans[,,1], fit.bayes.aif$ktrans[,,1], fit.lm$ktrans[,,1], fit.lm.aif$ktrans[,,1])
 
 # not for windows, yet
-system.time(fit.bayes <- dcemri.bayes(img, time, mask, aif="fritz.hansen", samples=TRUE, multicore=TRUE))
+\dontrun{
+system.time(fit.bayes <- dcemri.bayes(img, time.min, mask, aif="fritz.hansen", samples=TRUE, multicore=TRUE))
+}
 }
 \author{Volker Schmid}
 \keyword{models}
