@@ -31,6 +31,7 @@ find.center(M)
 M <- array(FALSE, rep(10,3))
 M[6:10,6:10,6:10] <- TRUE
 Mc <- find.center(M)
+print(Mc)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
