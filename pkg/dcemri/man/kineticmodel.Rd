@@ -2,6 +2,7 @@
 % Distributed under the BSD license: see dcemri/COPYING
 
 \name{kineticmodel}
+\alias{kineticmodel}
 \title{Pharmacokinetic Models}
 \description{
   Kinetic curves from single compartment models are computed from
