@@ -66,8 +66,6 @@ X<-dim(img)[1]
 Y<-dim(img)[2]
 Z<-dim(img)[3]
 
-
-
 ## Analyze
 hdr <- make.hdr(X, Y, Z, 1, "int16")
 write.analyze.img("xyz64", hdr, img, "int16")
@@ -76,7 +74,23 @@ nhdr <- make.hdr(X, Y, Z, 1, "INT", "nifti")
 write.nifti.img("xyz64", nhdr, img, "int16")
 ## These files should be viewable in, for example, FSLview.
 ## Make sure you adjust the min/max values for proper visualization.
-data <- read.img("xyz64.nii.gz")
+readdata <- read.img("xyz64.nii.gz")
+par(mfrow=c(10,10), mar=rep(0,4))
+for (z in 1:32) { 
+  image(img[,,z], zlim=range(img), col=grey(0:255/255))
+}
+for (z in 1:32) { 
+  image(data[,,z,1], zlim=range(img), col=grey(0:255/255))
+}
+## Now let's try floats
+datatypes <- c("uint8","int16","int32","float","double")
+equal <- list()
+for (x in 1:length(datatypes)) {
+  fname <- paste("test-image-",datatypes[x],sep="")
+  write.nifti.img( fname, nhdr, img, datatypes[x])
+  equal[datatypes[x]] <- all(read.img(paste(fname,".nii.gz",sep=""))[,,,1]==img)
+}
+print(equal)
 }
 \author{Brandon Whitcher, Volker Schmid}
 \keyword{file}
