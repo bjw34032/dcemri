@@ -76,10 +76,10 @@ write.nifti.img("xyz64", nhdr, img, "int16")
 ## Make sure you adjust the min/max values for proper visualization.
 readdata <- read.img("xyz64.nii.gz")
 par(mfrow=c(10,10), mar=rep(0,4))
-for (z in 1:32) { 
+for (z in 1:32) {
   image(img[,,z], zlim=range(img), col=grey(0:255/255))
 }
-for (z in 1:32) { 
+for (z in 1:32) {
   image(data[,,z,1], zlim=range(img), col=grey(0:255/255))
 }
 ## Now let's try floats
