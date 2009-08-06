@@ -1,6 +1,6 @@
 % Part of the dcemri package for R
 % Distributed under the BSD license: see dcemri/COPYING
-% Time-stamp: <2009-07-14 17:53:16 (bjw34032)>
+% Time-stamp: <2009-08-06 11:44:57 (bjw34032)>
 % $Id$
 
 \name{Write Output as Analyze/NIfTI}
@@ -57,40 +57,53 @@ write.nifti.img(fname, hdr, img, type, gzipped=TRUE, warn=-1)
     \code{\link{read.hdr}}, \code{\link{read.img}}
 }
 \examples{
-norm<-dnorm(seq(-5,5,length=32),sd=2)
-norm<-(norm-min(norm))/max(norm-min(norm))
-img<-norm%o%norm%o%norm
-img<-round(img*255)
-img[17:32,,]=255-img[17:32,,]
-X<-dim(img)[1]
-Y<-dim(img)[2]
-Z<-dim(img)[3]
+norm <- dnorm(seq(-5,5,length=32), sd=2)
+norm <- (norm-min(norm)) / max(norm-min(norm))
+img <- norm %o% norm %o% norm
+img <- round(img*255)
+img[17:32,,] <- 255 - img[17:32,,]
+X <- nrow(img)
+Y <- ncol(img)
+Z <- nsli(img)
 
-## Analyze
-hdr <- make.hdr(X, Y, Z, 1, "int16")
-write.analyze.img("xyz64", hdr, img, "int16")
 ## NIfTI
 nhdr <- make.hdr(X, Y, Z, 1, "INT", "nifti")
 write.nifti.img("xyz64", nhdr, img, "int16")
 ## These files should be viewable in, for example, FSLview.
 ## Make sure you adjust the min/max values for proper visualization.
 readdata <- read.img("xyz64.nii.gz")
-par(mfrow=c(10,10), mar=rep(0,4))
-for (z in 1:32) {
-  image(img[,,z], zlim=range(img), col=grey(0:255/255))
+
+\dontrun{
+par(mfrow=c(6,6), mar=rep(0,4))
+for (z in 1:32)
+  image(img[,,z], zlim=range(img), col=grey(0:255/255), xlab="",
+ylab="", axes=FALSE)
+
+par(mfrow=c(6,6), mar=rep(0,4))
+for (z in 1:32)
+  image(readdata[,,z,1], zlim=range(img), col=grey(0:255/255), xlab="",
+ylab="", axes=FALSE)
+
+par(mfrow=c(6,6), mar=rep(0,4))
+for (z in 1:32)
+  image(abs(readdata[,,z,1] - img[,,z]), zlim=range(img),
+col=grey(0:255/255), xlab="", ylab="", axes=FALSE)
 }
-for (z in 1:32) {
-  image(data[,,z,1], zlim=range(img), col=grey(0:255/255))
-}
-## Now let's try floats
+
+## Loop through all possible data types
 datatypes <- c("uint8","int16","int32","float","double")
 equal <- list()
 for (x in 1:length(datatypes)) {
   fname <- paste("test-image-",datatypes[x],sep="")
   write.nifti.img( fname, nhdr, img, datatypes[x])
-  equal[datatypes[x]] <- all(read.img(paste(fname,".nii.gz",sep=""))[,,,1]==img)
+  equal[[datatypes[x]]] <- all(read.img(paste(fname,".nii.gz",sep=""))[,,,1]==img)
 }
-print(equal)
+unlist(equal)
+
+## Analyze
+hdr <- make.hdr(X, Y, Z, 1, "int16")
+write.analyze.img("xyz64", hdr, img, "int16")
+
 }
 \author{Brandon Whitcher, Volker Schmid}
 \keyword{file}

@@ -29,7 +29,7 @@
 ## (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 ## OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ## 
-## Time-stamp: <2009-07-14 09:47:30 (bjw34032)>
+## Time-stamp: <2009-08-06 11:33:33 (bjw34032)>
 ## $Id$
 ##
 
@@ -392,7 +392,8 @@ make.hdr <- function(X, Y, Z, T, datatype, type="analyze") {
                      "RGB" = 24)
     slice.start <- integer(1)
     pixdim <- as.numeric(c(0,1,1,1,1,0,0,0))
-    vox.offset <- scl.slope <- scl.inter <- numeric(1)
+    vox.offset <- 352
+    scl.slope <- scl.inter <- numeric(1)
     slice.end <- slice.code <- xyzt.units <- integer(1)
     cal.max <- cal.min <- numeric(1)
     slice.duration <- numeric(1)
