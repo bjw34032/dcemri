@@ -1,6 +1,6 @@
 % Part of the dcemri package for R
 % Distributed under the BSD license: see dcemri/COPYING
-% Time-stamp: <2009-08-06 11:09:29 (bjw34032)>
+% Time-stamp: <2009-08-06 14:22:21 (bjw34032)>
 % $Id$
 
 \name{dcemri.spline}
@@ -31,11 +31,13 @@ dcemri.spline(conc, time, img.mask, time.input=time, model="weinmann",
   \item{img.mask}{Array of voxels to fit}
   \item{time.input}{Time points of observed Arterial Gd concentration, defaults to time}
   \item{model}{The type of compartmental model to be used. Acceptable models
-include: “AATH” Tofts & Kermode AIF convolved with single compartment model, or
-“weinmann” (default) Weinmann model extended with additional vascular
-compartment. }
-  \item{aif}{Arterial input function to use. Values include: "tofts.kermode", "fritz.hansen" or "observed". If "observed" you must provide the observed concentrations in aif.observed.}
-  \item{aif.observed}{Arterial concentrations observed at timepoints time.input}
+    include: \dQuote{AATH} or \dQuote{weinmann} (default).}
+  \item{aif}{Arterial input function to use. Values include:
+    \dQuote{tofts.kermode}, \dQuote{fritz.hansen} or \dQuote{observed}.
+    If \dQuote{observed} you must provide the observed concentrations in
+    aif.observed.}
+  \item{aif.observed}{Arterial concentrations observed at timepoints
+    time.input}
   \item{multicore}{Use multicore library}
   \item{nlr}{Return the generated samples}
   \item{user}{}
