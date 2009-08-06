@@ -32,7 +32,7 @@
 ## Time-stamp: <2009-08-05 08:49:38 (bjw34032)>
 ## $Id: $
 ##
-dcemri.spline.single <- function(conc, time, D, inputtime, p, rw, knots,
+dcemri.spline.single <- function(conc, time, D, time.input, p, rw, knots, k, A,
   t0.compute=FALSE, nlr=FALSE, nriters=500,
   thin=5, burnin=100, ab.hyper=c(1e-5,1e-5),
   ab.tauepsilon=c(1,1/1000),silent=0,
@@ -108,6 +108,14 @@ dcemri.spline.single <- function(conc, time, D, inputtime, p, rw, knots,
     d <- array(NA, c(T, nriters))
     for (j in 1:nriters)
       d[,j] <- D %*% beta[,j]
+
+    q05 <- function(x) {
+      quantile(x, .005, na.rm=TRUE)
+    }
+    med.na <- function(x) {
+      median(x, na.rm=TRUE)
+    }
+
     d1 <- apply(d, 1, q05)
     d2 <- apply(d, 1, med.na)
 
@@ -115,7 +123,7 @@ dcemri.spline.single <- function(conc, time, D, inputtime, p, rw, knots,
 
     beta.abl <- beta.abl2 <- rep(0, p)
 
-    B2 <- splineDesign(knots, inputtime, k-2)
+    B2 <- splineDesign(knots, time.input, k-2)
     B2 <- B2[,(1:p)+1]
 
     for (j in 1:nriters) {
@@ -241,12 +249,6 @@ dcemri.spline <- function(conc, time, img.mask, time.input=time, model="weinmann
   ## output: list with ktrans, kep, ve, std.error of ktrans and kep
   ##         (ktranserror and keperror)
   ##
-
-  ##internal function
-  q05 <- function(x)
-  quantile(x, .005, na.rm=TRUE)
-  med.na <- function(x)
-  median(x, na.rm=TRUE)
 
   ##function to make precision matrix for random walk
   R <- function(taux,rw) {
@@ -394,12 +396,12 @@ dcemri.spline <- function(conc, time, img.mask, time.input=time, model="weinmann
 
   if (!multicore)
   {
-    fit <- lapply(conc.list,dcemri.spline.single, time, D, time.input, p, rw, knots, nriters=500,thin=5, burnin=100,ab.hyper=c(1e-5,1e-5),ab.tauepsilon=c(1,1/1000),t0.compute=t0.compute,nlr=nlr,multicore=multicore,model=model,model.func=model.func,model.guess=model.guess,samples=samples, B=B)
+    fit <- lapply(conc.list,dcemri.spline.single, time, D, time.input, p, rw, knots,k, A, nriters=nriters,thin=thin, burnin=burnin,ab.hyper=ab.hyper,ab.tauepsilon=ab.tauepsilon,t0.compute=t0.compute,nlr=nlr,multicore=multicore,model=model,model.func=model.func,model.guess=model.guess,samples=samples, B=B)
   }
   else
   {
     require(multicore)
-    fit <- mclapply(conc.list,dcemri.spline.single, time, D, time.input, p, rw, knots, nriters=500,thin=5, burnin=100,ab.hyper=c(1e-5,1e-5),ab.tauepsilon=c(1,1/1000),t0.compute=t0.compute,nlr=nlr,multicore=multicore,model=model,model.func=model.func,model.guess=model.guess,samples=samples, B=B)
+    fit <- mclapply(conc.list,dcemri.spline.single, time, D, time.input, p, rw, knots, k, A, nriters=nriters,thin=thin, burnin=burin,ab.hyper=ab.hyper,ab.tauepsilon=ab.tauepsilon,t0.compute=t0.compute,nlr=nlr,multicore=multicore,model=model,model.func=model.func,model.guess=model.guess,samples=samples, B=B)
   }
 
   cat("  Reconstructing results...", fill=TRUE)
@@ -432,10 +434,11 @@ dcemri.spline <- function(conc, time, img.mask, time.input=time, model="weinmann
       {
 	ktrans<-c(ktrans,fit[[k]]$par$ktrans)
 	if (samples)
-	  ktrans.samples[k,]=fit[[k]]$par$ktrans.samples
+	  ktrans.samples[k,] <- fit[[k]]$par$ktrans.samples
       }
-      if (samples) kep.samples <- array(NA,c(nvoxels,nriters))
-	for (k in 1:nvoxels)
+      if (samples)
+	kep.samples <- array(NA,c(nvoxels,nriters))
+      for (k in 1:nvoxels)
       {
 	kep<-c(kep,fit[[k]]$par$kep)
 	if (samples)
@@ -443,7 +446,7 @@ dcemri.spline <- function(conc, time, img.mask, time.input=time, model="weinmann
       }
       ve = ktrans/kep
       if (samples)
-	ve.samples=ktrans.samples/kep.samples
+	ve.samples <- ktrans.samples/kep.samples
     }
     if (model=="AATH")
     {
@@ -482,7 +485,7 @@ dcemri.spline <- function(conc, time, img.mask, time.input=time, model="weinmann
       }
       ktrans = E*F
       if (samples)
-	ktrans.samples=E.samples/F.samples
+	ktrans.samples <- E.samples/F.samples
     }
   }
 
@@ -529,21 +532,21 @@ dcemri.spline <- function(conc, time, img.mask, time.input=time, model="weinmann
     if (samples) {
       ktrans <- ve <- array(NA,c(I,J,K,nriters))
       for (i in 1:nriters) {
-	ktrans[,,,i][img.mask]<-ktrans.sample[,i]
-	ve[,,,i][img.mask]<-ve.sample[,i]
+	ktrans[,,,i][img.mask] <- ktrans.samples[,i]
+	ve[,,,i][img.mask] <- ve.samples[,i]
       }
       if (model=="weinmann") {
 	kep <- array(NA,c(I,J,K,nriters))
 	for (i in 1:nriters) {
-	  kep[,,,i][img.mask]<-kep.sample[,i]
+	  kep[,,,i][img.mask]<-kep.samples[,i]
 	}
       }
       if (model=="AATH") {
 	E <- F <- TC <- array(NA,c(I,J,K,nriters))
 	for (i in 1:nriters) {
-	  E[,,,i][img.mask]<-E.sample[,i]
-	  F[,,,i][img.mask]<-F.sample[,i]
-	  TC[,,,i][img.mask]<-TC.sample[,i]
+	  E[,,,i][img.mask]<-E.samples[,i]
+	  F[,,,i][img.mask]<-F.samples[,i]
+	  TC[,,,i][img.mask]<-TC.samples[,i]
 	}
       }
     }

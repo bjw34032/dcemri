@@ -5,6 +5,7 @@
 
 \name{dcemri.spline}
 \alias{dcemri.spline}
+\alias{dcemri.spline.single}
 \title{Bayesian P-Splines for Dynamic Contrasat-Enhanced MRI Data}
 \description{
   Quantitative analysis of DCE-MRI typically involves the convolution of
@@ -24,6 +25,12 @@ dcemri.spline(conc, time, img.mask, time.input=time, model="weinmann",
               knots=NULL, 
               nlr = FALSE, t0.compute=FALSE, samples=FALSE, multicore=FALSE,
 \dots) 
+dcemri.spline.single(conc, time, D, time.input, p, rw, knots, k, A,
+  t0.compute=FALSE, nlr=FALSE, nriters=500,
+  thin=5, burnin=100, ab.hyper=c(1e-5,1e-5),
+  ab.tauepsilon=c(1,1/1000),silent=0,
+  multicore=FALSE, model=NULL, model.func=NULL,
+  model.guess=NULL, samples=FALSE, B=NULL)
 }
 \arguments{
   \item{conc}{An array of Gd concentration}
@@ -52,6 +59,12 @@ dcemri.spline(conc, time, img.mask, time.input=time, model="weinmann",
   \item{nriters}{}
   \item{thin}{}
   \item{burnin}{}
+  \item{D}{}
+  \item{B}{}
+  \item{A}{}
+  \item{silent}{}
+  \item{model.func}{}
+  \item{model.guess}{}
   \item{...}{}
 }
 \details{
