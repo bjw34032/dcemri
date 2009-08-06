@@ -37,7 +37,7 @@ dcemri.spline <- function(conc, time, img.mask, time.input=time, model="weinmann
   nriters=500, thin=5, burnin=100, 
   ab.hyper=c(1e-5,1e-5), ab.tauepsilon=c(1,1/1000), 
   k=4,p=25,rw=2,
-  knots=seq(min(time)-1e-3-(k-1)*(max(time)-min(time))/(knotpoints-k+1),1e-3+max(time)+k*(max(time)-min(time))/(knotpoints-k+1),(2e-3+max(time)-min(time))/(knotpoints-k+1)), 
+  knots=NULL, 
   nlr = FALSE, t0.compute=FALSE, samples=FALSE, multicore=FALSE,
 
   ...) {
@@ -275,7 +275,13 @@ dcemri.spline <- function(conc, time, img.mask, time.input=time, model="weinmann
 
     # main function
 
-    knotpoints=p
+    knotpoints <- p
+    if (is.null(knots)) {
+      knots <- seq(
+	min(time) - 1e-3 - (k - 1)*(max(time) - min(time))/(knotpoints - k + 1),
+	1e-3 + max(time) + k*(max(time)-min(time))/(knotpoints - k + 1),
+	(2e-3 + max(time) - min(time))/(knotpoints - k + 1))
+    }
     mod <- model
     nvoxels <- sum(img.mask)
     I <- nrow(conc)
