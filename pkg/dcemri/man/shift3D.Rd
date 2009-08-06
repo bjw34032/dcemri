@@ -1,6 +1,6 @@
 % Part of the dcemri package for R
 % Distributed under the BSD license: see dcemri/COPYING
-% Time-stamp: <2009-07-14 17:49:45 (bjw34032)>
+% 
 % $Id$
 
 \name{shift3D}
@@ -35,6 +35,12 @@ shift3D(A, s, type, fill=0)
   \code{\link{conv.fft}}
 }
 \examples{
+cube <- array(0, rep(20,3))
+cube[9:12,9:12,9:12] <- 1
+cube.shift <- shift3D(cube, 5, type="AP")
+par(mfrow=c(1,2), mar=rep(0.5,4))
+image(cube[,,10], xlab="", ylab="", axes=FALSE)
+image(cube.shift[,,10], xlab="", ylab="", axes=FALSE)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
