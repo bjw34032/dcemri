@@ -437,25 +437,25 @@ dcemri.spline <- function(conc, time, img.mask, time.input=time, model="weinmann
       if (model=="AATH")
       {
 	E<-F<-TC<-c()
-	if (samples)E.sample <- array(NA,c(nvoxels,nriters))
+	if (samples)E.samples <- array(NA,c(nvoxels,nriters))
 	  for (k in 1:nvoxels)
 	{
 	  E<-c(E,fit[[k]]$par$E)
-	  if (samples)E[k,]=fit[[k]]$par$E.samples
+	  if (samples)E.samples[k,]=fit[[k]]$par$E.samples
 	}
 	if (samples)F.sample <- array(NA,c(nvoxels,nriters))
 	  for (k in 1:nvoxels)
 	{
 	  F<-c(F,fit[[k]]$par$F)
-	  if (samples)F[k,]=fit[[k]]$par$F.samples
+	  if (samples)F.samples[k,]=fit[[k]]$par$F.samples
 	}
-	if (samples)TC.sample <- array(NA,c(nvoxels,nriters))
+	if (samples)TC.samples <- array(NA,c(nvoxels,nriters))
 	  for (k in 1:nvoxels)
 	{
 	  TC<-c(TC,fit[[k]]$par$TC)
-	  if (samples)TC[k,]=fit[[k]]$par$TC.samples
+	  if (samples)TC.samples[k,]=fit[[k]]$par$TC.samples
 	}
-	if (samples)ve.sample <- array(NA,c(nvoxels,nriters))
+	if (samples)ve.samples <- array(NA,c(nvoxels,nriters))
 	  for (k in 1:nvoxels)
 	{
 	  ve<-c(ve,fit[[k]]$par$ve)
