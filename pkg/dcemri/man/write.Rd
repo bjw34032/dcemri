@@ -57,13 +57,16 @@ write.nifti.img(fname, hdr, img, type, gzipped=TRUE, warn=-1)
     \code{\link{read.hdr}}, \code{\link{read.img}}
 }
 \examples{
-norm<-dnorm(seq(-5,5,length=32),sd=1)
+norm<-dnorm(seq(-5,5,length=32),sd=2)
 norm<-(norm-min(norm))/max(norm-min(norm))
 img<-norm%o%norm%o%norm
 img<-round(img*255)
+img[17:32,,]=255-img[17:32,,]
 X<-dim(img)[1]
 Y<-dim(img)[2]
 Z<-dim(img)[3]
+
+
 
 ## Analyze
 hdr <- make.hdr(X, Y, Z, 1, "int16")
