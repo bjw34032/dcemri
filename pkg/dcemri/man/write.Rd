@@ -68,12 +68,12 @@ Z <- nsli(img)
 
 ## NIfTI
 nhdr <- make.hdr(X, Y, Z, 1, "INT", "nifti")
-write.nifti.img("xyz64", nhdr, img, "int16")
+\dontrun{
+write.nifti.img("test-image-int16", nhdr, img, "int16")
 ## These files should be viewable in, for example, FSLview.
 ## Make sure you adjust the min/max values for proper visualization.
-readdata <- read.img("xyz64.nii.gz")
+readdata <- read.img("test-image-int16.nii.gz")
 
-\dontrun{
 par(mfrow=c(6,6), mar=rep(0,4))
 for (z in 1:32)
   image(img[,,z], zlim=range(img), col=grey(0:255/255), xlab="",
@@ -102,7 +102,14 @@ unlist(equal)
 
 ## Analyze
 hdr <- make.hdr(X, Y, Z, 1, "int16")
-write.analyze.img("xyz64", hdr, img, "int16")
+# Analyze datatypes are the same as the nifti.
+equal <- list()
+for (x in 1:length(datatypes)) {
+  fname <- paste("test-analyze-image-",datatypes[x],sep="")
+  write.analyze.img( fname, hdr, img, datatypes[x])
+  equal[[datatypes[x]]] <- all(read.img(paste(fname,"",sep=""))[,,,1]==img)
+}
+unlist(equal)
 
 }
 \author{Brandon Whitcher, Volker Schmid}
