@@ -419,17 +419,17 @@ dcemri.spline <- function(conc, time, img.mask, time.input=time, model="weinmann
       if (model=="weinmann")
       {
 	kep=c()
-	if (samples)ktrans.sample <- array(NA,c(nvoxels,nriters))
-	  for (k in 1:nvoxels)
+	if (samples) ktrans.samples <- array(NA,c(nvoxels,nriters))
+	for (k in 1:nvoxels)
 	{
 	  ktrans<-c(ktrans,fit[[k]]$par$ktrans)
-	  if (samples)ktrans[k,]=fit[[k]]$par$ktrans.samples
+	  if (samples) ktrans.samples[k,]=fit[[k]]$par$ktrans.samples
 	}
-	if (samples)kep.sample <- array(NA,c(nvoxels,nriters))
-	  for (k in 1:nvoxels)
+	if (samples) kep.samples <- array(NA,c(nvoxels,nriters))
+	for (k in 1:nvoxels)
 	{
 	  kep<-c(kep,fit[[k]]$par$kep)
-	  if (samples)kep[k,]=fit[[k]]$par$kep.samples
+	  if (samples) kep.samples[k,]=fit[[k]]$par$kep.samples
 	}
 	ve = ktrans/kep
 	if (samples) ve.samples=ktrans.samples/kep.samples
