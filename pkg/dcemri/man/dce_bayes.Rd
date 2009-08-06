@@ -1,6 +1,6 @@
 % Part of the dcemri package for R
 % Distributed under the BSD license: see dcemri/COPYING
-% Time-stamp: <2009-07-29 15:59:19 (bjw34032)>
+% Time-stamp: <2009-08-06 11:10:10 (bjw34032)>
 % $Id$
 
 \name{dcemri.bayes}
@@ -14,10 +14,10 @@
 \usage{
 dcemri.bayes(conc, time, img.mask, model="extended",
                       aif="tofts.kermode", user=NULL, 
-	              nriters=7000, thin=10, burnin=2000, tune=267, 
+	              nriters=9500, thin=30, burnin=2000, tune=267, 
 	              tau.ktrans=1, tau.kep=tau.ktrans, ab.vp=c(1,19),
-	              ab.tauepsilon=c(1,1/1000), samples=FALSE, multicore=FALSE
-	              ...)
+	              ab.tauepsilon=c(1,1/1000), samples=FALSE,
+                      multicore=FALSE, ...)
 }
 \arguments{
   \item{conc}{Matrix or array of concentration time series.
@@ -51,7 +51,9 @@ dcemri.bayes(conc, time, img.mask, model="extended",
     Gamma prior.} 
   \item{samples}{If \code{TRUE} output includes samples drawn
     from the posterior distribution for all parameters.}
-  \item{multicore}{If \code{TRUE} algorithm is parallelised using multicore (requires multicore package and R > 2.9.0).}
+  \item{multicore}{If \code{TRUE} algorithm is parallelized using
+    \pkg{multicore}.}
+  \item{...}{}
 }
 \details{
   See Schmid \emph{et al.} (2006) for details.
@@ -82,38 +84,35 @@ dcemri.bayes(conc, time, img.mask, model="extended",
   \code{\link{dcemri.lm}}, \code{\link{dcemri.spline}}
 }
 \examples{
-data("buckley")
+data(buckley)
 img <- array(t(breast$data)[, (1:60)*5], c(13, 1, 1, 60))
 time.min <- buckley$time.min[(1:60)*5]
 mask <- array(rep(TRUE, 13), c(13,1,1))
-#Generate AIF params using the orton.exp function from Buckley's AIF
-aifparams <- with(buckley, orton.exp.lm(time.min,input))
-aifparams$D<-1
+## Generate AIF params using the orton.exp function from Buckley's AIF
+aifparams <- with(buckley, orton.exp.lm(time.min, input))
+aifparams$D <- 1
 
 fit.bayes <- dcemri.bayes(img, time.min, mask, aif="fritz.hansen")
-fit.bayes.aif <- dcemri.bayes(img, time.min, mask, model="orton.exp", aif="user", user=aifparams)
+fit.bayes.aif <- dcemri.bayes(img, time.min, mask, model="orton.exp",
+                              aif="user", user=aifparams)
 plot(breast$ktrans, fit.bayes$ktrans, xlim=c(0,0.75), ylim=c(0,0.75),
      xlab="True Ktrans", ylab="Estimated Ktrans (Bayes)")
 points(breast$ktrans, fit.bayes.aif$ktrans, pch=2)
-legend(0.4, 0.2, pch=c(2,1), legend=c("Orton Exp (modelled)","Fritz Hansen"))
+legend(0.4, 0.2, pch=c(2,1), legend=c("Orton Exp (modelled)","Fritz-Hansen"))
 lines(c(-0.1,0.8), c(-0.1,0.8), lty=3, col="grey")
 
-
 fit.lm <- dcemri.lm(img, time.min, mask, aif="fritz.hansen")
-fit.lm.aif <- dcemri.lm(img, time.min, mask, model="orton.exp", aif="user", user=aifparams)
+fit.lm.aif <- dcemri.lm(img, time.min, mask, model="orton.exp",
+                        aif="user", user=aifparams)
 plot(breast$ktrans, fit.bayes$ktrans, xlim=c(0,0.75), ylim=c(0,0.75),
      xlab="True Ktrans", ylab="Estimated Ktrans")
 points(breast$ktrans, fit.bayes.aif$ktrans, pch=3)
 points(breast$ktrans, fit.lm$ktrans, pch=2)
 points(breast$ktrans, fit.lm.aif$ktrans, pch=4)
-legend(0.6, 0.2, pch=c(4,3,2,1), legend=c("LM OE","Bayes OE","LM FH","Bayes FH"))
+legend(0.6, 0.2, legend=c("LM OE","Bayes OE","LM FH","Bayes FH"), pch=4:1)
 lines(c(-0.1,0.8), c(-0.1,0.8), lty=3, col="grey")
-cbind(breast$ktrans, fit.bayes$ktrans[,,1], fit.bayes.aif$ktrans[,,1], fit.lm$ktrans[,,1], fit.lm.aif$ktrans[,,1])
-
-# not for windows, yet
-\dontrun{
-system.time(fit.bayes <- dcemri.bayes(img, time.min, mask, aif="fritz.hansen", samples=TRUE, multicore=TRUE))
-}
+cbind(breast$ktrans, fit.bayes$ktrans[,,1], fit.bayes.aif$ktrans[,,1],
+      fit.lm$ktrans[,,1], fit.lm.aif$ktrans[,,1])
 }
 \author{Volker Schmid}
 \keyword{models}

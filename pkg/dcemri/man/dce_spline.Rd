@@ -1,6 +1,6 @@
 % Part of the dcemri package for R
 % Distributed under the BSD license: see dcemri/COPYING
-% Time-stamp: <2009-07-15 09:44:00 (bjw34032)>
+% Time-stamp: <2009-08-06 11:09:29 (bjw34032)>
 % $Id$
 
 \name{dcemri.spline}
@@ -40,15 +40,15 @@ hyper.b=1e-5, epsilon.a=1, epsilon.b=1e-5, silent=FALSE)
   \item{hyper.b}{}
   \item{epsilon.a}{}
   \item{epsilon.b}{}
-  \item{t0}{}
-  \item{t0.compute}{}
+%  \item{t0}{}
+%  \item{t0.compute}{}
   \item{silent}{}
-  \item{aif}{}
-  \item{searchint}{}
-  \item{do.plot}{}
+%  \item{aif}{}
+%  \item{searchint}{}
+%  \item{do.plot}{}
 }
 \details{
-  See Schmid \emph{et al.} for more details.
+  See Schmid \emph{et al.} (2009) for more details.
 }
 \value{
   
@@ -63,17 +63,20 @@ hyper.b=1e-5, epsilon.a=1, epsilon.b=1e-5, silent=FALSE)
   \code{\link{dcemri.lm}}, \code{\link{dcemri.bayes}}
 }
 \examples{
-data("buckley")
+data(buckley)
 img <- array(t(breast$data)[,(1:60)*5], c(13,1,1,60))
 time.min <- buckley$time.min[(1:60)*5]
 mask <- array(rep(TRUE, 13), c(13,1,1))
-#Generate AIF params using the orton.exp function from Buckley's AIF
+## Generate AIF params using the orton.exp function from Buckley's AIF
 aifparams <- with(buckley, orton.exp.lm(time.min,input))
-aifparams$D<-1 
-pseudoobservedaif<-aif.orton.exp(tt=time.min,AB=aifparams$AB,AG=aifparams$AG,muB=aifparams$muB,muG=aifparams$muG)
+aifparams$D <- 1 
+pseudoobservedaif <- aif.orton.exp(tt=time.min, AB=aifparams$AB,
+                                   AG=aifparams$AG, muB=aifparams$muB,
+                                   muG=aifparams$muG)
 
 fit.spline <- dcemri.spline(img, time.min, mask, aif="fritz.hansen", nlr=TRUE)
-fit.spline.aif <- dcemri.spline(img, time.min, mask, aif="observed", aif.observed=pseudoobservedaif, nlr=TRUE)
+fit.spline.aif <- dcemri.spline(img, time.min, mask, aif="observed",
+                                aif.observed=pseudoobservedaif, nlr=TRUE)
 
 plot(breast$ktrans, fit.spline$ktrans, xlim=c(0,0.75), ylim=c(0,0.75),
      xlab="True Ktrans", ylab="Estimated Ktrans (Spline)")
@@ -81,11 +84,6 @@ points(breast$ktrans, fit.spline.aif$ktrans, pch=2)
 legend(0.4, 0.2, pch=c(2,1), legend=c("Modelled AIF","Fritz Hansen"))
 lines(c(-0.1,0.8), c(-0.1,0.8), lty=3, col="grey")
 cbind(breast$ktrans, fit.spline$ktrans[,,1], fit.spline.aif$ktrans[,,1])
-
-# Multicore options, not working for windows yet
-\dontrun{
-system.time(fit <- dcemri.spline(img, time.min, mask, aif="fritz.hansen",nlr=TRUE,multicore=TRUE))
-}
 }
 \author{Volker Schmid}
 \keyword{models}
