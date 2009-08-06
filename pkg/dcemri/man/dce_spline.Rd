@@ -16,36 +16,41 @@
   penalized spline models (P-splines).
 } 
 \usage{
-dcemri.spline(data, time, input, time.input=time,
-mask=array(1,dim(data)[1:(length(dim(data))-1)]), k=4, knotpoints=25, 
-knots=seq(min(time)-1e-3-(k-1)*(max(time)-min(time))/(knotpoints-k+1),1e-3+max(time)+k*(max(time)-min(time))/(knotpoints-k+1),(2e-3+max(time)-min(time))/(knotpoints-k+1)),
-rw=2, nriters=500, thin=5, burnin=100, nlr=TRUE, hyper.a=1e-5,
-hyper.b=1e-5, epsilon.a=1, epsilon.b=1e-5, silent=FALSE)
+dcemri.spline(conc, time, img.mask, time.input=time, model="weinmann", 
+              aif="tofts.kermode", user=NULL, aif.observed=NULL,
+              nriters=500, thin=5, burnin=100, 
+              ab.hyper=c(1e-5,1e-5), ab.tauepsilon=c(1,1/1000), 
+              k=4,p=25,rw=2,
+              knots=NULL, 
+              nlr = FALSE, t0.compute=FALSE, samples=FALSE, multicore=FALSE,
+\dots) 
 }
 \arguments{
-  \item{data}{}
-  \item{time}{}
-  \item{input}{}
-  \item{time.input}{}
-  \item{mask}{}
+  \item{conc}{An array of Gd concentration}
+  \item{time}{Time points of aquisition of Gd concentration}
+  \item{img.mask}{Array of voxels to fit}
+  \item{time.input}{Time points of observed Arterial Gd concentration, defaults to time}
+  \item{model}{The type of compartmental model to be used. Acceptable models
+include: “AATH” Tofts & Kermode AIF convolved with single compartment model, or
+“weinmann” (default) Weinmann model extended with additional vascular
+compartment. }
+  \item{aif}{Arterial input function to use. Values include: "tofts.kermode", "fritz.hansen" or "observed". If "observed" you must provide the observed concentrations in aif.observed.}
+  \item{aif.observed}{Arterial concentrations observed at timepoints time.input}
+  \item{multicore}{Use multicore library}
+  \item{nlr}{Return the generated samples}
+  \item{user}{}
+  \item{ab.hyper}{}
+  \item{ab.tauepsilon}{}
+  \item{p}{}
+  \item{t0.compute}{}
+  \item{samples}{}
   \item{k}{}
-  \item{knotpoints}{}
   \item{knots}{}
   \item{rw}{}
   \item{nriters}{}
   \item{thin}{}
   \item{burnin}{}
-  \item{nlr}{}
-  \item{hyper.a}{}
-  \item{hyper.b}{}
-  \item{epsilon.a}{}
-  \item{epsilon.b}{}
-%  \item{t0}{}
-%  \item{t0.compute}{}
-  \item{silent}{}
-%  \item{aif}{}
-%  \item{searchint}{}
-%  \item{do.plot}{}
+  \item{...}{}
 }
 \details{
   See Schmid \emph{et al.} (2009) for more details.
