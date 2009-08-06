@@ -57,17 +57,23 @@ write.nifti.img(fname, hdr, img, type, gzipped=TRUE, warn=-1)
     \code{\link{read.hdr}}, \code{\link{read.img}}
 }
 \examples{
-X <- Y <- Z <- 64
-img <- array(sample(c(0,1), X*Y*Z, replace=TRUE), c(X,Y,Z))
+norm<-dnorm(seq(-5,5,length=32),sd=1)
+norm<-(norm-min(norm))/max(norm-min(norm))
+img<-norm%o%norm%o%norm
+img<-round(img*255)
+X<-dim(img)[1]
+Y<-dim(img)[2]
+Z<-dim(img)[3]
+
 ## Analyze
 hdr <- make.hdr(X, Y, Z, 1, "int16")
 write.analyze.img("xyz64", hdr, img, "int16")
 ## NIfTI
 nhdr <- make.hdr(X, Y, Z, 1, "INT", "nifti")
-write.nifti.img("XYZ64", nhdr, img, "int16")
+write.nifti.img("xyz64", nhdr, img, "int16")
 ## These files should be viewable in, for example, FSLview.
 ## Make sure you adjust the min/max values for proper visualization.
-data <- read.img("XYZ64.nii.gz")
+data <- read.img("xyz64.nii.gz")
 }
 \author{Brandon Whitcher, Volker Schmid}
 \keyword{file}
