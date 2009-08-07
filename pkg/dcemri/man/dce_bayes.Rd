@@ -58,6 +58,11 @@ dcemri.bayes(conc, time, img.mask, model="extended",
     from the posterior distribution for all parameters.}
   \item{multicore}{If \code{TRUE} algorithm is parallelized using
     \pkg{multicore}.}
+  \item{tau.gamma}{}
+  \item{tau.theta}{}
+  \item{aif.model}{}
+  \item{aif.parameter}{}
+  \item{vp}{}
   \item{...}{}
 }
 \details{
