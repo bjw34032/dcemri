@@ -5,6 +5,7 @@
 
 \name{dcemri.bayes}
 \alias{dcemri.bayes}
+\alias{dcemri.bayes.single}
 \title{Bayesian Methods for Pharmacokinetic Modeling of Dynamic
   Contrast-Enhanced MRI Data}
 \description{
@@ -12,6 +13,10 @@
   DCE-MRI.
 }
 \usage{
+dcemri.bayes.single(conc, time, nriters=7000, thin=10, burnin=2000,
+  tune=267, tau.gamma=1, tau.theta=1, ab.vp=c(1, 19),
+  ab.tauepsilon=c(1, 1/1000), aif.model=0,
+  aif.parameter=c(2.4,, 3,  0.62, 0.016), vp=1)
 dcemri.bayes(conc, time, img.mask, model="extended",
                       aif="tofts.kermode", user=NULL, 
 	              nriters=9500, thin=30, burnin=2000, tune=267, 
