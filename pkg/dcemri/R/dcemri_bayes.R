@@ -95,49 +95,58 @@ dcemri.bayes <- function(conc, time, img.mask, model="extended",
   J <- ncol(conc)
   K <- nsli(conc)
 
-  if (!is.numeric(dim(conc))) {I <- J <- K <- 1} 
-  else if (length(dim(conc))==2) {J <- K <-1}
+  if (!is.numeric(dim(conc))) {
+    I <- J <- K <- 1
+  } else if (length(dim(conc))==2) {
+    J <- K <-1
+  }
 
-    cat("  Deconstructing data...", fill=TRUE)
+  cat("  Deconstructing data...", fill=TRUE)
   conc.mat <- matrix(conc[img.mask], nvoxels)
   conc.mat[is.na(conc.mat)] <- 0
 
   switch(aif,
     tofts.kermode = {
       D <- 0.1; a1 <- 3.99; a2 <- 4.78; m1 <- 0.144; m2 <- 0.0111
-      aif.parameter=c(D*a1,m1,D*a2,m2)
+      aif.parameter <- c(D*a1, m1, D*a2, m2)
     },
     fritz.hansen = {
       D <- 1; a1 <- 2.4; a2 <- 0.62; m1 <- 3.0; m2 <- 0.016
-      aif.parameter=c(D*a1,m1,D*a2,m2)
+      aif.parameter <- c(D*a1, m1, D*a2, m2)
     },
     orton.exp = {
       D <- 1; a1 <- 323; m1 <- 20.2; a2 <- 1.07; m2 <- 0.172
-      aif.parameter=c(D*a1,m1,D*a2,m2)
+      aif.parameter <- c(D*a1, m1, D*a2, m2)
     },
     orton.cos = {
       D <- 1; a1 <- 2.84; m1 <- 22.8; a2 <- 1.36; m2 <- 0.171
-      aif.parameter=c(D*a1,m1,D*a2,m2)
+      aif.parameter=c(D*a1, m1, D*a2, m2)
     },
     user = {
       cat("  User-specified AIF parameters...", fill=TRUE);
-      D <- try(user$D); AB <- try(user$AB); aB <- try(user$aB);
-      muB <- try(user$muB); AG <- try(user$AG); aG <- try(user$aG); 
+      D <- try(user$D); AB <- try(user$AB) 
+      muB <- try(user$muB); AG <- try(user$AG)
       muG <- try(user$muG)
-      aif.parameter=c(D*AB,muB,D*AG,muG)
+      aif.parameter <- c(D * AB, muB, D * AG, muG)
+      # aG, aB are probably related to orton.cos which isn't implemented
+      #aG <- try(user$aG); aB <- try(user$aB);
     },
     print("WARNING: AIF parameters must be specified!"))
 
-  #aif.parameter=c(D*a1,m1,D*a2,m2)
-
   # translate "model" to "aif.model" and "vp.do"
   switch(model,
-    weinmann={aif.model=0
-    vp.do=FALSE},
-    extended={aif.model=0
-    vp.do=TRUE},
-    orton.exp={aif.model=1
-    vp.do=TRUE},
+    weinmann={
+      aif.model <- 0
+      vp.do <- FALSE
+    },
+    extended={
+      aif.model <- 0
+      vp.do <- TRUE
+    },
+    orton.exp={
+      aif.model <- 1
+      vp.do <- TRUE
+    },
     stop("Model is not supported."))
 
 
@@ -156,9 +165,9 @@ dcemri.bayes <- function(conc, time, img.mask, model="extended",
   cat("  Estimating the kinetic parameters...", fill=TRUE)
 
 
-  conc.list<-list()
+  conc.list <- list()
   for (i in 1:nvoxels)
-    conc.list[[i]]=conc.mat[i,]
+    conc.list[[i]] <- conc.mat[i,]
 
 
   if (!multicore)
@@ -177,22 +186,24 @@ dcemri.bayes <- function(conc, time, img.mask, model="extended",
 
   cat("  Reconstructing results...", fill=TRUE)
 
-  for(k in 1:nvoxels) {
+  for (k in 1:nvoxels) {
     ktrans$par[k] <- median(fit[[k]]$ktrans)
     kep$par[k] <- median(fit[[k]]$kep)
     ktrans$error[k] <- sqrt(var(fit[[k]]$ktrans))
     kep$error[k] <- sqrt(var(fit[[k]]$kep))
-    if(mod %in% c("extended","orton.exp","orton.cos")) {
+    if (mod %in% c("extended","orton.exp","orton.cos")) {
       Vp$par[k] <- median(fit[[k]]$vp)
       Vp$error[k] <- sqrt(var(fit[[k]]$vp))
-      if (samples){Vp.samples<-c(Vp.samples,fit[[k]]$v)}
+      if (samples) {
+	Vp.samples <- c(Vp.samples,fit[[k]]$v)
+      }
     }
     sigma2[k] <- median(fit[[k]]$sigma2)
     if (samples)
     {
-      ktrans.samples<-c(ktrans.samples,fit[[k]]$ktrans)
-      kep.samples<-c(kep.samples,fit[[k]]$kep)
-      sigma2.samples<-c(sigma2.samples,fit[[k]]$sigma2)
+      ktrans.samples <- c(ktrans.samples,fit[[k]]$ktrans)
+      kep.samples <- c(kep.samples,fit[[k]]$kep)
+      sigma2.samples <- c(sigma2.samples,fit[[k]]$sigma2)
     }
   }
 
@@ -204,76 +215,67 @@ dcemri.bayes <- function(conc, time, img.mask, model="extended",
   A[img.mask] <- kep$par
   B[img.mask] <- kep$error
   kep.out <- list(par = A, error = B)
-  if(mod %in% c("extended","orton.exp","orton.cos")) {
+
+  if (mod %in% c("extended","orton.exp","orton.cos")) {
     A <- B <- array(NA, c(I,J,K))
     A[img.mask] <- Vp$par
     B[img.mask] <- Vp$error
     Vp.out <- list(par = A, error = B)
   }
+
   A <- B <- array(NA, c(I,J,K))
   A[img.mask] <- sigma2
   sigma2.out <- A
 
-
-  if (samples)
-  {
-    extract.samples <- function(sample,I,J,K,NRI)
-    {
+  if (samples) {
+    extract.samples <- function(sample, I, J, K, NRI) {
       A <- array(NA, c(I,J,K,NRI))
       count = -1
-      for (i in 1:I)
-	for (j in 1:J)
-	for (k in 1:K)
-	if(img.mask[i,j,k])
-      {
-	count = count + 1
-	A[i,j,k,] <- sample[(1:NRI) + count*NRI]
+      for (i in 1:I) {
+	for (j in 1:J) {
+	  for (k in 1:K) {
+	    if (img.mask[i, j, k]) {
+	      count = count + 1
+	      A[i,j,k,] <- sample[(1:NRI) + count*NRI]
+	    }
+	    return(A)
+	  }
+	}
       }
-      return(A)
     }
 
-    NRI <- length(ktrans.samples)/length(ktrans$par)
-    ktrans.out <- list(par = ktrans.out$par, error=ktrans.out$error, samples = extract.samples(ktrans.samples,I,J,K,NRI))
-    kep.out <- list(par = kep.out$par, error=kep.out$error, samples = extract.samples(kep.samples,I,J,K,NRI))
-    if(mod %in% c("extended","orton.exp","orton.cos")) {
-      Vp.out <- list(par = Vp.out$par, error=Vp.out$error, samples = extract.samples(Vp.samples,I,J,K,NRI))
+    NRI <- length(ktrans.samples) / length(ktrans$par)
+
+    ktrans.out <- list(par = ktrans.out$par, error=ktrans.out$error,
+      samples = extract.samples(ktrans.samples,I,J,K,NRI))
+
+    kep.out <- list(par = kep.out$par, error=kep.out$error,
+      samples= extract.samples(kep.samples, I, J, K, NRI))
+
+    if (mod %in% c("extended","orton.exp","orton.cos")) {
+      Vp.out <- list(par = Vp.out$par, error=Vp.out$error,
+	samples = extract.samples(Vp.samples, I, J, K, NRI))
     }
-    sigma2.samples <- extract.samples(sigma2.samples,I,J,K,NRI)
+    sigma2.samples <- extract.samples(sigma2.samples, I, J, K, NRI)
   }
 
 
-  if(mod %in% c("extended","orton.exp","orton.cos"))
-  {
-    if (samples)
-    {
-      list(ktrans=ktrans.out$par, kep=kep.out$par, ktranserror=ktrans.out$error,
-	keperror=kep.out$error, ve=ktrans.out$par/kep.out$par, vp=Vp.out$par,
-	vperror=Vp.out$error, sigma2=sigma2.out, ktrans.samples=ktrans.out$samples, 
-	kep.samples = kep.out$samples, vp.samples = Vp.out$samples,
-	sigma2.samples = sigma2.samples, time=time)
-    }
-    else
-    {
-      list(ktrans=ktrans.out$par, kep=kep.out$par, ktranserror=ktrans.out$error,
-	keperror=kep.out$error, ve=ktrans.out$par/kep.out$par, vp=Vp.out$par,
-	vperror=Vp.out$error, sigma2=sigma2.out, time=time)
-    }
+  returnable <- list(ktrans= ktrans.out$par, kep= kep.out$par,
+    ktranserror= ktrans.out$error, keperror= kep.out$error, 
+    ve= ktrans.out$par / kep.out$par, sigma2= sigma2.out, time= time)
+
+  if (mod %in% c("extended","orton.exp","orton.cos")) {
+    returnable[["vp"]] <- Vp.out$par
+    returnable[["vperror"]] <- Vp.out$error
+    if (samples) {
+      returnable[["vp.samples"]] <- Vp.out$samples
+    } 
+  } 
+  if (samples) {
+    returnable[["ktrans.samples"]] <- ktrans.out$samples
+    returnable[["kep.samples"]] <- kep.out$samples
+    returnable[["sigma2.samples"]] <- sigma2.samples
   }
-  else
-  {
-    if (samples)
-    {
-      list(ktrans=ktrans.out$par, kep=kep.out$par, ktranserror=ktrans.out$error,
-	keperror=kep.out$error, ve=ktrans.out$par/kep.out$par, sigma2=sigma2.out,
-	ktrans.samples=ktrans.out$samples, kep.samples = kep.out$samples, 
-	sigma2.samples = sigma2.samples, time=time)
-    }
-    else
-    {
-      list(ktrans=ktrans.out$par, kep=kep.out$par, ktranserror=ktrans.out$error,
-	keperror=kep.out$error, ve=ktrans.out$par/kep.out$par, sigma2=sigma2.out,
-	time=time)
-    }
-  }
+  return(returnable)
 }
 
