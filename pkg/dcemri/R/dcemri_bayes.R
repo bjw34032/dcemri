@@ -32,6 +32,39 @@
 ## Time-stamp: <2009-08-05 08:35:27 (bjw34032)>
 ## $Id: $
 ##
+dcemri.bayes.single <- function(conc, time, nriters=7000, thin=10, burnin=2000,
+  tune=267, tau.gamma=1, tau.theta=1, ab.vp=c(1, 19),
+  ab.tauepsilon=c(1, 1/1000), aif.model=0,
+  aif.parameter=c(2.4,, 3,  0.62, 0.016), vp=1) {
+  if (sum(is.na(conc))>0)
+    return(NA)
+  else
+  {
+    n <- floor((nriters - burnin) / thin)
+    if (tune>(0.5*nriters))
+      tune=floor(nriters/2);
+
+    singlerun <- .C("dce_bayes_run_single",
+      as.integer(c(nriters, thin, burnin, tune)),
+      as.double(conc),
+      as.double(tau.gamma),
+      as.double(tau.theta),
+      as.double(ab.vp),
+      as.double(ab.tauepsilon),
+      as.double(c(aif.model, aif.parameter)),
+      as.double(vp),
+      as.double(time),
+      as.integer(length(time)),
+      as.double(rep(0, n)),
+      as.double(rep(0, n)),
+      as.double(rep(0, n)),
+      as.double(rep(0, n)), 
+      PACKAGE="dcemri")    
+
+    return(list("ktrans"= singlerun[[11]], "kep"= singlerun[[12]],
+	"vp"= singlerun[[13]], "sigma2"= 1/singlerun[[14]]))
+  }
+}
 
 dcemri.bayes <- function(conc, time, img.mask, model="extended",
   aif="tofts.kermode", user=NULL, 
@@ -55,26 +88,6 @@ dcemri.bayes <- function(conc, time, img.mask, model="extended",
   ## output: list with ktrans, kep, ve, std.error of ktrans and kep
   ##         (ktranserror and keperror), samples if samples=TRUE
   ##
-
-
-  dce.bayes.single<-function(conc,time,nriters=7000,thin=10,burnin=2000,tune=267,tau.gamma=1,tau.theta=1,ab.vp=c(1,19),ab.tauepsilon=c(1,1/1000),
-    aif.model=0,aif.parameter=c(2.4,,3,0.62,0.016),vp=1)
-  {
-    if (sum(is.na(conc))>0)return(NA)
-      else
-    {
-
-      n<-floor((nriters-burnin)/thin)
-      if (tune>(0.5*nriters))tune=floor(nriters/2);
-
-      singlerun<-.C("dce_bayes_run_single",as.integer(c(nriters,thin,burnin,tune)),as.double(conc),
-	as.double(tau.gamma),as.double(tau.theta),as.double(ab.vp),as.double(ab.tauepsilon),
-	as.double(c(aif.model,aif.parameter)),as.double(vp),as.double(time),as.integer(length(time)),
-	as.double(rep(0,n)),as.double(rep(0,n)),as.double(rep(0,n)),as.double(rep(0,n)), PACKAGE="dcemri")    
-
-      return(list("ktrans"=singlerun[[11]],"kep"=singlerun[[12]],"vp"=singlerun[[13]],"sigma2"=1/singlerun[[14]]))
-    }
-  }
 
   mod <- model
   nvoxels <- sum(img.mask)
@@ -150,14 +163,16 @@ dcemri.bayes <- function(conc, time, img.mask, model="extended",
 
   if (!multicore)
   {
-    fit <- lapply(conc.list,dce.bayes.single,time,nriters,thin,burnin,tune,tau.ktrans,
-      tau.kep,ab.vp,ab.tauepsilon,aif.model,aif.parameter,vp.do) 
+    fit <- lapply(conc.list, dcemri.bayes.single, time, nriters, thin, burnin,
+      tune, tau.ktrans, tau.kep, ab.vp, ab.tauepsilon, aif.model,
+      aif.parameter, vp.do) 
   }
   else
   {
     require(multicore)
-    fit <- mclapply(conc.list,dce.bayes.single,time,nriters,thin,burnin,tune,tau.ktrans,
-      tau.kep,ab.vp,ab.tauepsilon,aif.model,aif.parameter,vp.do) 
+    fit <- mclapply(conc.list, dcemri.bayes.single, time, nriters, thin, burnin,
+      tune, tau.ktrans, tau.kep, ab.vp, ab.tauepsilon, aif.model,
+      aif.parameter, vp.do) 
   }
 
   cat("  Reconstructing results...", fill=TRUE)
