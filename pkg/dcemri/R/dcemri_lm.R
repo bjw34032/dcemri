@@ -34,7 +34,7 @@
 ##
 
 dcemri.lm <- function(conc, time, img.mask, model="extended",
-                      aif="tofts.kermode", nprint=0, user=NULL, ...) {
+                      aif=NULL, nprint=0, user=NULL, ...) {
   ## dcemri.lm - a function for fitting 1-compartment PK models to
   ## DCE-MRI images
   ##
@@ -52,6 +52,41 @@ dcemri.lm <- function(conc, time, img.mask, model="extended",
   ## output: list with ktrans, kep, ve, std.error of ktrans and kep
   ##         (ktranserror and keperror)
   ##
+  model <- switch(model,
+    w="weinmann",
+    e="extended",
+    orton.e="orton.exp",
+    orton.c="orton.cos",
+    stop("Unknown model ", model, call.=FALSE))
+  aif <- switch(model,
+    w=,
+    e=if (is.null(aif)) {
+      "tofts.kermode"
+    } else {
+      switch(aif,
+	t="tofts.kermode",
+	f="fritz.hansen",
+	stop("Only aif=\"tofts.kermode\" or aif=\"fritz.hansen\" acceptable aifs for model=\"weinmann\" or model=\"extended\"", call.=FALSE)
+	)
+    },
+    orton.e=if (is.null(aif)) {
+      "orton.exp"
+    } else {
+      switch(aif,
+	orton.e="orton.exp",
+	u="user",
+	stop("Only aif=\"orton.exp\" or aif=\"user\" acceptable aifs for model=\"orton.exp\""), call.=FALSE)
+    },
+    orton.c=if (is.null(aif)) {
+      "orton.cos"
+    } else {
+      switch(aif,
+	orton.c="orton.cos",
+	u="user",
+	stop("Only aif=\"orton.cos\" or aif=\"user\" acceptable aifs for model=\"orton.cos\""), call.=FALSE)
+    },
+    stop("Unknown model: " + model, call.=FALSE))
+  
 
   require("minpack.lm")
 
@@ -69,19 +104,19 @@ dcemri.lm <- function(conc, time, img.mask, model="extended",
   conc.mat[is.na(conc.mat)] <- 0
 
   switch(aif,
-         tofts.kermode = {
+         t = {
            D <- 0.1; a1 <- 3.99; a2 <- 4.78; m1 <- 0.144; m2 <- 0.0111
          },
-         fritz.hansen = {
+         f= {
            D <- 1; a1 <- 2.4; a2 <- 0.62; m1 <- 3.0; m2 <- 0.016
          },
-         orton.exp = {
+         orton.e = {
            D <- 1; AB <- 323; muB <- 20.2; AG <- 1.07; muG <- 0.172
          },
-         orton.cos = {
+         orton.c = {
            D <- 1; aB <- 2.84; muB <- 22.8; aG <- 1.36; muG <- 0.171
          },
-         user = {
+         u = {
            cat("  User-specified AIF parameters...", fill=TRUE);
            D <- try(user$D); AB <- try(user$AB); aB <- try(user$aB);
            muB <- try(user$muB); AG <- try(user$AG); aG <- try(user$aG); 
@@ -159,27 +194,27 @@ dcemri.lm <- function(conc, time, img.mask, model="extended",
   }
 
   switch(mod,
-         weinmann = {
+         w = {
            model <- model.weinmann
            func <- function(theta, signal, time, ...)
              signal - model(time, theta[1], theta[2])
            guess <- c("th1"=0, "th3"=0.1)
          },
-         extended = {
+         e = {
            model <- model.extended
            func <- function(theta, signal, time, ...)
              signal - model.extended(time, theta[1], theta[2], theta[3])
            guess <- c("th0"=-1, "th1"=0, "th3"=0.1)
            Vp <- list(par=rep(NA, nvoxels), error=rep(NA, nvoxels))
         },
-         orton.exp = {
+         orton.e = {
            model <- model.orton.exp
            func <- function(theta, signal, time, ...)
              signal - model(time, theta[1], theta[2], theta[3], ...)
            guess <- c("th0"=-1, "th1"=0, "th3"=0.1)
            Vp <- list(par=rep(NA, nvoxels), error=rep(NA, nvoxels))
          },
-         orton.cos = {
+         orton.c = {
            model <- model.orton.cos
            func <- function(theta, signal, time, ...)
              signal - model(time, theta[1], theta[2], theta[3], ...)

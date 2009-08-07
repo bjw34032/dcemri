@@ -3,7 +3,7 @@
 % Time-stamp: <2009-07-14 18:11:40 (bjw34032)>
 % $Id$
 
-\name{dcemri}
+\name{dcemri.lm}
 \alias{dcemri.lm}
 \title{Pharmacokinetic Models for Dynamic Contrast-Enhanced MRI Data}
 \description{
@@ -12,7 +12,7 @@
   Levenburg-Marquardt algorithm does the heavy lifting.
 }
 \usage{
-dcemri.lm(conc, time, img.mask, model="extended", aif="tofts.kermode",
+dcemri.lm(conc, time, img.mask, model="extended", aif=NULL,
           nprint=0, user=NULL, ...)
 }
 \arguments{
@@ -27,21 +27,32 @@ dcemri.lm(conc, time, img.mask, model="extended", aif="tofts.kermode",
     minus temporal dimension.}
   \item{model}{is a character string that identifies the type of
     compartmental model to be used.  Acceptable models include:
+
     \dQuote{weinmann} Tofts & Kermode AIF convolved with single compartment
-	 model 
+	 model
+
     \dQuote{extended} (default) Weinmann model extended with additional
-	vascular compartment, ...
+	vascular compartment,
+
     \dQuote{orton.exp} extended model using Orton's exponential AIF
+
     \dQuote{orton.cos} extended model using Orton's raised cosine AIF
     }
-  \item{aif}{is a character string that identifies the type of arterial
-    input function (AIF) to be used.  Acceptable AIF models include:
-    \code{tofts.kermode}, \code{fritz.hansen}, \code{orton.exp},
-    \code{orton.cos}, and \code{user}.  All AIF models set the
-    parametric form and parameter values; except \code{user} where a set
-    of user-defined parameter values are allowed for the
-    \code{orton.exp} model only!}
-  \item{nprint}{is an integer, that enables controlled printing of
+  \item{aif}{is a character string that identifies the parameters of the type
+    of arterial input function (AIF) used with the above model.
+
+      Acceptable values are:
+
+      \code{tofts.kermode} (default), \code{fritz.hansen} for the \code{weinmann} and \code{extended} models.
+
+      \code{orton.exp} (default) and \code{user} for the \code{orton.exp} model.
+
+      \code{orton.cos} (default) and \code{user} for the
+      \code{orton.cos} model.
+
+      All AIF models set the parametric form and parameter values; except
+\code{user} where a set of user-defined parameter values are allowed.}
+    \item{nprint}{is an integer, that enables controlled printing of
     iterates if it is positive.  In this case, estimates of \code{par}
     are printed at the beginning of the first iteration and every
     \code{nprint} iterations thereafter and immediately prior to return.

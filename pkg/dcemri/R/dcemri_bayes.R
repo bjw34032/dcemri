@@ -72,6 +72,31 @@ dcemri.bayes <- function(conc, time, img.mask, model="extended",
   tau.ktrans=1, tau.kep=tau.ktrans, ab.vp=c(1,19),
   ab.tauepsilon=c(1,1/1000), samples=FALSE, multicore=FALSE,
   ...) {
+  model <- switch(model,
+    w="weinmann",
+    e="extended",
+    o="orton.exp",
+    stop("Unknown model ", model, call.=FALSE))
+  aif <- switch(model,
+    w=,
+    e=if (is.null(aif)) {
+      "tofts.kermode"
+    } else {
+      switch(aif,
+	t="tofts.kermode",
+	f="fritz.hansen",
+	stop("Only aif=\"tofts.kermode\" or aif=\"fritz.hansen\" acceptable aifs for model=\"weinmann\" or model=\"extended\"", call.=FALSE)
+	)
+    },
+    o=if (is.null(aif)) {
+      "orton.exp"
+    } else {
+      switch(aif,
+	orton.e="orton.exp",
+	u="user",
+	stop("Only aif=\"orton.exp\" or aif=\"user\" acceptable aifs for model=\"orton.exp\""), call.=FALSE)
+    },
+    stop("Unknown model: " + model, call.=FALSE))
 
   ## dcemri.bayes - a function for fitting 1-compartment PK models to
   ## DCE-MRI images using Bayes inference
@@ -118,10 +143,11 @@ dcemri.bayes <- function(conc, time, img.mask, model="extended",
       D <- 1; a1 <- 323; m1 <- 20.2; a2 <- 1.07; m2 <- 0.172
       aif.parameter <- c(D*a1, m1, D*a2, m2)
     },
-    orton.cos = {
-      D <- 1; a1 <- 2.84; m1 <- 22.8; a2 <- 1.36; m2 <- 0.171
-      aif.parameter=c(D*a1, m1, D*a2, m2)
-    },
+    # FIXME orton.cos does not seem to be implemented
+    #orton.cos = {
+    #  D <- 1; a1 <- 2.84; m1 <- 22.8; a2 <- 1.36; m2 <- 0.171
+    #  aif.parameter=c(D*a1, m1, D*a2, m2)
+    #},
     user = {
       cat("  User-specified AIF parameters...", fill=TRUE);
       D <- try(user$D); AB <- try(user$AB) 

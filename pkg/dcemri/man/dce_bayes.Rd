@@ -32,15 +32,23 @@ dcemri.bayes(conc, time, img.mask, model="extended",
     excluded.}
   \item{model}{is a character string that identifies the type of
     compartmental model to be used.  Acceptable models include:
+
     \dQuote{weinmann} Tofts & Kermode AIF convolved with single compartment
 	 model 
+
     \dQuote{extended} (default) Weinmann model extended with additional
-	vascular compartment, ...
+	vascular compartment,
+
+    \dQuote{orton.exp} extended model using Orton's exponential AIF
     }
-  \item{aif}{Model for arterial input function. So far implemented:
-    0 or \dQuote{tofts-kermode} double exponential model by Tofts and
-    Kermode; 1 or \dQuote{orton} exponential model by Orton \emph{et
-      al}.}
+  \item{aif}{is a character string that identifies the parameters of the type
+    of arterial input function (AIF) used with the above model.
+
+      Acceptable values are:
+
+      \code{tofts.kermode} (default), \code{fritz.hansen} for the \code{weinmann} and \code{extended} models.
+
+      \code{orton.exp} (default) and \code{user} for the \code{orton.exp} model.}
   \item{user}{Vector of AIF parameters. 
     For Tofts and Kermode: \eqn{a_1},\eqn{m_1},\eqn{a_2},\eqn{m_2}; for
     Orton \emph{et al.}: \eqn{A_b},\eqn{\mu_b},\eqn{A_g},\eqn{\mu_g}.}
