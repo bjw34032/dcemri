@@ -401,7 +401,7 @@ dcemri.spline <- function(conc, time, img.mask, time.input=time, model="weinmann
   else
   {
     require(multicore)
-    fit <- mclapply(conc.list,dcemri.spline.single, time, D, time.input, p, rw, knots, k, A, nriters=nriters,thin=thin, burnin=burin,ab.hyper=ab.hyper,ab.tauepsilon=ab.tauepsilon,t0.compute=t0.compute,nlr=nlr,multicore=multicore,model=model,model.func=model.func,model.guess=model.guess,samples=samples, B=B)
+    fit <- mclapply(conc.list,dcemri.spline.single, time, D, time.input, p, rw, knots, k, A, nriters=nriters,thin=thin, burnin=burnin,ab.hyper=ab.hyper,ab.tauepsilon=ab.tauepsilon,t0.compute=t0.compute,nlr=nlr,multicore=multicore,model=model,model.func=model.func,model.guess=model.guess,samples=samples, B=B)
   }
 
   cat("  Reconstructing results...", fill=TRUE)
