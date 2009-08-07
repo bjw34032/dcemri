@@ -72,28 +72,23 @@ dcemri.bayes <- function(conc, time, img.mask, model="extended",
   tau.ktrans=1, tau.kep=tau.ktrans, ab.vp=c(1,19),
   ab.tauepsilon=c(1,1/1000), samples=FALSE, multicore=FALSE,
   ...) {
-  model <- switch(model,
-    w="weinmann",
-    e="extended",
-    o="orton.exp",
-    stop("Unknown model ", model, call.=FALSE))
   aif <- switch(model,
-    w=,
-    e=if (is.null(aif)) {
+    weinmann=,
+    extended=if (is.null(aif)) {
       "tofts.kermode"
     } else {
       switch(aif,
-	t="tofts.kermode",
-	f="fritz.hansen",
+	tofts.kermode="tofts.kermode",
+	fritz.hansen="fritz.hansen",
 	stop("Only aif=\"tofts.kermode\" or aif=\"fritz.hansen\" acceptable aifs for model=\"weinmann\" or model=\"extended\"", call.=FALSE)
 	)
     },
-    o=if (is.null(aif)) {
+    orton.exp=if (is.null(aif)) {
       "orton.exp"
     } else {
       switch(aif,
-	orton.e="orton.exp",
-	u="user",
+	orton.exp="orton.exp",
+	user="user",
 	stop("Only aif=\"orton.exp\" or aif=\"user\" acceptable aifs for model=\"orton.exp\""), call.=FALSE)
     },
     stop("Unknown model: " + model, call.=FALSE))

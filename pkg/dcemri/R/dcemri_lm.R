@@ -45,7 +45,7 @@ dcemri.lm <- function(conc, time, img.mask, model="extended",
   ##        time: timepoints of aquisition,
   ##        img.mask: array of voxels to fit,
   ##        D(=0.1): Gd dose in mmol/kg,
-  ##        model: AIF... "weinman" or "parker",
+  ##        model: AIF... "weinmann" or "parker",
   ##        update: re-do given parameter maps where parameters not fitted,
   ##        ktransmap, kepmap, ktranserror, keperror: given parameter maps.
   ##
@@ -53,36 +53,36 @@ dcemri.lm <- function(conc, time, img.mask, model="extended",
   ##         (ktranserror and keperror)
   ##
   model <- switch(model,
-    w="weinmann",
-    e="extended",
-    orton.e="orton.exp",
-    orton.c="orton.cos",
+    weinmann="weinmann",
+    extended="extended",
+    orton.exp="orton.exp",
+    orton.cos="orton.cos",
     stop("Unknown model ", model, call.=FALSE))
   aif <- switch(model,
-    w=,
-    e=if (is.null(aif)) {
+    weinmann=,
+    extended=if (is.null(aif)) {
       "tofts.kermode"
     } else {
       switch(aif,
-	t="tofts.kermode",
-	f="fritz.hansen",
+	tofts.kermode="tofts.kermode",
+	fritz.hansen="fritz.hansen",
 	stop("Only aif=\"tofts.kermode\" or aif=\"fritz.hansen\" acceptable aifs for model=\"weinmann\" or model=\"extended\"", call.=FALSE)
 	)
     },
-    orton.e=if (is.null(aif)) {
+    orton.exp=if (is.null(aif)) {
       "orton.exp"
     } else {
       switch(aif,
-	orton.e="orton.exp",
-	u="user",
+	orton.exp="orton.exp",
+	user="user",
 	stop("Only aif=\"orton.exp\" or aif=\"user\" acceptable aifs for model=\"orton.exp\""), call.=FALSE)
     },
-    orton.c=if (is.null(aif)) {
+    orton.cos=if (is.null(aif)) {
       "orton.cos"
     } else {
       switch(aif,
-	orton.c="orton.cos",
-	u="user",
+	orton.cos="orton.cos",
+	user="user",
 	stop("Only aif=\"orton.cos\" or aif=\"user\" acceptable aifs for model=\"orton.cos\""), call.=FALSE)
     },
     stop("Unknown model: " + model, call.=FALSE))
@@ -104,19 +104,19 @@ dcemri.lm <- function(conc, time, img.mask, model="extended",
   conc.mat[is.na(conc.mat)] <- 0
 
   switch(aif,
-         t = {
+         tofts.kermode = {
            D <- 0.1; a1 <- 3.99; a2 <- 4.78; m1 <- 0.144; m2 <- 0.0111
          },
-         f= {
+         fritz.hansen= {
            D <- 1; a1 <- 2.4; a2 <- 0.62; m1 <- 3.0; m2 <- 0.016
          },
-         orton.e = {
+         orton.exp = {
            D <- 1; AB <- 323; muB <- 20.2; AG <- 1.07; muG <- 0.172
          },
-         orton.c = {
+         orton.cos = {
            D <- 1; aB <- 2.84; muB <- 22.8; aG <- 1.36; muG <- 0.171
          },
-         u = {
+         user = {
            cat("  User-specified AIF parameters...", fill=TRUE);
            D <- try(user$D); AB <- try(user$AB); aB <- try(user$aB);
            muB <- try(user$muB); AG <- try(user$AG); aG <- try(user$aG); 
@@ -194,27 +194,27 @@ dcemri.lm <- function(conc, time, img.mask, model="extended",
   }
 
   switch(mod,
-         w = {
+         weinmann = {
            model <- model.weinmann
            func <- function(theta, signal, time, ...)
              signal - model(time, theta[1], theta[2])
            guess <- c("th1"=0, "th3"=0.1)
          },
-         e = {
+         extended = {
            model <- model.extended
            func <- function(theta, signal, time, ...)
              signal - model.extended(time, theta[1], theta[2], theta[3])
            guess <- c("th0"=-1, "th1"=0, "th3"=0.1)
            Vp <- list(par=rep(NA, nvoxels), error=rep(NA, nvoxels))
         },
-         orton.e = {
+         orton.exp = {
            model <- model.orton.exp
            func <- function(theta, signal, time, ...)
              signal - model(time, theta[1], theta[2], theta[3], ...)
            guess <- c("th0"=-1, "th1"=0, "th3"=0.1)
            Vp <- list(par=rep(NA, nvoxels), error=rep(NA, nvoxels))
          },
-         orton.c = {
+         orton.cos = {
            model <- model.orton.cos
            func <- function(theta, signal, time, ...)
              signal - model(time, theta[1], theta[2], theta[3], ...)
