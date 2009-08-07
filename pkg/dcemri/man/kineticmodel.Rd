@@ -3,15 +3,15 @@
 %
 % $Id: $
 
-\name{kineticmodel}
-\alias{kineticmodel}
+\name{kineticModel}
+\alias{kineticModel}
 \title{Pharmacokinetic Models}
 \description{
   Kinetic curves from single compartment models are computed from
   kinetic parameters.
 }
 \usage{
-kineticmodel(time, par, model="extended", aif="fritz.hansen")
+kineticModel(time, par, model="extended", aif="fritz.hansen")
 }
 \arguments{
   \item{time}{is a vector of acquisition times (in minutes).}
@@ -31,34 +31,34 @@ kineticmodel(time, par, model="extended", aif="fritz.hansen")
   equation (Kety 1951).  The specific parametric models considered here
   include the basic Kety model
   \deqn{C_t(t)=K^{trans}\left[C_p(t)\otimes\exp(-k_{ep}t)\right],}
-  where \eqn{\otimes} is the convoluation operator, and the so-called
+  where \eqn{\otimes}{o} is the convolution operator, and the so-called
   extended Kety model
   \deqn{C_t(t)=v_pC_p(t)+K^{trans}\left[C_p(t)\otimes\exp(-k_{ep}t)\right].}
   The arterial input function must be literature-based (with
   fixed parameters).
 }
 \value{
-  Computed kinetic curve
+  Computed pharmacokinetic curve.
 }
 \references{
-Fritz-Hansen, T., Rostrup, E., Larsson, H.B.W, Sondergaard, L., Ring,
+  Fritz-Hansen, T., Rostrup, E., Larsson, H.B.W, Sondergaard, L., Ring,
   P. and Henriksen, O. (1993) Measurement of the arterial concentration
   of Gd-DTPA using MRI: A step toward quantitative perfusion imaging,
   \emph{Magnetic Resonance in Medicine}, \bold{36}, 225-231.
-
-Tofts, P.S., Brix, G, Buckley, D.L., Evelhoch, J.L., Henderson, E.,
+  
+  Tofts, P.S., Brix, G, Buckley, D.L., Evelhoch, J.L., Henderson, E.,
   Knopp, M.V., Larsson, H.B.W., Lee, T.-Y., Mayr, N.A., Parker, G.J.M.,
   Port, R.E., Taylor, J. and Weiskoff, R. (1999) Estimating kinetic
   parameters from dynamic contrast-enhanced \eqn{T_1}-weighted MRI of a
   diffusable tracer: Standardized quantities and symbols, \emph{Journal
     of Magnetic Resonance}, \bold{10}, 223-232.
-
-Tofts, P.S. and Kermode, A.G. (1984) Measurement of the blood-brain
+  
+  Tofts, P.S. and Kermode, A.G. (1984) Measurement of the blood-brain
   barrier permeability and leakage space using dynamic MR
   imaging. 1. Fundamental concepts, \emph{Magnetic Resonance in
     Medicine}, \bold{17}, 357-367.
-
-Weinmann, H.J., Laniado, M. and Mutzel, W. (1984) Pharmacokinetics of
+  
+  Weinmann, H.J., Laniado, M. and Mutzel, W. (1984) Pharmacokinetics of
   Gd-DTPA/dimeglumine after intraveneous injection into healthy
   volunteers, \emph{Physiological Chemistry and Physics and Medical
     NMR}, \bold{16}, 167-172. 
@@ -73,16 +73,16 @@ img <- array(t(breast$data)[,(1:60)*5], c(13,1,1,60))
 time <- buckley$time.min[(1:60)*5]
 mask <- array(rep(TRUE, 13), c(13,1,1))
 fit.lm <- dcemri.lm(img, time, mask, aif="fritz.hansen")
-curve.lm <- kineticmodel(time, list("ktrans"=fit.lm$ktrans[3],
-"kep"=fit.lm$kep[3], "vp"=fit.lm$vp[3]))
+curve.lm <- kineticModel(time, list("ktrans"=fit.lm$ktrans[3],
+                         "kep"=fit.lm$kep[3], "vp"=fit.lm$vp[3]))
 \dontrun{curve.lm}
 
 plot(time, img[3,1,1,], xlab="time", ylab="conc")
 lines(time, curve.lm)
 
 fit.bayes <- dcemri.bayes(img, time, mask, aif="fritz.hansen")
-curve.bayes <- kineticmodel(time, list("ktrans"=fit.bayes$ktrans[3],
-"kep"=fit.bayes$kep[3], "vp"=fit.bayes$vp[3]))
+curve.bayes <- kineticModel(time, list("ktrans"=fit.bayes$ktrans[3],
+                            "kep"=fit.bayes$kep[3], "vp"=fit.bayes$vp[3]))
 lines(time, curve.bayes, col="blue")
 cbind(time, img[3,1,1,], curve.lm, curve.bayes)[20:30,]
 }

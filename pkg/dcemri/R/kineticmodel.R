@@ -28,26 +28,14 @@
 ## THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 ## (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 ## OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-## 
+##
+##
+## $Id: $
 
-  ## kineticmodel - a function for computing different PK models 
-  ##
-  ## authors: Volker Schmid, Brandon Whitcher
-  ##
-  ## input:
-  ##        time: timepoints of aquisition,
-  ##        par: list of kinetic parameters,
-  ##        model: "weinmann" or "extended"
-  ##        model.aif: "tofts.kermode" or "fritz.hansen"
-  ##
-  ## output: list with ktrans, kep, ve, std.error of ktrans and kep
-  ##         (ktranserror and keperror)
-  ##
+kineticModel <- function(time, par, model="extended", aif="fritz.hansen") {
 
-kineticmodel <- function(time, par, model="extended", aif="fritz.hansen")
-{
-
-  if (!(is.numeric(par$kep)))par$kep=par$ktrans/par$ve
+  if (!(is.numeric(par$kep)))
+    par$kep <- par$ktrans/par$ve
 
   switch(aif,
          tofts.kermode = {
@@ -57,28 +45,28 @@ kineticmodel <- function(time, par, model="extended", aif="fritz.hansen")
            D <- 1; a1 <- 2.4; a2 <- 0.62; m1 <- 3.0; m2 <- 0.016
          },
          stop("ERROR: AIF parameters must be specified!"))
-
+  
   model.weinmann <- function(time, ktrans, kep, ...) {
     ## Convolution of Tofts & Kermode AIF with single-compartment model
     erg <- D * ktrans * ((a1 / (m1 - kep)) *
-                           (exp(-(time * kep)) - exp(-(time * m1))) +
-                           (a2 / (m2 - kep)) *
-                           (exp(-(time * kep)) - exp(-(time * m2))))
+                         (exp(-(time * kep)) - exp(-(time * m1))) +
+                         (a2 / (m2 - kep)) *
+                         (exp(-(time * kep)) - exp(-(time * m2))))
     erg[time <= 0] <- 0
     return(erg)
   }
-
+  
   model.extended <- function(time, vp, ktrans, kep, ...) {
     ## Extended Tofts & Kermode model including the concentration of
     ## contrast agent in the blood plasma (vp)
     Cp <- function(tt, D, a1, a2, m1, m2)
       D * (a1 * exp(-m1 * tt) + a2 * exp(-m2 * tt))
-
+    
     erg <- vp * Cp(time, D, a1, a2, m1, m2) +
       D * ktrans * ((a1 / (m1 - kep)) *
-                      (exp(-(time * kep)) - exp(-(time * m1))) +
-                      (a2 / (m2 - kep)) *
-                      (exp(-(time * kep)) - exp(-(time * m2))))
+                    (exp(-(time * kep)) - exp(-(time * m1))) +
+                    (a2 / (m2 - kep)) *
+                    (exp(-(time * kep)) - exp(-(time * m2))))
     erg[time <= 0] <- 0
     return(erg)
   }
@@ -91,17 +79,15 @@ kineticmodel <- function(time, par, model="extended", aif="fritz.hansen")
            D <- 1; a1 <- 2.4; a2 <- 0.62; m1 <- 3.0; m2 <- 0.016
          },
          stop("ERROR: Model not supported!"))
-	
-    
-   switch(model,
+  
+  switch(model,
          weinmann = {
            result <- model.weinmann(time, par$ktrans, par$kep)
          },
          extended = {
            result <- model.extended(time, par$vp, par$ktrans, par$kep)
-	}
-	)
-
-return(result)
+         })
+  
+  return(result)
 }
 
