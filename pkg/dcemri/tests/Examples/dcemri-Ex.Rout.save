@@ -201,7 +201,7 @@ $D
 > ### Name: dcemri.bayes
 > ### Title: Bayesian Methods for Pharmacokinetic Modeling of Dynamic
 > ###   Contrast-Enhanced MRI Data
-> ### Aliases: dcemri.bayes
+> ### Aliases: dcemri.bayes dcemri.bayes.single
 > ### Keywords: models
 > 
 > ### ** Examples
@@ -281,7 +281,7 @@ http://www.netlib.org/minpack/disclaimer for the full license.
 > 
 > ### Name: dcemri.spline
 > ### Title: Bayesian P-Splines for Dynamic Contrasat-Enhanced MRI Data
-> ### Aliases: dcemri.spline
+> ### Aliases: dcemri.spline dcemri.spline.single
 > ### Keywords: models
 > 
 > ### ** Examples
@@ -343,7 +343,7 @@ http://www.netlib.org/minpack/disclaimer for the full license.
 > 
 > flush(stderr()); flush(stdout())
 > 
-> ### Name: dcemri
+> ### Name: dcemri.lm
 > ### Title: Pharmacokinetic Models for Dynamic Contrast-Enhanced MRI Data
 > ### Aliases: dcemri.lm
 > ### Keywords: models
@@ -530,9 +530,9 @@ http://www.netlib.org/minpack/disclaimer for the full license.
 > 
 > flush(stderr()); flush(stdout())
 > 
-> ### Name: kineticmodel
+> ### Name: kineticModel
 > ### Title: Pharmacokinetic Models
-> ### Aliases: kineticmodel
+> ### Aliases: kineticModel
 > ### Keywords: models
 > 
 > ### ** Examples
@@ -553,8 +553,8 @@ http://www.netlib.org/minpack/disclaimer for the full license.
   Deconstructing data...
   Estimating the kinetic parameters...
   Reconstructing results...
-> curve.lm <- kineticmodel(time, list("ktrans"=fit.lm$ktrans[3],
-+ "kep"=fit.lm$kep[3], "vp"=fit.lm$vp[3]))
+> curve.lm <- kineticModel(time, list("ktrans"=fit.lm$ktrans[3],
++                          "kep"=fit.lm$kep[3], "vp"=fit.lm$vp[3]))
 > ## Not run: curve.lm
 > 
 > plot(time, img[3,1,1,], xlab="time", ylab="conc")
@@ -564,8 +564,8 @@ http://www.netlib.org/minpack/disclaimer for the full license.
   Deconstructing data...
   Estimating the kinetic parameters...
   Reconstructing results...
-> curve.bayes <- kineticmodel(time, list("ktrans"=fit.bayes$ktrans[3],
-+ "kep"=fit.bayes$kep[3], "vp"=fit.bayes$vp[3]))
+> curve.bayes <- kineticModel(time, list("ktrans"=fit.bayes$ktrans[3],
++                             "kep"=fit.bayes$kep[3], "vp"=fit.bayes$vp[3]))
 > lines(time, curve.bayes, col="blue")
 > cbind(time, img[3,1,1,], curve.lm, curve.bayes)[20:30,]
           time           curve.lm curve.bayes
@@ -701,7 +701,7 @@ Loading required package: bitops
 > ### * <FOOTER>
 > ###
 > cat("Time elapsed: ", proc.time() - get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  182.763 0.545 184.948 0.014 0.014 
+Time elapsed:  183.149 0.443 185.27 0.016 0.016 
 > grDevices::dev.off()
 null device 
           1 
