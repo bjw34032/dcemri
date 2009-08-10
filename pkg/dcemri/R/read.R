@@ -1041,6 +1041,7 @@ read.nifti.img <- function(fname, onefile=TRUE, gzipped=TRUE,
   ## convert to four-dimensional array (depends on nhdr$dim)
   img.array <- array(img, nhdr$dim[2:5])
 
+
   ## check for qform and/or sform flags
   if (nhdr$qform.code > 0) {
     if (verbose)
@@ -1053,7 +1054,7 @@ read.nifti.img <- function(fname, onefile=TRUE, gzipped=TRUE,
       x <- 1:nrow(img.array) * R[1,1]
       y <- 1:ncol(img.array) * R[2,2]
       z <- 1:nsli(img.array) * R[3,3]
-      img.array <- img.array[order(x),order(y),order(z),]
+      img.array <- img.array[order(x),order(y),order(z),,drop=FALSE]
     } else {
       stop("NIfTI-1: Rotation matrix is NOT diagonal with +/- 1s")
     }
@@ -1064,8 +1065,9 @@ read.nifti.img <- function(fname, onefile=TRUE, gzipped=TRUE,
     x <- nhdr$srow.x[1] * 1:nrow(img.array) + nhdr$srow.x[4]
     y <- nhdr$srow.y[2] * 1:ncol(img.array) + nhdr$srow.y[4]
     z <- nhdr$srow.z[3] * 1:nsli(img.array) + nhdr$srow.z[4]
-    img.array <- img.array[order(x),order(y),order(z),]
+    img.array <- img.array[order(x),order(y),order(z),,drop=FALSE]
   }
+  img.array <- img.array[nrow(img.array):1,,,,drop=FALSE]
 
   return(img.array)
 }

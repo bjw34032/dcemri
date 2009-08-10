@@ -87,12 +87,26 @@ DICOM-to-NIfTI (or ANALYZE) conversion; e.g.,
 This is by no means an exhaustive list of software available for DICOM
 conversion.
 
+\subsection{A note on axes and orientation}
+The NIfTI format contains an implicit generalised spatial transformation from
+the data co-ordinate system $(i,j,k)$ into a real-space ``right-handed''
+co-ordinate system. In this real-space system, the axes $(x,y,z)$ are
+\emph{usually} set such that $x$ increases from left to right, $y$ increases
+from posterior to anterior and $z$ increases from inferior to superior.
+
+Unfortunately, this package cannot properly transform data into the
+$(x,y,z)$ space; not least because the $(x,y,z)$ space could require
+non-integral indices and hence require a more complicated accessor and imaging
+system. We do, however, attempt to at least partially transform the data, before
+setting the $x$ axis such that it increases from right to left, as per the
+standard convention. A more compliant mechanism is planned for future versions of this package.
+
 \subsection{Labelled LR Standard (MNI152) Images in NIfTI Format}
 
 The first example of reading in, and displaying, medical imaging data
 in NIfTI format (\texttt{avg152T1\_LR\_nifti.nii.gz}) was obtained
 from the NIfTI website (\url{nifti.nimh.nih.gov/nifti-1/}).  
-Successful execution of the command
+Successful execution of the command:
 
 <<avg152T1_LR_nifti>>=
 mni <- read.img("avg152T1_LR_nifti.nii.gz")
@@ -104,13 +118,23 @@ X <- nrow(mni) ; Y <- ncol(mni) ; Z <- nsli(mni)
 zrange <- range(mni)
 par(mfrow=c(10,10), mar=rep(0,4))
 for (z in 1:Z) {
-  image(1:X, 1:Y, mni[,,z], zlim=zrange, col=grey(0:64/64),
+  image(1:X, 1:Y, mni[,,z,1], zlim=zrange, col=grey(0:64/64),
         xlab="", ylab="", axes=FALSE)
 }
 dev.off()
 @ 
-produces a 3D array of the image data that may be displayed in a
-$10{\times}10$ grid of images (Figure~\ref{fig:avg152T1_LR_nifti}).
+produces a 4D array of the image data, with the default NIfTI axes.
+This may be displayed in a $10{\times}10$ grid of images
+(Figure~\ref{fig:avg152T1_LR_nifti}) using the below R code.
+
+<<avg152T1_LR_nifti-example,eval=FALSE>>=
+zrange <- range(mni)
+par(mfrow=c(10,10), mar=rep(0,4))
+for (z in 1:Z) {
+  image(1:nrow(mni), 1:ncol(mni), mni[,,z,1], zlim=zrange, col=grey(0:64/64),
+        xlab="", ylab="", axes=FALSE)
+}
+@
 
 \begin{figure}[!htbp]
   \centering
@@ -135,12 +159,12 @@ X <- nrow(mni) ; Y <- ncol(mni) ; Z <- nsli(mni)
 zrange <- range(mni)
 par(mfrow=c(10,10), mar=rep(0,4))
 for (z in 1:Z) {
-  image(1:X, 1:Y, mni[,,z], zlim=zrange, col=grey(0:64/64),
+  image(1:X, 1:Y, mni[,,z,1], zlim=zrange, col=grey(0:64/64),
         xlab="", ylab="", axes=FALSE)
 }
 dev.off()
 @ 
-produces a 3D array of the image data that may be displayed in a
+produces a 4D array of the image data that may be displayed in a
 $10{\times}10$ grid of images (Figure~\ref{fig:avg152T1_RL_nifti}).
 
 \begin{figure}[!htbp]
@@ -212,12 +236,12 @@ w <- 1
 for (z in 1:Z) {
   image(1:X, 1:Y, ffd[,,z,w], zlim=zrange, col=grey(0:64/64), 
         xlab="", ylab="", axes=FALSE)
-  image(1:X, 1:Y, ifelse(abs(zstat1[,,z]) > 4, zstat1[,,z], NA),
+  image(1:X, 1:Y, ifelse(abs(zstat1[,,z,1]) > 4, zstat1[,,z,1], NA),
         zlim=range(zstat1), col=hotmetal(), add=TRUE)
 }
 dev.off()
 @ 
-produces a 3D array of parameter estimates (essentially coefficients
+produces a 4D array of parameter estimates (essentially coefficients
 from a linear regression performed at each voxel) that may be
 overlayed on the original data for anatomical reference
 (Figure~\ref{fig:zstat1}).

@@ -179,6 +179,10 @@ write.nifti.img <- function(fname, hdr, img, type, gzipped=TRUE, warn=-1) {
   oldwarn <- options()$warn
   options(warn=warn)
   ## Basic error checking
+  if (length(dim(img))<4) {
+    img<-array(img,dim=c(dim(img),rep(1,4-length(dim(img)))))
+  }
+  img<-img[dim(img)[1]:1,,,]
   if(length(img) != prod(hdr$dim[2:5]))
     stop("Header and image dimensions do not match")
 
