@@ -66,7 +66,7 @@ E10.lm <- function(signal, alpha, guess, nprint=0) {
   list(E10=out$par[1], m0=out$par[2], info=out$info, message=out$message)
 }
 
-R1.fast <- function(flip, flip.mask, fangles, TR, r1=4, verbose=FALSE) {
+R1.fast <- function(flip, flip.mask, fangles, TR, verbose=FALSE) {
 
   if (length(dim(flip)) != 4)  # Check flip is a 4D array
     stop("Flip-angle data must be a 4D array.")
@@ -116,7 +116,7 @@ CA.fast <- function(dynamic, dyn.mask, dangle, flip, fangles, TR,
   if (!is.logical(dyn.mask))  # Check dyn.mask is logical
     stop("Mask must be logical.")
   
-  R1est <- R1.fast(flip, dyn.mask, fangles, TR, r1, verbose)
+  R1est <- R1.fast(flip, dyn.mask, fangles, TR, verbose)
   
   if (verbose)
     cat("  Calculating concentration...", fill=TRUE)

@@ -1,6 +1,6 @@
 % Part of the dcemri package for R
 % Distributed under the BSD license: see dcemri/COPYING
-% Time-stamp: <2009-08-05 16:11:53 (bjw34032)>
+% Time-stamp: <2009-08-10 11:19:15 (bjw34032)>
 % $Id$
 
 \name{Relaxivity}
@@ -18,7 +18,7 @@
 \usage{
 R10.lm(signal, alpha, TR, guess, nprint=0)
 E10.lm(signal, alpha, guess, nprint=0)
-R1.fast(flip, flip.mask, fangles, TR, r1=4, verbose=FALSE)
+R1.fast(flip, flip.mask, fangles, TR, verbose=FALSE)
 CA.fast(dynamic, dyn.mask, dangle, flip, fangles, TR, r1=4, verbose=FALSE)
 CA.fast2(dynamic, dyn.mask, dangle, flip, fangles, TR, r1=4, verbose=FALSE)
 }
