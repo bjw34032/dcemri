@@ -70,8 +70,6 @@ data through all steps of the data analysis pipeline using standard
 data formats that may be visualized and manipulated across a wide
 variety of software packages.  
 
-
-
 \section{Data Input/Output}
 
 The \pkg{dcemri} package requires incoming data to be in
@@ -479,7 +477,7 @@ order to characterize the arterial input function (AIF), it has been
 common to use literature-based AIFs in the DCE-MRI literature.
 Examples include 
 \begin{equation*}
-  C_p(t) = D \left( a_1 e^{m_1t} + a_2 e^{m_2t} \right),
+  C_p(t) = D \left( a_1 e^{-m_1t} + a_2 e^{-m_2t} \right),
 \end{equation*}
 where $D=0.1\,\text{mmol/kg}$, $a_1=3.99\,\text{kg/l}$,
 $a_2=4.78\,\text{kg/l}$, $m_1=0.144\,\text{min}^{-1}$ and
@@ -490,20 +488,38 @@ $a_2=0.62\,\text{kg/l}$, $m_1=3.0$ and $m_2=0.016$
 \citep{fri-etal:measurement}.  There has been progress in measuring
 the AIF using the dynamic acquisition and fitting a parametric model
 to the observations.  Recent models include \cite{par-etal:derived}
-and \cite{ort-etal:efficient}.  \pkg{dcemri} has incorporated two of
-the parametric models
+and \cite{ort-etal:efficient}.  \pkg{dcemri} has incorporated one of
+these parametric models:
 \begin{eqnarray*}
   C_p(t) &=& A_B t e^{-\mu_Bt} + A_G \left( e^{-\mu_Gt} +
-  e^{-\mu_Bt}\right)\\
-  C_p(t) &=& \left\{\begin{array}{ll}
-  a_B \left( 1 - \cos(\mu_Bt)\right) + a_B a_G f(t,\mu_G) &
-  0\leq{t}\leq{t_B}\\
-  a_B a_G f(t,\mu_G) e^{-\mu_G(t - t_B)} & t > t_B
-  \end{array}\right.
+  e^{-\mu_Bt}\right)%\\
+  %C_p(t) &=& \left\{\begin{array}{ll}
+  %a_B \left( 1 - \cos(\mu_Bt)\right) + a_B a_G f(t,\mu_G) &
+  %0\leq{t}\leq{t_B}\\
+  %a_B a_G f(t,\mu_G) e^{-\mu_G(t - t_B)} & t > t_B
+  %\end{array}\right.
 \end{eqnarray*}
-\citep{ort-etal:efficient} into the kinetic parameter estimation step.
-While default values for each model are provided, there is also the
-ability to include user-specified parameters.
+which can be fitted to the data obtained through acquistion using the linear
+regression. The \code{orton.exp.lm} function provides this capability and is
+shown below:
+
+<<buckley.aif>>=
+data("buckley")
+aifparams <- with(buckley, orton.exp.lm(time.min, input))
+pseudoobservedaif <- with(buckley,aif.orton.exp(tt=time.min, AB=aifparams$AB, 
+                                   AG=aifparams$AG, muB=aifparams$muB,
+                                   muG=aifparams$muG))
+@
+\begin{figure}[!htbp]
+\begin{center}
+<<figure8,fig=TRUE,echo=FALSE>>=
+with(buckley, plot(time.min, input,type="l",lty=2))
+with(buckley, lines(time.min, pseudoobservedaif,lty=1))
+legend(3,4,legend=c("Observed arterial concentration", "Our fit"), lty=c(2,1))
+@ 
+\end{center}
+\label{fig:fitted-aif}
+\end{figure}
 
 \section{Kinetic Parameter Estimation}
 
