@@ -1,6 +1,6 @@
 % Part of the dcemri package for R
 % Distributed under the BSD license: see dcemri/COPYING
-% Time-stamp: <2009-07-14 17:47:21 (bjw34032)>
+%
 % $Id$
 
 \name{Read NIfTI}
@@ -22,7 +22,8 @@ read.nifti.img(fname, onefile=TRUE, gzipped=TRUE, verbose=FALSE, warn=-1)
   \item{gzipped}{Allows the importation of compressed (.gz) files.}
   \item{verbose}{is a logical variable (default = \code{FALSE}) that
     allows text-based feedback during execution of the function.}
-  \item{warn}{}
+  \item{warn}{is a number to regulate the display of warnings (default =
+    -1).  See \code{options} for more details.}
 }
 \value{
   \code{read.nifti.hdr} returns a list containing all the fields from
@@ -42,8 +43,6 @@ read.nifti.img(fname, onefile=TRUE, gzipped=TRUE, verbose=FALSE, warn=-1)
   \code{\link{read.analyze.hdr}}, \code{\link{read.analyze.img}},
   \code{\link{write.nifti.img}}
 }
-\examples{
-
-}
+% \examples{}
 \author{Brandon Whitcher}
 \keyword{file}

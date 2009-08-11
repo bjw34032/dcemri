@@ -29,7 +29,7 @@ make.hdr(X, Y, Z, T, datatype, type)
       \dQuote{int16}, \dQuote{int32}, \dQuote{float32},
       \dQuote{float64}.}
   \item{type}{is a character string declaring either the Analyze or
-    NIfTI format (default = \code{"analyze"}).}
+    NIfTI format (default = \code{analyze}).}
 }
 \details{
   The function \code{read.hdr} decides whether the input file should be
@@ -57,8 +57,6 @@ make.hdr(X, Y, Z, T, datatype, type)
   \code{\link{read.analyze.img}}, \code{\link{read.nifti.img}},
   \code{\link{write.analyze.img}}, \code{\link{write.nifti.img}}
 }
-\examples{
-
-}
+% \examples{}
 \author{Brandon Whitcher, Volker Schmid}
 \keyword{file}

@@ -1,6 +1,6 @@
 % Part of the dcemri package for R
 % Distributed under the BSD license: see dcemri/COPYING
-% Time-stamp: <2009-08-06 14:22:21 (bjw34032)>
+%
 % $Id$
 
 \name{dcemri.spline}
@@ -19,26 +19,25 @@
 \usage{
 dcemri.spline(conc, time, img.mask, time.input=time, model="weinmann", 
               aif="tofts.kermode", user=NULL, aif.observed=NULL,
-              nriters=500, thin=5, burnin=100, 
-              ab.hyper=c(1e-5,1e-5), ab.tauepsilon=c(1,1/1000), 
-              k=4,p=25,rw=2,
-              knots=NULL, 
-              nlr = FALSE, t0.compute=FALSE, samples=FALSE, multicore=FALSE,
-\dots) 
+              nriters=500, thin=5, burnin=100, ab.hyper=c(1e-5,1e-5),
+              ab.tauepsilon=c(1,1/1000), k=4, p=25, rw=2, knots=NULL,
+              nlr=FALSE, t0.compute=FALSE, samples=FALSE, multicore=FALSE,
+              \dots) 
 dcemri.spline.single(conc, time, D, time.input, p, rw, knots, k, A,
-  t0.compute=FALSE, nlr=FALSE, nriters=500,
-  thin=5, burnin=100, ab.hyper=c(1e-5,1e-5),
-  ab.tauepsilon=c(1,1/1000),silent=0,
-  multicore=FALSE, model=NULL, model.func=NULL,
-  model.guess=NULL, samples=FALSE, B=NULL)
+                     t0.compute=FALSE, nlr=FALSE, nriters=500,
+                     thin=5, burnin=100, ab.hyper=c(1e-5,1e-5),
+                     ab.tauepsilon=c(1,1/1000), silent=0,
+                     multicore=FALSE, model=NULL, model.func=NULL,
+                     model.guess=NULL, samples=FALSE, B=NULL)
 }
 \arguments{
   \item{conc}{An array of Gd concentration}
   \item{time}{Time points of aquisition of Gd concentration}
   \item{img.mask}{Array of voxels to fit}
-  \item{time.input}{Time points of observed Arterial Gd concentration, defaults to time}
-  \item{model}{The type of compartmental model to be used. Acceptable models
-    include: \dQuote{AATH} or \dQuote{weinmann} (default).}
+  \item{time.input}{Time points of observed Arterial Gd concentration,
+    defaults to time}
+  \item{model}{The type of compartmental model to be used. Acceptable
+    models include: \dQuote{AATH} or \dQuote{weinmann} (default).}
   \item{aif}{Arterial input function to use. Values include:
     \dQuote{tofts.kermode}, \dQuote{fritz.hansen} or \dQuote{observed}.
     If \dQuote{observed} you must provide the observed concentrations in
@@ -71,7 +70,7 @@ dcemri.spline.single(conc, time, D, time.input, p, rw, knots, k, A,
   See Schmid \emph{et al.} (2009) for more details.
 }
 \value{
-  
+  To be added.
 }
 \references{
   Schmid, V., Whitcher, B., Padhani, A.R. and G.-Z. Yang (2009) A

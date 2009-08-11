@@ -131,14 +131,15 @@ read.hdr <- function(fname, verbose=FALSE) {
 
 read.analyze.hdr <- function(fname, gzipped=TRUE, verbose=FALSE, warn=-1) {
 
+  ## Warnings?
+  oldwarn <- options()$warn
+  options(warn=warn)
+
   if (gzipped)
     fid <- gzfile(paste(fname, ".hdr.gz", sep=""), "rb")
   else
     fid <- file(paste(fname, ".hdr", sep=""), "rb")
 
-  ## Warnings?
-  oldwarn <- options()$warn
-  options(warn=warn)
   ## Test for endian properties
   endian <- .Platform$endian
   size.of.hdr <- readBin(fid, integer(), size=4)
@@ -237,7 +238,6 @@ read.analyze.hdr <- function(fname, gzipped=TRUE, verbose=FALSE, warn=-1) {
 
   ## Warnings?
   options(warn=oldwarn)
-
   return(output)
 }
 
@@ -478,8 +478,8 @@ read.img <- function(fname, verbose=FALSE) {
   }
 }
 
-read.analyze.img <- function(fname, gzipped=TRUE, signed=FALSE, verbose=FALSE,
-                             warn=-1) {
+read.analyze.img <- function(fname, gzipped=TRUE, signed=FALSE,
+                             verbose=FALSE, warn=-1) {
   ##
   ## Datatype Table
   ## -----------------------------------------
@@ -498,9 +498,10 @@ read.analyze.img <- function(fname, gzipped=TRUE, signed=FALSE, verbose=FALSE,
   ## Warnings?
   oldwarn <- options()$warn
   options(warn=warn)
+
   ## Read in data from the header file
-  hdr <- read.analyze.hdr(fname, gzipped, verbose, warn)
-  n.elements <- prod(hdr$dim[2:5])
+  hdr <- read.analyze.hdr(fname, gzipped, verbose)
+  n <- prod(hdr$dim[2:5])
   size <- hdr$bitpix / 8
   what <- integer()
   switch(as.character(hdr$datatype),
@@ -510,7 +511,7 @@ read.analyze.img <- function(fname, gzipped=TRUE, signed=FALSE, verbose=FALSE,
          "16" = { what <- numeric() ; signed <- TRUE },
          "32" = {
            signed <- TRUE
-           n.elements <- prod(hdr$dim[2:5]) * 2
+           n <- prod(hdr$dim[2:5]) * 2
            size <- hdr$bitpix / 8 / 2
            what <- numeric()
          },
@@ -523,21 +524,20 @@ read.analyze.img <- function(fname, gzipped=TRUE, signed=FALSE, verbose=FALSE,
     fid <- gzfile(paste(fname, ".img.gz", sep=""), "rb")
   else
     fid <- file(paste(fname, ".img", sep=""), "rb")
-  image.data <- readBin(fid, what = what, n = n.elements, size = size,
-                        signed = signed, endian = hdr$endian)
+  image.data <- readBin(fid, what=what, n=n, size=size,
+                        signed=signed, endian=hdr$endian)
   close(fid)
   ## Place vector into four-dimensional array
   if(hdr$datatype != 32)
     image.data <- array(image.data, hdr$dim[2:5])
   else {
-    odd <- seq(1, n.elements, by=2)
-    even <- seq(2, n.elements, by=2)
+    odd <- seq(1, n, by=2)
+    even <- seq(2, n, by=2)
     image.vec <- complex(real=image.data[odd], imag=image.data[even])
     image.data <- array(image.vec, hdr$dim[2:5])
   }
   ## Warnings?
   options(warn=oldwarn)
-
   return(image.data)
 }
 
@@ -701,6 +701,10 @@ read.nifti.hdr <- function(fname, onefile=TRUE, gzipped=TRUE,
     return(R)
   }
 
+  ## Warnings?
+  oldwarn <- options()$warn
+  options(warn=warn)
+
   ## Open appropriate file
   if(gzipped) {
     suffix <- ifelse(onefile, "nii.gz", "hdr.gz")
@@ -713,9 +717,6 @@ read.nifti.hdr <- function(fname, onefile=TRUE, gzipped=TRUE,
     fid <- file(fname, "rb")
   }
 
-  ## Warnings?
-  oldwarn <- options()$warn
-  options(warn=warn)
   ## Test for endian properties
   endian <- .Platform$endian
   sizeof.hdr <- readBin(fid, integer(), size=4, endian=endian)
@@ -914,12 +915,11 @@ read.nifti.img <- function(fname, onefile=TRUE, gzipped=TRUE,
     }
   }
 
-  n <- prod(nhdr$dim[2:5])
-
   ## Warnings?
   oldwarn <- options()$warn
   options(warn=warn)
 
+  n <- prod(nhdr$dim[2:5])
   ## Open appropriate file
   if(onefile) {
     if(gzipped)
@@ -939,12 +939,8 @@ read.nifti.img <- function(fname, onefile=TRUE, gzipped=TRUE,
   }
   close(fid)
 
-  ## Warnings?
-  options(warn=oldwarn)
-
   ## convert to four-dimensional array (depends on nhdr$dim)
   img.array <- array(img, nhdr$dim[2:5])
-
 
   ## check for qform and/or sform flags
   if (nhdr$qform.code > 0) {
@@ -973,5 +969,7 @@ read.nifti.img <- function(fname, onefile=TRUE, gzipped=TRUE,
   }
   img.array <- img.array[nrow(img.array):1,,,,drop=FALSE]
 
+  ## Warnings?
+  options(warn=oldwarn)
   return(img.array)
 }

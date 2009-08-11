@@ -1,6 +1,6 @@
 % Part of the dcemri package for R
 % Distributed under the BSD license: see dcemri/COPYING
-% Time-stamp: <2009-08-05 15:15:40 (bjw34032)>
+%
 % $Id$
 
 \name{ftm}
@@ -56,6 +56,5 @@ ftm(input, mask, template, plot=FALSE, ...)
 \seealso{
   \code{\link{conv.fft}}, \code{\link{find.center}}, \code{\link{shift3D}}
 }
-\examples{
-}
-%\keyword{}
+% \examples{}
+% \keyword{}

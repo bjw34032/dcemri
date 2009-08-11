@@ -1,6 +1,6 @@
 % Part of the dcemri package for R
 % Distributed under the BSD license: see dcemri/COPYING
-% Time-stamp: <2009-07-14 17:46:55 (bjw34032)>
+%
 % $Id$
 
 \name{Read Analyze}
@@ -24,7 +24,8 @@ read.analyze.img(fname, gzipped=TRUE, signed=FALSE, verbose=FALSE, warn=-1)
     single-byte integers.}
   \item{verbose}{is a logical variable (default = \code{FALSE}) that
     allows text-based feedback during execution of the function.}
-  \item{warn}{}
+  \item{warn}{is a number to regulate the display of warnings (default =
+    -1).  See \code{options} for more details.}
 }
 \details{
   Both functions utilize the internal \code{readBin} and \code{rawToChar}
@@ -38,15 +39,12 @@ read.analyze.img(fname, gzipped=TRUE, signed=FALSE, verbose=FALSE, warn=-1)
   returns a multidimensional array taken from the binary imaging data.
 }
 \references{
-  Analyze 7.5
-  \url{http://www.mayo.edu/bir/PDF/ANALYZE75.pdf}
+  ANALYZE 7.5 \url{http://www.mayo.edu/bir/PDF/ANALYZE75.pdf}
 }
 \seealso{
   \code{\link{read.hdr}}, \code{\link{read.img}},
   \code{\link{read.nifti.hdr}}, \code{\link{read.nifti.img}}
 }
-\examples{
-
-}
+% \examples{}
 \author{Brandon Whitcher, Volker Schmid}
 \keyword{file}
