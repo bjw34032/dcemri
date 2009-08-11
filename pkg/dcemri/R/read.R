@@ -29,153 +29,102 @@
 ## (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 ## OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ## 
-## Time-stamp: <2009-08-06 11:33:33 (bjw34032)>
+## Time-stamp: <2009-08-11 09:32:22 (bjw34032)>
 ## $Id$
 ##
 
-read.hdr <- function(fname, verbose=FALSE, warn=-1) {
-  ## Warnings?
-  oldwarn <- options()$warn
-  options(warn=warn)
+read.hdr <- function(fname, verbose=FALSE) {
   ## Check if any file extensions are present
   ANALYZE <- ifelse(length(grep("hdr", fname)) != 0, TRUE, FALSE)
   NIFTI <- ifelse(length(grep("nii", fname)) != 0, TRUE, FALSE)
   GZ <- ifelse(length(grep("gz", fname)) != 0, TRUE, FALSE)
 
+  cat.file <- function(fname, thefile, fill=TRUE)
+    cat(paste("  fname =", fname, "\n  file =", thefile), fill=fill)
+  
   if (GZ) {
+    if (verbose) cat("  GZ == TRUE", fill=TRUE)
     if (ANALYZE) {
-      ls.hdr.gz <- system(paste("ls", fname), intern=TRUE, ignore.stderr=TRUE)
-      if (length(ls.hdr.gz) != 0) {
-        if (verbose)
-          cat(paste("  fname =", fname, "and file =", ls.hdr.gz), fill=TRUE)
+      if (verbose) cat("  ANALYZE == TRUE", fill=TRUE)
+      if (file.access(fname) == 0) {
+        if (verbose) cat.file(fname, fname)
         hdr <- read.analyze.hdr(sub(".hdr.gz", "", fname), gzipped=TRUE,
-                                verbose=verbose, warn=warn)
-        options(warn=oldwarn)
+                                verbose=verbose)
         return(hdr)
       }
-    } else {
-      if (NIFTI) {
-        ls.nii.gz <- system(paste("ls", fname), intern=TRUE,
-                            ignore.stderr=TRUE)
-        if (length(ls.nii.gz) != 0) {
-          if (verbose)
-            cat(paste("  fname =", fname, "and file =", ls.nii.gz), fill=TRUE)
-          hdr <- read.nifti.hdr(sub(".nii.gz", "", fname), gzipped=TRUE,
-                                verbose=verbose, warn=warn)
-          options(warn=oldwarn)
-          return(hdr)
-        }
-      } else {
-        options(warn=oldwarn)
-        stop(paste(fname, "is not recognized."))
+    }
+    if (verbose) cat("  ANALYZE == FALSE", fill=TRUE)
+    if (NIFTI) {
+      if (verbose) cat("  NIFTI == TRUE", fill=TRUE)
+      if (file.access(fname) == 0) {
+        if (verbose) cat.file(fname, fname)
+        hdr <- read.nifti.hdr(sub(".nii.gz", "", fname), gzipped=TRUE,
+                              verbose=verbose)
+        return(hdr)
       }
-    }    
+      stop(paste(fname, "is not recognized."))
+    }
   } else {
+    if (verbose) cat("  GZ == FALSE", fill=TRUE)
     if (ANALYZE) {
-      ls.hdr <- system(paste("ls", fname), intern=TRUE, ignore.stderr=TRUE)
-      if (length(ls.hdr) != 0) {
-        if (verbose)
-          cat(paste("  fname =", fname, "and file =", ls.hdr), fill=TRUE)
+      if (file.access(fname) == 0) {
+        if (verbose) cat.file(fname, fname)
         hdr <- read.analyze.hdr(sub(".hdr", "", fname), gzipped=FALSE,
-                                verbose=verbose, warn=warn)
-        options(warn=oldwarn)
+                                verbose=verbose)
         return(hdr)
-      } else {
-        fname.hdr.gz <- paste(fname, "gz", sep=".")
-        ls.hdr.gz <- system(paste("ls", fname.hdr.gz), intern=TRUE,
-                            ignore.stderr=TRUE)
-        if (length(ls.hdr.gz) != 0) {
-          if (verbose)
-            cat(paste("  fname =", fname, "and file =", ls.hdr.gz), fill=TRUE)
-          hdr <- read.analyze.hdr(sub(".hdr", "", fname), gzipped=TRUE,
-                                  verbose=verbose, warn=warn)
-          options(warn=oldwarn)
-          return(hdr)
-        } else {
-          options(warn=oldwarn)
-          stop(paste(fname, "is not recognized."))
-        }
       }
+      fname.hdr.gz <- paste(fname, "gz", sep=".")
+      if (file.access(fname.hdr.gz) == 0) {
+        if (verbose) cat.file(fname, fname.hdr.gz)
+        hdr <- read.analyze.hdr(sub(".hdr", "", fname), gzipped=TRUE,
+                                verbose=verbose)
+        return(hdr)
+      }
+      stop(paste(fname, "is not recognized."))
     } else {
+      if (verbose) cat("  ANALYZE == FALSE", fill=TRUE)
       if (NIFTI) {
-        ls.nii <- system(paste("ls", fname), intern=TRUE, ignore.stderr=TRUE)
-        if (length(ls.nii) != 0) {
-          if (verbose)
-            cat(paste("  fname =", fname, "and file =", ls.nii), fill=TRUE)
+        if (file.access(fname) == 0) {
+          if (verbose) cat.file(fname, fname)
           hdr <- read.nifti.hdr(sub(".nii", "", fname), gzipped=FALSE,
-                                verbose=verbose, warn=warn)
-          options(warn=oldwarn)
+                                verbose=verbose)
           return(hdr)
-        } else {
-          fname.nii.gz <- paste(fname, "gz", sep=".")
-          ls.nii.gz <- system(paste("ls", fname.nii.gz), intern=TRUE,
-                              ignore.stderr=TRUE)
-          if (length(ls.nii.gz) != 0) {
-            if (verbose)
-              cat(paste("  fname =", fname, "and file =", ls.nii.gz),
-                  fill=TRUE)
-            hdr <- read.nifti.hdr(sub(".nii", "", fname), gzipped=TRUE,
-                                  verbose=verbose, warn=warn)
-            options(warn=oldwarn)
-            return(hdr)
-          } else {
-            options(warn=oldwarn)
-            stop(paste(fname, "is not recognized."))
-          }
         }
+        fname.nii.gz <- paste(fname, "gz", sep=".")
+        if (file.access(fname.nii.gz) == 0) {
+          if (verbose) cat.file(fname, fname.nii.gz)
+          hdr <- read.nifti.hdr(sub(".nii", "", fname), gzipped=TRUE,
+                                verbose=verbose)
+          return(hdr)
+        }
+        stop(paste(fname, "is not recognized."))
       } else {
+        if (verbose) cat("  NIFTI == FALSE", fill=TRUE)
         fname.hdr <- paste(fname, "hdr", sep=".")
-        ls.hdr <- system(paste("ls", fname.hdr), intern=TRUE,
-                         ignore.stderr=TRUE)
-        if (length(ls.hdr) != 0) {
-          if (verbose)
-            cat(paste("  fname =", fname, "and file =", ls.hdr), fill=TRUE)
-          hdr <- read.analyze.hdr(fname, gzipped=FALSE, verbose=verbose,
-                                  warn=warn)
-          options(warn=oldwarn)
+        if (file.access(fname.hdr) == 0) {
+          if (verbose) cat.file(fname, fname.hdr)
+          hdr <- read.analyze.hdr(fname, gzipped=FALSE, verbose=verbose)
           return(hdr)
-        } else {
-          fname.hdr.gz <- paste(fname, "hdr.gz", sep=".")
-          ls.hdr.gz <- system(paste("ls", fname.hdr.gz), intern=TRUE,
-                              ignore.stderr=TRUE)
-          if (length(ls.hdr.gz) != 0) {
-            if (verbose)
-              cat(paste("  fname =", fname, "and file =", ls.hdr.gz),
-                  fill=TRUE)
-            hdr <- read.analyze.hdr(fname, gzipped=TRUE, verbose=verbose,
-                                    warn=warn)
-            options(warn=oldwarn)
-            return(hdr)
-          } else {
-            fname.nii <- paste(fname, "nii", sep=".")
-            ls.nii <- system(paste("ls", fname.nii), intern=TRUE,
-                             ignore.stderr=TRUE)
-            if (length(ls.nii) != 0) {
-              if (verbose)
-                cat(paste("  fname =", fname, "and file =", ls.nii), fill=TRUE)
-              hdr <- read.nifti.hdr(fname, gzipped=FALSE, verbose=verbose,
-                                    warn=warn)
-              options(warn=oldwarn)
-              return(hdr)
-            } else {
-              fname.nii.gz <- paste(fname, "nii.gz", sep=".")
-              ls.nii.gz <- system(paste("ls", fname.nii.gz), intern=TRUE,
-                                  ignore.stderr=TRUE)
-              if (length(ls.nii.gz) != 0) {
-                if (verbose)
-                  cat(paste("  fname =", fname, "and file =", ls.nii.gz),
-                      fill=TRUE)
-                hdr <- read.nifti.hdr(fname, gzipped=TRUE, verbose=verbose,
-                                      warn=warn)
-                options(warn=oldwarn)
-                return(hdr)
-              } else {
-                options(warn=oldwarn)
-                stop(paste(fname, "is not recognized."))
-              }
-            }
-          }
         }
+        fname.hdr.gz <- paste(fname, "hdr.gz", sep=".")
+        if (file.access(fname.hdr.gz) == 0) {
+          if (verbose) cat.file(fname, fname.hdr.gz)
+          hdr <- read.analyze.hdr(fname, gzipped=TRUE, verbose=verbose)
+          return(hdr)
+        }
+        fname.nii <- paste(fname, "nii", sep=".")
+        if (file.access(fname.nii) == 0) {
+          if (verbose) cat.file(fname, fname.nii)
+          hdr <- read.nifti.hdr(fname, gzipped=FALSE, verbose=verbose)
+          return(hdr)
+        }
+        fname.nii.gz <- paste(fname, "nii.gz", sep=".")
+        if (file.access(fname.nii.gz) == 0) {
+          if (verbose) cat.file(fname, fname.nii.gz)
+          hdr <- read.nifti.hdr(fname, gzipped=TRUE, verbose=verbose)
+          return(hdr)
+        }
+        stop(paste(fname, "is not recognized."))
       }
     }
   }
