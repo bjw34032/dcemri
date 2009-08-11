@@ -29,7 +29,6 @@
 ## (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 ## OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ## 
-## Time-stamp: <2009-08-11 09:32:22 (bjw34032)>
 ## $Id$
 ##
 
@@ -382,142 +381,98 @@ make.hdr <- function(X, Y, Z, T, datatype, type="analyze") {
   return(hdr)
 }
 
-read.img <- function(fname, verbose=FALSE, warn=-1) {
-  ## Warnings?
-  oldwarn <- options()$warn
-  options(warn=warn)
+read.img <- function(fname, verbose=FALSE) {
   ## Check if any file extensions are present
   ANALYZE <- ifelse(length(grep("img", fname)) != 0, TRUE, FALSE)
   NIFTI <- ifelse(length(grep("nii", fname)) != 0, TRUE, FALSE)
   GZ <- ifelse(length(grep("gz", fname)) != 0, TRUE, FALSE)
 
+  cat.file <- function(fname, thefile, fill=TRUE)
+    cat(paste("  fname =", fname, "\n  file =", thefile), fill=fill)
+  
   if (GZ) {
+    if (verbose) cat("  GZ == TRUE", fill=TRUE)
     if (ANALYZE) {
-      ls.img.gz <- system(paste("ls", fname), intern=TRUE, ignore.stderr=TRUE)
-      if (length(ls.img.gz) != 0) {
-        if (verbose)
-          cat(paste("  fname =", fname, "and file =", ls.img.gz), fill=TRUE)
+      if (verbose) cat("  ANALYZE == TRUE", fill=TRUE)
+      if (file.access(fname) == 0) {
+        if (verbose) cat.file(fname, fname)
         img <- read.analyze.img(sub(".img.gz", "", fname), gzipped=TRUE,
-                                verbose=verbose, warn=warn)
-        options(warn=oldwarn)
+                                verbose=verbose)
         return(img)
       }
-    } else {
-      if (NIFTI) {
-        ls.nii.gz <- system(paste("ls", fname), intern=TRUE, ignore.stderr=TRUE)
-        if (length(ls.nii.gz) != 0) {
-          if (verbose)
-            cat(paste("  fname =", fname, "and file =", ls.nii.gz), fill=TRUE)
-          img <- read.nifti.img(sub(".nii.gz", "", fname), gzipped=TRUE,
-                                verbose=verbose, warn=warn)
-          options(warn=oldwarn)
-          return(img)
-        }
-      } else {
-        options(warn=oldwarn)
-        stop(paste(fname, "is not recognized."))
+    }
+    if (verbose) cat("  ANALYZE == FALSE", fill=TRUE)
+    if (NIFTI) {
+      if (verbose) cat("  NIFTI == TRUE", fill=TRUE)
+      if (file.access(fname) == 0) {
+        if (verbose) cat.file(fname, fname)
+        img <- read.nifti.img(sub(".nii.gz", "", fname), gzipped=TRUE,
+                              verbose=verbose)
+        return(img)
       }
-    }    
+      stop(paste(fname, "is not recognized."))
+    }
   } else {
+    if (verbose) cat("  GZ == FALSE", fill=TRUE)
     if (ANALYZE) {
-      ls.img <- system(paste("ls", fname), intern=TRUE, ignore.stderr=TRUE)
-      if (length(ls.img) != 0) {
-        if (verbose)
-          cat(paste("  fname =", fname, "and file =", ls.img), fill=TRUE)
+      if (file.access(fname) == 0) {
+        if (verbose) cat.file(fname, fname)
         img <- read.analyze.img(sub(".img", "", fname), gzipped=FALSE,
-                                verbose=verbose, warn=warn)
-        options(warn=oldwarn)
+                                verbose=verbose)
         return(img)
-      } else {
-        fname.img.gz <- paste(fname, "gz", sep=".")
-        ls.img.gz <- system(paste("ls", fname.img.gz), intern=TRUE, ignore.stderr=TRUE)
-        if (length(ls.img.gz) != 0) {
-          if (verbose)
-            cat(paste("  fname =", fname, "and file =", ls.img.gz), fill=TRUE)
-          img <- read.analyze.img(sub(".img", "", fname), gzipped=TRUE,
-                                  verbose=verbose, warn=warn)
-          options(warn=oldwarn)
-          return(img)
-        } else {
-          options(warn=oldwarn)
-          stop(paste(fname, "is not recognized."))
-        }
       }
+      fname.img.gz <- paste(fname, "gz", sep=".")
+      if (file.access(fname.img.gz) == 0) {
+        if (verbose) cat.file(fname, fname.img.gz)
+        img <- read.analyze.img(sub(".img", "", fname), gzipped=TRUE,
+                                verbose=verbose)
+        return(img)
+      }
+      stop(paste(fname, "is not recognized."))
     } else {
+      if (verbose) cat("  ANALYZE == FALSE", fill=TRUE)
       if (NIFTI) {
-        ls.nii <- system(paste("ls", fname), intern=TRUE, ignore.stderr=TRUE)
-        if (length(ls.nii) != 0) {
-          if (verbose)
-            cat(paste("  fname =", fname, "and file =", ls.nii), fill=TRUE)
+        if (file.access(fname) == 0) {
+          if (verbose) cat.file(fname, fname)
           img <- read.nifti.img(sub(".nii", "", fname), gzipped=FALSE,
-                                verbose=verbose, warn=warn)
-          options(warn=oldwarn)
+                                verbose=verbose)
           return(img)
-        } else {
-          fname.nii.gz <- paste(fname, "gz", sep=".")
-          ls.nii.gz <- system(paste("ls", fname.nii.gz), intern=TRUE, ignore.stderr=TRUE)
-          if (length(ls.nii.gz) != 0) {
-            if (verbose)
-              cat(paste("  fname =", fname, "and file =", ls.nii.gz),
-                  fill=TRUE)
-            img <- read.nifti.img(sub(".nii", "", fname), gzipped=TRUE,
-                                  verbose=verbose, warn=warn)
-            options(warn=oldwarn)
-            return(img)
-          } else {
-            options(warn=oldwarn)
-            stop(paste(fname, "is not recognized."))
-          }
         }
+        fname.nii.gz <- paste(fname, "gz", sep=".")
+        if (file.access(fname.nii.gz) == 0) {
+          if (verbose) cat.file(fname, fname.nii.gz)
+          img <- read.nifti.img(sub(".nii", "", fname), gzipped=TRUE,
+                                verbose=verbose)
+          return(img)
+        }
+        stop(paste(fname, "is not recognized."))
       } else {
+        if (verbose) cat("  NIFTI == FALSE", fill=TRUE)
         fname.img <- paste(fname, "img", sep=".")
-        ls.img <- system(paste("ls", fname.img), intern=TRUE, ignore.stderr=TRUE)
-        if (length(ls.img) != 0) {
-          if (verbose)
-            cat(paste("  fname =", fname, "and file =", ls.img), fill=TRUE)
-          img <- read.analyze.img(fname, gzipped=FALSE, verbose=verbose,
-                                  warn=warn)
-          options(warn=oldwarn)
+        if (file.access(fname.img) == 0) {
+          if (verbose) cat.file(fname, fname.img)
+          img <- read.analyze.img(fname, gzipped=FALSE, verbose=verbose)
           return(img)
-        } else {
-          fname.img.gz <- paste(fname, "img.gz", sep=".")
-          ls.img.gz <- system(paste("ls", fname.img.gz), intern=TRUE, ignore.stderr=TRUE)
-          if (length(ls.img.gz) != 0) {
-            if (verbose)
-              cat(paste("  fname =", fname, "and file =", ls.img.gz),
-                  fill=TRUE)
-            img <- read.analyze.img(fname, gzipped=TRUE, verbose=verbose,
-                                    warn=warn)
-            options(warn=oldwarn)
-            return(img)
-          } else {
-            fname.nii <- paste(fname, "nii", sep=".")
-            ls.nii <- system(paste("ls", fname.nii), intern=TRUE, ignore.stderr=TRUE)
-            if (length(ls.nii) != 0) {
-              if (verbose)
-                cat(paste("  fname =", fname, "and file =", ls.nii), fill=TRUE)
-              img <- read.nifti.img(fname, gzipped=FALSE, verbose=verbose,
-                                    warn=warn)
-              options(warn=oldwarn)
-              return(img)
-            } else {
-              fname.nii.gz <- paste(fname, "nii.gz", sep=".")
-              ls.nii.gz <- system(paste("ls", fname.nii.gz), intern=TRUE, ignore.stderr=TRUE)
-              if (length(ls.nii.gz) != 0) {
-                if (verbose)
-                  cat(paste("  fname =", fname, "and file =", ls.nii.gz),
-                      fill=TRUE)
-                img <- read.nifti.img(fname, gzipped=TRUE, verbose=verbose,
-                                      warn=warn)
-                options(warn=oldwarn)
-                return(img)
-              } else {
-                options(warn=oldwarn)
-                stop(paste(fname, "is not recognized."))
-              }
-            }
-          }
         }
+        fname.img.gz <- paste(fname, "img.gz", sep=".")
+        if (file.access(fname.img.gz) == 0) {
+          if (verbose) cat.file(fname, fname.img.gz)
+          img <- read.analyze.img(fname, gzipped=TRUE, verbose=verbose)
+          return(img)
+        }
+        fname.nii <- paste(fname, "nii", sep=".")
+        if (file.access(fname.nii) == 0) {
+          if (verbose) cat.file(fname, fname.nii)
+          img <- read.nifti.img(fname, gzipped=FALSE, verbose=verbose)
+          return(img)
+        }
+        fname.nii.gz <- paste(fname, "nii.gz", sep=".")
+        if (file.access(fname.nii.gz) == 0) {
+          if (verbose) cat.file(fname, fname.nii.gz)
+          img <- read.nifti.img(fname, gzipped=TRUE, verbose=verbose)
+          return(img)
+        }
+        stop(paste(fname, "is not recognized."))
       }
     }
   }

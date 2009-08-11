@@ -1,6 +1,6 @@
 % Part of the dcemri package for R
 % Distributed under the BSD license: see dcemri/COPYING
-% Time-stamp: <2009-07-14 17:48:49 (bjw34032)>
+% 
 % $Id$
 
 \name{Read Headers and Images}
@@ -10,11 +10,11 @@
 \title{Read Headers and Binary Image Files for Medical Imaging Data}
 \description{
   These functions read in the header information and/or multidimensional
-  array from a binary file in Analyze or NIfTI formats.
+  array from a binary file in ANALYZE or NIfTI formats.
 }
 \usage{
-read.hdr(fname, verbose=FALSE, warn=-1)
-read.img(fname, verbose=FALSE, warn=-1)
+read.hdr(fname, verbose=FALSE)
+read.img(fname, verbose=FALSE)
 make.hdr(X, Y, Z, T, datatype, type)
 }
 \arguments{
@@ -22,8 +22,6 @@ make.hdr(X, Y, Z, T, datatype, type)
     .hdr) or the single NIfTI file (.nii).}
   \item{verbose}{is a logical variable (default = \code{FALSE}) that
     allows text-based feedback during execution of the function.}
-  \item{warn}{is a number to regulate the display of warnings (default =
-    -1).  See \code{\link{options}} for more details.}
   \item{X,Y,Z,T}{are the dimenisions (three spatial and one temporal)
     for the header file.}
   \item{datatype}{is a character string describing the image format.
@@ -52,8 +50,8 @@ make.hdr(X, Y, Z, T, datatype, type)
   multidimensional array taken from the binary imaging data.
 }
 \references{
-  Analyze 7.5
-  \url{http://www.mayo.edu/bir/PDF/ANALYZE75.pdf}
+  ANALYZE 7.5 \url{http://www.mayo.edu/bir/PDF/ANALYZE75.pdf}
+  NIfTI-1 \url{http://nifti.nimh.nih.gov/}
 }
 \seealso{
   \code{\link{read.analyze.img}}, \code{\link{read.nifti.img}},
