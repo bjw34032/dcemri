@@ -70,7 +70,7 @@ dcemri.bayes <- function(conc, time, img.mask, model="extended",
                          burnin=2000, tune=267, tau.ktrans=1,
                          tau.kep=tau.ktrans, ab.vp=c(1,19),
                          ab.tauepsilon=c(1,1/1000), samples=FALSE,
-                         multicore=FALSE, ...) {
+                         multicore=FALSE, verbose=FALSE, ...) {
   aif <- switch(model,
                 weinmann = ,
                 extended = {
@@ -78,10 +78,9 @@ dcemri.bayes <- function(conc, time, img.mask, model="extended",
                     "tofts.kermode"
                   } else {
                     switch(aif,
-                           tofts.kermode="tofts.kermode",
-                           fritz.hansen="fritz.hansen",
-                           stop("Only aif=\"tofts.kermode\" or aif=\"fritz.hansen\" acceptable aifs for model=\"weinmann\" or model=\"extended\"", call.=FALSE)
-                           )
+                           tofts.kermode = "tofts.kermode",
+                           fritz.hansen = "fritz.hansen",
+                           stop("Only aif=\"tofts.kermode\" or aif=\"fritz.hansen\" acceptable AIFs for model=\"weinmann\" or model=\"extended\"", call.=FALSE))
                   }
                 },
                 orton.exp = {
@@ -89,8 +88,8 @@ dcemri.bayes <- function(conc, time, img.mask, model="extended",
                     "orton.exp"
                   } else {
                     switch(aif,
-                           orton.exp="orton.exp",
-                           user="user",
+                           orton.exp = "orton.exp",
+                           user = "user",
                            stop("Only aif=\"orton.exp\" or aif=\"user\" acceptable aifs for model=\"orton.exp\""), call.=FALSE)
                   }
                 },
@@ -124,7 +123,7 @@ dcemri.bayes <- function(conc, time, img.mask, model="extended",
     }
   }
 
-  cat("  Deconstructing data...", fill=TRUE)
+  if (verbose) cat("  Deconstructing data...", fill=TRUE)
   conc.mat <- matrix(conc[img.mask], nvoxels)
   conc.mat[is.na(conc.mat)] <- 0
 
@@ -147,7 +146,7 @@ dcemri.bayes <- function(conc, time, img.mask, model="extended",
          ##  aif.parameter=c(D*a1, m1, D*a2, m2)
          ##},
          user = {
-           cat("  User-specified AIF parameters...", fill=TRUE);
+           if (verbose) cat("  User-specified AIF parameters...", fill=TRUE);
            D <- try(user$D); AB <- try(user$AB) 
            muB <- try(user$muB); AG <- try(user$AG)
            muG <- try(user$muG)
@@ -174,7 +173,7 @@ dcemri.bayes <- function(conc, time, img.mask, model="extended",
     }
   }
 
-  cat("  Estimating the kinetic parameters...", fill=TRUE)
+  if (verbose) cat("  Estimating the kinetic parameters...", fill=TRUE)
 
   conc.list <- list()
   for (i in 1:nvoxels)
@@ -193,7 +192,7 @@ dcemri.bayes <- function(conc, time, img.mask, model="extended",
                   aif.model=aif.model, aif.parameter=aif.parameter)
   }
 
-  cat("  Reconstructing results...", fill=TRUE)
+  if (verbose) cat("  Reconstructing results...", fill=TRUE)
 
   for (k in 1:nvoxels) {
     ktrans$par[k] <- median(fit[[k]]$ktrans)

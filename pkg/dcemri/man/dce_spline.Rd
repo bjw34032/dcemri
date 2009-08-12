@@ -17,18 +17,20 @@
   penalized spline models (P-splines).
 } 
 \usage{
-dcemri.spline(conc, time, img.mask, time.input=time, model="weinmann", 
-              aif="tofts.kermode", user=NULL, aif.observed=NULL,
-              nriters=500, thin=5, burnin=100, ab.hyper=c(1e-5,1e-5),
-              ab.tauepsilon=c(1,1/1000), k=4, p=25, rw=2, knots=NULL,
-              nlr=FALSE, t0.compute=FALSE, samples=FALSE, multicore=FALSE,
-              \dots) 
-dcemri.spline.single(conc, time, D, time.input, p, rw, knots, k, A,
-                     t0.compute=FALSE, nlr=FALSE, nriters=500,
+dcemri.spline(conc, time, img.mask, time.input=time,
+              model="weinmann", aif="tofts.kermode", user=NULL,
+              aif.observed=NULL, nriters=500, thin=5,
+              burnin=100, ab.hyper=c(1e-5,1e-5),
+              ab.tauepsilon=c(1,1/1000), k=4, p=25, rw=2,
+              knots=NULL, nlr=FALSE, t0.compute=FALSE,
+              samples=FALSE, multicore=FALSE, verbose=FALSE, ...) 
+dcemri.spline.single(conc, time, D, time.input, p, rw, knots, k,
+                     A, t0.compute=FALSE, nlr=FALSE, nriters=500,
                      thin=5, burnin=100, ab.hyper=c(1e-5,1e-5),
                      ab.tauepsilon=c(1,1/1000), silent=0,
-                     multicore=FALSE, model=NULL, model.func=NULL,
-                     model.guess=NULL, samples=FALSE, B=NULL)
+                     multicore=FALSE, model=NULL,
+                     model.func=NULL, model.guess=NULL,
+                     samples=FALSE, B=NULL)
 }
 \arguments{
   \item{conc}{An array of Gd concentration}
@@ -45,6 +47,7 @@ dcemri.spline.single(conc, time, D, time.input, p, rw, knots, k, A,
   \item{aif.observed}{Arterial concentrations observed at timepoints
     time.input}
   \item{multicore}{Use multicore library}
+  \item{verbose}{}
   \item{nlr}{Return the generated samples}
   \item{user}{}
   \item{ab.hyper}{}
@@ -82,26 +85,31 @@ dcemri.spline.single(conc, time, D, time.input, p, rw, knots, k, A,
   \code{\link{dcemri.lm}}, \code{\link{dcemri.bayes}}
 }
 \examples{
-data(buckley)
-img <- array(t(breast$data)[,(1:60)*5], c(13,1,1,60))
-time.min <- buckley$time.min[(1:60)*5]
-mask <- array(rep(TRUE, 13), c(13,1,1))
+data("buckley")
+xi <- seq(5, 300, by=5)
+img <- array(t(breast$data)[,xi], c(13,1,1,60))
+mask <- array(TRUE, dim(img)[1:3])
+time <- buckley$time.min[xi]
+
 ## Generate AIF params using the orton.exp function from Buckley's AIF
-aifparams <- with(buckley, orton.exp.lm(time.min,input))
-aifparams$D <- 1 
-pseudoobservedaif <- aif.orton.exp(tt=time.min, AB=aifparams$AB,
-                                   AG=aifparams$AG, muB=aifparams$muB,
-                                   muG=aifparams$muG)
+aif <- buckley$input[xi]
+aifparams <- orton.exp.lm(time, aif)
+aif.fit <- aif.orton.exp(time, aifparams$AB, aifparams$muB,
+                         aifparams$AG, aifparams$muG)
 
-fit.spline <- dcemri.spline(img, time.min, mask, aif="fritz.hansen", nlr=TRUE)
-fit.spline.aif <- dcemri.spline(img, time.min, mask, aif="observed",
-                                aif.observed=pseudoobservedaif, nlr=TRUE)
+fit.spline <- dcemri.spline(img, time, mask, aif="fritz.hansen",
+                            nriters=250, nlr=TRUE)
+fit.spline.aif <- dcemri.spline(img, time, mask, aif="observed",
+                                aif.observed=aif.fit, nriters=250,
+                                nlr=TRUE)
 
-plot(breast$ktrans, fit.spline$ktrans, xlim=c(0,0.75), ylim=c(0,0.75),
-     xlab="True Ktrans", ylab="Estimated Ktrans (Spline)")
+plot(breast$ktrans, fit.spline$ktrans, xlim=c(0,1), ylim=c(0,1),
+     xlab=expression(paste("True ", K^{trans})),
+     ylab=expression(paste("Estimated ", K^{trans})))
 points(breast$ktrans, fit.spline.aif$ktrans, pch=2)
-legend(0.4, 0.2, pch=c(2,1), legend=c("Modelled AIF","Fritz Hansen"))
-lines(c(-0.1,0.8), c(-0.1,0.8), lty=3, col="grey")
+abline(0, 1, lwd=1.5, col="red")
+legend("right", c("fritz.hansen", "orton.exp"), pch=1:2)
+
 cbind(breast$ktrans, fit.spline$ktrans[,,1], fit.spline.aif$ktrans[,,1])
 }
 \author{Volker Schmid}

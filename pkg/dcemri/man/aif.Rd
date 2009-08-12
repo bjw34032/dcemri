@@ -1,6 +1,6 @@
 % Part of the dcemri package for R
 % Distributed under the BSD license: see dcemri/COPYING
-% Time-stamp: <2009-08-06 10:44:40 (bjw34032)>
+%
 % $Id$
 
 \name{Arterial Input Functions}
@@ -16,7 +16,7 @@
 \usage{
 aif.orton.exp(tt, AB, muB, AG, muG)
 model.orton.exp(tt, aparams, kparams)
-orton.exp.lm(tt, aif, guess=c(100, 10, 1, 0.1), nprint=0)
+orton.exp.lm(tt, aif, guess=c(100,10,1,0.1), nprint=0)
 }
 \arguments{
   \item{tt}{is a vector of acquisition times (in minutes) relative to
@@ -80,19 +80,22 @@ orton.exp.lm(tt, aif, guess=c(100, 10, 1, 0.1), nprint=0)
   \code{\link[minpack.lm]{nls.lm}}
 }
 \examples{
-data(buckley)
+data("buckley")
 ## Generate AIF params using the orton.exp function from Buckley's AIF
-aifparams <- with(buckley, orton.exp.lm(time.min, input))
+xi <- seq(5, 300, by=5)
+time <- buckley$time.min[xi]
+aif <- buckley$input[xi]
+aifparams <- orton.exp.lm(time, aif)
 aifparams$D <- 1 
-print(aifparams)
-time.min <- buckley$time.min[(1:60)*5]
-aoe <- aif.orton.exp(tt=time.min, AB=aifparams$AB, AG=aifparams$AG,
-                     muB=aifparams$muB, muG=aifparams$muG)
-with(buckley, plot(time.min, input, type="l"))
-points(time.min, aoe, col=2)
-legend(3, 4, c("Buckley's obtained AIF", "Our approximation"),
-       pch=c(0,1), col=c(1,2))
-cbind(time.min, buckley$input[(1:60)*5], aoe)[1:10,]
+unlist(aifparams[1:4])
+
+aoe <- aif.orton.exp(time, aifparams$AB, aifparams$muB, aifparams$AG,
+                     aifparams$muG)
+with(buckley, plot(time.min, input, type="l", lwd=2))
+lines(time, aoe, lwd=2, col=2)
+legend("right", c("Buckley's AIF", "Our approximation"), lty=1,
+       lwd=2, col=1:2)
+cbind(time, aif, aoe)[1:10,]
 }
 \author{Brandon Whitcher}
 \keyword{models}

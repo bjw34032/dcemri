@@ -13,14 +13,14 @@
   DCE-MRI.
 }
 \usage{
-dcemri.bayes(conc, time, img.mask, model="extended",
-                      aif=NULL, user=NULL, 
-	              nriters=9500, thin=30, burnin=2000, tune=267, 
-	              tau.ktrans=1, tau.kep=tau.ktrans, ab.vp=c(1,19),
-	              ab.tauepsilon=c(1,1/1000), samples=FALSE,
-                      multicore=FALSE, ...)
-dcemri.bayes.single(conc, time, nriters=7000, thin=10, burnin=2000,
-                    tune=267, tau.gamma=1, tau.theta=1, ab.vp=c(1,19),
+dcemri.bayes(conc, time, img.mask, model="extended", aif=NULL,
+             user=NULL, nriters=9500, thin=30, burnin=2000,
+             tune=267, tau.ktrans=1, tau.kep=tau.ktrans,
+             ab.vp=c(1,19), ab.tauepsilon=c(1,1/1000),
+             samples=FALSE, multicore=FALSE, verbose=FALSE, ...)
+dcemri.bayes.single(conc, time, nriters=7000, thin=10,
+                    burnin=2000, tune=267, tau.gamma=1,
+                    tau.theta=1, ab.vp=c(1,19),
                     ab.tauepsilon=c(1,1/1000), aif.model=0,
                     aif.parameter=c(2.4,0.62,3,0.016), vp=1)
 }
@@ -47,9 +47,9 @@ dcemri.bayes.single(conc, time, nriters=7000, thin=10, burnin=2000,
     \code{fritz.hansen} for the \code{weinmann} and \code{extended}
     models; \code{orton.exp} (default) or \code{user} for the
     \code{orton.exp} model.}
-  \item{user}{Vector of AIF parameters. For Tofts and Kermode:
-    \eqn{a_1},\eqn{m_1},\eqn{a_2},\eqn{m_2}; for Orton \emph{et al.}:
-    \eqn{A_b},\eqn{\mu_b},\eqn{A_g},\eqn{\mu_g}.}
+  \item{user}{Vector of AIF parameters.  For Tofts and Kermode:
+    \eqn{a_1}, \eqn{m_1}, \eqn{a_2}, \eqn{m_2}; for Orton \emph{et al.}:
+    \eqn{A_b}, \eqn{\mu_b}, \eqn{A_g}, \eqn{\mu_g}.}
   \item{nriters}{Total number of iterations.}
   \item{thin}{Thining factor.}
   \item{burnin}{Number of iterations for burn-in.}
@@ -66,6 +66,7 @@ dcemri.bayes.single(conc, time, nriters=7000, thin=10, burnin=2000,
     from the posterior distribution for all parameters.}
   \item{multicore}{If \code{TRUE} algorithm is parallelized using
     \pkg{multicore}.}
+  \item{verbose}{}
   \item{tau.gamma}{}
   \item{tau.theta}{}
   \item{aif.model}{}
@@ -110,14 +111,14 @@ time <- buckley$time.min[xi]
 
 ## Bayesian estimation with Fritz-Hansen default AIF
 fit.bayes <- dcemri.bayes(img, time, mask, aif="fritz.hansen",
-                          nriters=3000, thin=10, burnin=1000)
+                          nriters=5000)
 
 ## Bayesian estimation with "orton.exp" function fit to Buckley's AIF
 aif <- buckley$input[xi]
 aifparams <- orton.exp.lm(time, aif)
+aifparams$D <- 1
 fit.bayes.aif <- dcemri.bayes(img, time, mask, model="orton.exp",
-                              aif="user", user=aifparams, nriters=3000,
-                              thin=10, burnin=1000)
+                              aif="user", user=aifparams, nriters=5000)
 
 plot(breast$ktrans, fit.bayes$ktrans, xlim=c(0,1), ylim=c(0,1),
      xlab=expression(paste("True ", K^{trans})),
@@ -126,6 +127,9 @@ points(breast$ktrans, fit.bayes.aif$ktrans, pch=2)
 abline(0, 1, lwd=1.5, col=2)
 legend("right", c("orton.exp", "fritz.hansen"), pch=1:2)
 
+cbind(breast$ktrans, fit.bayes$ktrans[,,1], fit.bayes.aif$ktrans[,,1])
+
+\dontrun{
 fit.lm <- dcemri.lm(img, time, mask, aif="fritz.hansen")
 fit.lm.aif <- dcemri.lm(img, time, mask, model="orton.exp", aif="user",
                         user=aifparams)
@@ -141,9 +145,7 @@ legend("bottomright", c("Bayesian Estimation (fritz-hansen)",
                         "Bayesian Estimation (orton.exp)",
                         "Levenburg-Marquardt (fritz.hansen)",
                         "Levenburg-Marquardt (orton.exp)"), pch=1:4)
-
-cbind(breast$ktrans, fit.bayes$ktrans[,,1], fit.bayes.aif$ktrans[,,1],
-      fit.lm$ktrans[,,1], fit.lm.aif$ktrans[,,1])
+}
 }
 \author{Volker Schmid}
 \keyword{models}

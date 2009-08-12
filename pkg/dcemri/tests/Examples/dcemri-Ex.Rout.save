@@ -102,9 +102,12 @@ Loading required package: splines
 > 
 > ### ** Examples
 > 
-> data(buckley)
+> data("buckley")
 > ## Generate AIF params using the orton.exp function from Buckley's AIF
-> aifparams <- with(buckley, orton.exp.lm(time.min, input))
+> xi <- seq(5, 300, by=5)
+> time <- buckley$time.min[xi]
+> aif <- buckley$input[xi]
+> aifparams <- orton.exp.lm(time, aif)
 Loading required package: minpack.lm
 
 This product includes software developed by the University of Chicago, as
@@ -114,47 +117,28 @@ See the LICENSE file distributed with the minpack.lm source code or
 http://www.netlib.org/minpack/disclaimer for the full license.
 
 > aifparams$D <- 1 
-> print(aifparams)
-$AB
-[1] 37.15232
-
-$muB
-[1] 3.900687
-
-$AG
-[1] 1.518107
-
-$muG
-[1] -0.01041246
-
-$info
-[1] 1
-
-$message
-[1] "Relative error in the sum of squares is at most `ftol'."
-
-$D
-[1] 1
-
-> time.min <- buckley$time.min[(1:60)*5]
-> aoe <- aif.orton.exp(tt=time.min, AB=aifparams$AB, AG=aifparams$AG,
-+                      muB=aifparams$muB, muG=aifparams$muG)
-> with(buckley, plot(time.min, input, type="l"))
-> points(time.min, aoe, col=2)
-> legend(3, 4, c("Buckley's obtained AIF", "Our approximation"),
-+        pch=c(0,1), col=c(1,2))
-> cbind(time.min, buckley$input[(1:60)*5], aoe)[1:10,]
-        time.min               aoe
- [1,] 0.06666667 0.912633 2.258346
- [2,] 0.15000000 2.807515 3.779167
- [3,] 0.23333333 4.915784 4.399696
- [4,] 0.31666667 5.942284 4.502597
- [5,] 0.40000000 4.981387 4.327481
- [6,] 0.48333333 4.016821 4.020833
- [7,] 0.56666667 3.326276 3.669246
- [8,] 0.65000000 2.873297 3.321380
- [9,] 0.73333333 2.580520 3.002351
-[10,] 0.81666667 2.383784 2.723046
+> unlist(aifparams[1:4])
+         AB         muB          AG         muG 
+37.14839724  3.89505419  1.51615437 -0.01066073 
+> 
+> aoe <- aif.orton.exp(time, aifparams$AB, aifparams$muB, aifparams$AG,
++                      aifparams$muG)
+> with(buckley, plot(time.min, input, type="l", lwd=2))
+> lines(time, aoe, lwd=2, col=2)
+> legend("right", c("Buckley's AIF", "Our approximation"), lty=1,
++        lwd=2, col=1:2)
+> cbind(time, aif, aoe)[1:10,]
+            time      aif      aoe
+ [1,] 0.06666667 0.912633 2.257999
+ [2,] 0.15000000 2.807515 3.779938
+ [3,] 0.23333333 4.915784 4.402029
+ [4,] 0.31666667 5.942284 4.506283
+ [5,] 0.40000000 4.981387 4.332075
+ [6,] 0.48333333 4.016821 4.025864
+ [7,] 0.56666667 3.326276 3.674314
+ [8,] 0.65000000 2.873297 3.326189
+ [9,] 0.73333333 2.580520 3.006703
+[10,] 0.81666667 2.383784 2.726830
 > 
 > 
 > 
@@ -208,18 +192,15 @@ $D
 > 
 > data("buckley")
 > xi <- seq(5, 300, by=5)
-> img <- array(t(breast$data)[,xi], c(13, 1, 1, 60))
+> img <- array(t(breast$data)[,xi], c(13,1,1,60))
 > mask <- array(TRUE, dim(img)[1:3])
 > time <- buckley$time.min[xi]
 > 
-> ## Estimate kinetic parameters with Fritz-Hansen default AIF
+> ## Bayesian estimation with Fritz-Hansen default AIF
 > fit.bayes <- dcemri.bayes(img, time, mask, aif="fritz.hansen",
-+                           nriters=4000, thin=10)
-  Deconstructing data...
-  Estimating the kinetic parameters...
-  Reconstructing results...
++                           nriters=5000)
 > 
-> ## Estimate AIF params using the "orton.exp" function from Buckley's AIF
+> ## Bayesian estimation with "orton.exp" function fit to Buckley's AIF
 > aif <- buckley$input[xi]
 > aifparams <- orton.exp.lm(time, aif)
 Loading required package: minpack.lm
@@ -230,13 +211,9 @@ Operator of Argonne National Laboratory.
 See the LICENSE file distributed with the minpack.lm source code or
 http://www.netlib.org/minpack/disclaimer for the full license.
 
+> aifparams$D <- 1
 > fit.bayes.aif <- dcemri.bayes(img, time, mask, model="orton.exp",
-+                               aif="user", user=aifparams, nriters=4000,
-+                               thin=10)
-  Deconstructing data...
-  User-specified AIF parameters...
-  Estimating the kinetic parameters...
-  Reconstructing results...
++                               aif="user", user=aifparams, nriters=5000)
 > 
 > plot(breast$ktrans, fit.bayes$ktrans, xlim=c(0,1), ylim=c(0,1),
 +      xlab=expression(paste("True ", K^{trans})),
@@ -245,32 +222,39 @@ http://www.netlib.org/minpack/disclaimer for the full license.
 > abline(0, 1, lwd=1.5, col=2)
 > legend("right", c("orton.exp", "fritz.hansen"), pch=1:2)
 > 
-> fit.lm <- dcemri.lm(img, time, mask, aif="fritz.hansen")
-> fit.lm.aif <- dcemri.lm(img, time, mask, model="orton.exp", aif="user",
-+                         user=aifparams)
-> plot(breast$ktrans, fit.bayes$ktrans, xlim=c(0,0.75), ylim=c(0,0.75),
-+      xlab="True Ktrans", ylab="Estimated Ktrans")
-> points(breast$ktrans, fit.bayes.aif$ktrans, pch=3)
-> points(breast$ktrans, fit.lm$ktrans, pch=2)
-> points(breast$ktrans, fit.lm.aif$ktrans, pch=4)
-> legend(0.6, 0.2, legend=c("LM OE","Bayes OE","LM FH","Bayes FH"), pch=4:1)
-> lines(c(-0.1,0.8), c(-0.1,0.8), lty=3, col="grey")
-> cbind(breast$ktrans, fit.bayes$ktrans[,,1], fit.bayes.aif$ktrans[,,1],
-+       fit.lm$ktrans[,,1], fit.lm.aif$ktrans[,,1])
-             [,1]      [,2]       [,3]      [,4]       [,5]
- [1,] 0.145599052 0.3809566 0.05039021 0.3817055 0.55271993
- [2,] 0.218344559 0.5940105 0.05749439 0.5947946 0.50276669
- [3,] 0.250521815 0.6967819 0.06018774 0.6951414 0.48807358
- [4,] 0.268391926 0.7531585 0.06106691 0.7530098 0.48022320
- [5,] 0.279725126 0.7910343 0.06239534 0.7906145 0.47523282
- [6,] 0.009912791 0.5180843 0.50000000 0.5241687 0.09056846
- [7,] 0.146992146 0.4693303 0.05005416 0.4680230 0.47381970
- [8,] 0.328712966 0.8578500 0.06407494 0.8593230 0.49707307
- [9,] 0.387767110 0.9822851 0.06634135 0.9811911 0.50434946
-[10,] 0.250521815 0.5514238 0.05245628 0.5521835 0.45796930
-[11,] 0.250521815 0.6226953 0.05621006 0.6226405 0.47255539
-[12,] 0.250521815 0.7680888 0.06407743 0.7692656 0.50524265
-[13,] 0.250521815 0.8478186 0.06758919 0.8430926 0.52423611
+> cbind(breast$ktrans, fit.bayes$ktrans[,,1], fit.bayes.aif$ktrans[,,1])
+             [,1]      [,2]       [,3]
+ [1,] 0.145599052 0.3822529 0.55155972
+ [2,] 0.218344559 0.5941660 0.50998853
+ [3,] 0.250521815 0.6915965 0.50363972
+ [4,] 0.268391926 0.7544241 0.50162013
+ [5,] 0.279725126 0.7906471 0.49858131
+ [6,] 0.009912791 0.5278200 0.08219553
+ [7,] 0.146992146 0.4697578 0.46837004
+ [8,] 0.328712966 0.8607315 0.51101895
+ [9,] 0.387767110 0.9757291 0.51354276
+[10,] 0.250521815 0.5502301 0.45798719
+[11,] 0.250521815 0.6203777 0.48055667
+[12,] 0.250521815 0.7686921 0.52586198
+[13,] 0.250521815 0.8462243 0.55142495
+> 
+> ## Not run: 
+> ##D fit.lm <- dcemri.lm(img, time, mask, aif="fritz.hansen")
+> ##D fit.lm.aif <- dcemri.lm(img, time, mask, model="orton.exp", aif="user",
+> ##D                         user=aifparams)
+> ##D 
+> ##D plot(breast$ktrans, fit.bayes$ktrans, xlim=c(0,1), ylim=c(0,1),
+> ##D      xlab=expression(paste("True ", K^{trans})),
+> ##D      ylab=expression(paste("Estimated ", K^{trans})))
+> ##D points(breast$ktrans, fit.bayes.aif$ktrans, pch=2)
+> ##D points(breast$ktrans, fit.lm$ktrans, pch=3)
+> ##D points(breast$ktrans, fit.lm.aif$ktrans, pch=4)
+> ##D abline(0, 1, lwd=1.5, col="red")
+> ##D legend("bottomright", c("Bayesian Estimation (fritz-hansen)",
+> ##D                         "Bayesian Estimation (orton.exp)",
+> ##D                         "Levenburg-Marquardt (fritz.hansen)",
+> ##D                         "Levenburg-Marquardt (orton.exp)"), pch=1:4)
+> ## End(Not run)
 > 
 > 
 > 
@@ -286,12 +270,15 @@ http://www.netlib.org/minpack/disclaimer for the full license.
 > 
 > ### ** Examples
 > 
-> data(buckley)
-> img <- array(t(breast$data)[,(1:60)*5], c(13,1,1,60))
-> time.min <- buckley$time.min[(1:60)*5]
-> mask <- array(rep(TRUE, 13), c(13,1,1))
+> data("buckley")
+> xi <- seq(5, 300, by=5)
+> img <- array(t(breast$data)[,xi], c(13,1,1,60))
+> mask <- array(TRUE, dim(img)[1:3])
+> time <- buckley$time.min[xi]
+> 
 > ## Generate AIF params using the orton.exp function from Buckley's AIF
-> aifparams <- with(buckley, orton.exp.lm(time.min,input))
+> aif <- buckley$input[xi]
+> aifparams <- orton.exp.lm(time, aif)
 Loading required package: minpack.lm
 
 This product includes software developed by the University of Chicago, as
@@ -300,41 +287,37 @@ Operator of Argonne National Laboratory.
 See the LICENSE file distributed with the minpack.lm source code or
 http://www.netlib.org/minpack/disclaimer for the full license.
 
-> aifparams$D <- 1 
-> pseudoobservedaif <- aif.orton.exp(tt=time.min, AB=aifparams$AB,
-+                                    AG=aifparams$AG, muB=aifparams$muB,
-+                                    muG=aifparams$muG)
+> aif.fit <- aif.orton.exp(time, aifparams$AB, aifparams$muB,
++                          aifparams$AG, aifparams$muG)
 > 
-> fit.spline <- dcemri.spline(img, time.min, mask, aif="fritz.hansen", nlr=TRUE)
-  Deconstructing data...
-  Estimating the parameters...
-  Reconstructing results...
-> fit.spline.aif <- dcemri.spline(img, time.min, mask, aif="observed",
-+                                 aif.observed=pseudoobservedaif, nlr=TRUE)
-  Deconstructing data...
-  Estimating the parameters...
-  Reconstructing results...
+> fit.spline <- dcemri.spline(img, time, mask, aif="fritz.hansen",
++                             nriters=250, nlr=TRUE)
+> fit.spline.aif <- dcemri.spline(img, time, mask, aif="observed",
++                                 aif.observed=aif.fit, nriters=250,
++                                 nlr=TRUE)
 > 
-> plot(breast$ktrans, fit.spline$ktrans, xlim=c(0,0.75), ylim=c(0,0.75),
-+      xlab="True Ktrans", ylab="Estimated Ktrans (Spline)")
+> plot(breast$ktrans, fit.spline$ktrans, xlim=c(0,1), ylim=c(0,1),
++      xlab=expression(paste("True ", K^{trans})),
++      ylab=expression(paste("Estimated ", K^{trans})))
 > points(breast$ktrans, fit.spline.aif$ktrans, pch=2)
-> legend(0.4, 0.2, pch=c(2,1), legend=c("Modelled AIF","Fritz Hansen"))
-> lines(c(-0.1,0.8), c(-0.1,0.8), lty=3, col="grey")
+> abline(0, 1, lwd=1.5, col="red")
+> legend("right", c("fritz.hansen", "orton.exp"), pch=1:2)
+> 
 > cbind(breast$ktrans, fit.spline$ktrans[,,1], fit.spline.aif$ktrans[,,1])
              [,1]      [,2]      [,3]
- [1,] 0.145599052 0.3732629 0.1537010
- [2,] 0.218344559 0.5734851 0.2447432
- [3,] 0.250521815 0.6701770 0.2923806
- [4,] 0.268391926 0.7264583 0.3221035
- [5,] 0.279725126 0.7639966 0.3428019
- [6,] 0.009912791 0.4269477 0.2683044
- [7,] 0.146992146 0.4772765 0.2058096
- [8,] 0.328712966 0.7979350 0.3529201
- [9,] 0.387767110 0.8881018 0.3958913
-[10,] 0.250521815 0.5186052 0.2195530
-[11,] 0.250521815 0.5943531 0.2558106
-[12,] 0.250521815 0.7436347 0.3290409
-[13,] 0.250521815 0.8143150 0.3634489
+ [1,] 0.145599052 0.3732351 0.1536529
+ [2,] 0.218344559 0.5735669 0.2443917
+ [3,] 0.250521815 0.6701396 0.2918567
+ [4,] 0.268391926 0.7268552 0.3215880
+ [5,] 0.279725126 0.7641296 0.3419736
+ [6,] 0.009912791 0.4262028 0.2682752
+ [7,] 0.146992146 0.4773769 0.2056280
+ [8,] 0.328712966 0.7977763 0.3522021
+ [9,] 0.387767110 0.8886958 0.3949736
+[10,] 0.250521815 0.5185484 0.2193122
+[11,] 0.250521815 0.5947862 0.2553814
+[12,] 0.250521815 0.7438540 0.3288902
+[13,] 0.250521815 0.8142022 0.3627449
 > 
 > 
 > 
@@ -560,9 +543,6 @@ http://www.netlib.org/minpack/disclaimer for the full license.
 > lines(time, curve.lm)
 > 
 > fit.bayes <- dcemri.bayes(img, time, mask, aif="fritz.hansen")
-  Deconstructing data...
-  Estimating the kinetic parameters...
-  Reconstructing results...
 > curve.bayes <- kineticModel(time, list("ktrans"=fit.bayes$ktrans[3],
 +                             "kep"=fit.bayes$kep[3], "vp"=fit.bayes$vp[3]))
 > lines(time, curve.bayes, col="blue")
@@ -635,7 +615,7 @@ http://www.netlib.org/minpack/disclaimer for the full license.
 > 
 > ### ** Examples
 > 
-> norm <- dnorm(seq(-5,5,length=32), sd=2)
+> norm <- dnorm(seq(-5, 5, length=32), sd=2)
 > norm <- (norm-min(norm)) / max(norm-min(norm))
 > img <- norm %o% norm %o% norm
 > img <- round(img*255)
@@ -648,59 +628,54 @@ http://www.netlib.org/minpack/disclaimer for the full license.
 > nhdr <- make.hdr(X, Y, Z, 1, "INT", "nifti")
 > ## Not run: 
 > ##D write.nifti.img("test-image-int16", nhdr, img, "int16")
-> ##D ## These files should be viewable in, for example, FSLview.
-> ##D ## Make sure you adjust the min/max values for proper visualization.
-> ##D readdata <- read.img("test-image-int16.nii.gz")
-> ##D 
+> ##D ## These files should be viewable in, for example, FSLview
+> ##D ## Make sure you adjust the min/max values for proper visualization
+> ##D data <- read.img("test-image-int16.nii.gz")
 > ##D par(mfrow=c(6,6), mar=rep(0,4))
 > ##D for (z in 1:32)
 > ##D   image(img[,,z], zlim=range(img), col=grey(0:255/255), xlab="",
-> ##D ylab="", axes=FALSE)
-> ##D 
-> ##D par(mfrow=c(6,6), mar=rep(0,4))
+> ##D         ylab="", axes=FALSE)
 > ##D for (z in 1:32)
-> ##D   image(readdata[,,z,1], zlim=range(img), col=grey(0:255/255), xlab="",
-> ##D ylab="", axes=FALSE)
-> ##D 
-> ##D par(mfrow=c(6,6), mar=rep(0,4))
+> ##D   image(data[,,z,1], zlim=range(img), col=grey(0:255/255), xlab="",
+> ##D         ylab="", axes=FALSE)
 > ##D for (z in 1:32)
-> ##D   image(abs(readdata[,,z,1] - img[,,z]), zlim=range(img),
-> ##D col=grey(0:255/255), xlab="", ylab="", axes=FALSE)
+> ##D   image(abs(data[,,z,1] - img[,,z]), zlim=range(img),
+> ##D         col=grey(0:255/255), xlab="", ylab="", axes=FALSE)
 > ## End(Not run)
 > 
 > ## Loop through all possible data types
-> datatypes <- c("uint8","int16","int32","float","double")
-> equal <- list()
+> datatypes <- c("uint8", "int16", "int32", "float", "double")
+> equal <- vector("list")
 > for (x in 1:length(datatypes)) {
-+   fname <- paste("test-image-",datatypes[x],sep="")
-+   write.nifti.img( fname, nhdr, img, datatypes[x])
-+   equal[[datatypes[x]]] <- all(read.img(paste(fname,".nii.gz",sep=""))[,,,1]==img)
++   fname <- paste("test-image-", datatypes[x], sep="")
++   write.nifti.img(fname, nhdr, img, datatypes[x])
++   equal[[x]] <- all(drop(read.img(fname)) == img)
 + }
 Loading required package: bitops
+> names(equal) <- datatypes
 > unlist(equal)
  uint8  int16  int32  float double 
   TRUE   TRUE   TRUE   TRUE   TRUE 
 > 
-> ## Analyze
+> ## Analyze (datatypes are the same as NIfTI)
 > hdr <- make.hdr(X, Y, Z, 1, "int16")
-> # Analyze datatypes are the same as the nifti.
-> equal <- list()
+> equal <- vector("list")
 > for (x in 1:length(datatypes)) {
-+   fname <- paste("test-analyze-image-",datatypes[x],sep="")
-+   write.analyze.img( fname, hdr, img, datatypes[x])
-+   equal[[datatypes[x]]] <- all(read.img(paste(fname,"",sep=""))[,,,1]==img)
++   fname <- paste("test-analyze-image-", datatypes[x], sep="")
++   write.analyze.img(fname, hdr, img, datatypes[x])
++   equal[[x]] <- all(drop(read.img(fname)) == img)
 + }
+> names(equal) <- datatypes
 > unlist(equal)
  uint8  int16  int32  float double 
   TRUE   TRUE   TRUE   TRUE   TRUE 
-> 
 > 
 > 
 > 
 > ### * <FOOTER>
 > ###
 > cat("Time elapsed: ", proc.time() - get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  185.011 0.516 187.164 0 0 
+Time elapsed:  107.747 0.49 109.591 0 0 
 > grDevices::dev.off()
 null device 
           1 

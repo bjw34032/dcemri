@@ -13,7 +13,8 @@
 }
 \usage{
 read.analyze.hdr(fname, gzipped=TRUE, verbose=FALSE, warn=-1)
-read.analyze.img(fname, gzipped=TRUE, signed=FALSE, verbose=FALSE, warn=-1)
+read.analyze.img(fname, gzipped=TRUE, signed=FALSE, verbose=FALSE,
+                 warn=-1)
 }
 \arguments{
   \item{fname}{Pathname of the Analyze pair of files .img and .hdr

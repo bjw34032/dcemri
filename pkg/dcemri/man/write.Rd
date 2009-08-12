@@ -1,6 +1,6 @@
 % Part of the dcemri package for R
 % Distributed under the BSD license: see dcemri/COPYING
-% Time-stamp: <2009-08-06 11:44:57 (bjw34032)>
+%
 % $Id$
 
 \name{Write Output as Analyze/NIfTI}
@@ -57,7 +57,7 @@ write.nifti.img(fname, hdr, img, type, gzipped=TRUE, warn=-1)
     \code{\link{read.hdr}}, \code{\link{read.img}}
 }
 \examples{
-norm <- dnorm(seq(-5,5,length=32), sd=2)
+norm <- dnorm(seq(-5, 5, length=32), sd=2)
 norm <- (norm-min(norm)) / max(norm-min(norm))
 img <- norm \%o\% norm \%o\% norm
 img <- round(img*255)
@@ -70,47 +70,42 @@ Z <- nsli(img)
 nhdr <- make.hdr(X, Y, Z, 1, "INT", "nifti")
 \dontrun{
 write.nifti.img("test-image-int16", nhdr, img, "int16")
-## These files should be viewable in, for example, FSLview.
-## Make sure you adjust the min/max values for proper visualization.
-readdata <- read.img("test-image-int16.nii.gz")
-
+## These files should be viewable in, for example, FSLview
+## Make sure you adjust the min/max values for proper visualization
+data <- read.img("test-image-int16.nii.gz")
 par(mfrow=c(6,6), mar=rep(0,4))
 for (z in 1:32)
   image(img[,,z], zlim=range(img), col=grey(0:255/255), xlab="",
-ylab="", axes=FALSE)
-
-par(mfrow=c(6,6), mar=rep(0,4))
+        ylab="", axes=FALSE)
 for (z in 1:32)
-  image(readdata[,,z,1], zlim=range(img), col=grey(0:255/255), xlab="",
-ylab="", axes=FALSE)
-
-par(mfrow=c(6,6), mar=rep(0,4))
+  image(data[,,z,1], zlim=range(img), col=grey(0:255/255), xlab="",
+        ylab="", axes=FALSE)
 for (z in 1:32)
-  image(abs(readdata[,,z,1] - img[,,z]), zlim=range(img),
-col=grey(0:255/255), xlab="", ylab="", axes=FALSE)
+  image(abs(data[,,z,1] - img[,,z]), zlim=range(img),
+        col=grey(0:255/255), xlab="", ylab="", axes=FALSE)
 }
 
 ## Loop through all possible data types
-datatypes <- c("uint8","int16","int32","float","double")
-equal <- list()
+datatypes <- c("uint8", "int16", "int32", "float", "double")
+equal <- vector("list")
 for (x in 1:length(datatypes)) {
-  fname <- paste("test-image-",datatypes[x],sep="")
-  write.nifti.img( fname, nhdr, img, datatypes[x])
-  equal[[datatypes[x]]] <- all(read.img(paste(fname,".nii.gz",sep=""))[,,,1]==img)
+  fname <- paste("test-image-", datatypes[x], sep="")
+  write.nifti.img(fname, nhdr, img, datatypes[x])
+  equal[[x]] <- all(drop(read.img(fname)) == img)
 }
+names(equal) <- datatypes
 unlist(equal)
 
-## Analyze
+## Analyze (datatypes are the same as NIfTI)
 hdr <- make.hdr(X, Y, Z, 1, "int16")
-# Analyze datatypes are the same as the nifti.
-equal <- list()
+equal <- vector("list")
 for (x in 1:length(datatypes)) {
-  fname <- paste("test-analyze-image-",datatypes[x],sep="")
-  write.analyze.img( fname, hdr, img, datatypes[x])
-  equal[[datatypes[x]]] <- all(read.img(paste(fname,"",sep=""))[,,,1]==img)
+  fname <- paste("test-analyze-image-", datatypes[x], sep="")
+  write.analyze.img(fname, hdr, img, datatypes[x])
+  equal[[x]] <- all(drop(read.img(fname)) == img)
 }
+names(equal) <- datatypes
 unlist(equal)
-
 }
 \author{Brandon Whitcher, Volker Schmid}
 \keyword{file}

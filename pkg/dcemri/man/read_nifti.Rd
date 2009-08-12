@@ -12,8 +12,10 @@
   array from a binary file in NIfTI-1 format.
 }
 \usage{
-read.nifti.hdr(fname, onefile=TRUE, gzipped=TRUE, verbose=FALSE, warn=-1)
-read.nifti.img(fname, onefile=TRUE, gzipped=TRUE, verbose=FALSE, warn=-1)
+read.nifti.hdr(fname, onefile=TRUE, gzipped=TRUE, verbose=FALSE,
+               warn=-1)
+read.nifti.img(fname, onefile=TRUE, gzipped=TRUE, verbose=FALSE,
+               warn=-1)
 }
 \arguments{
   \item{fname}{Pathname of the NIfTI file(s).}

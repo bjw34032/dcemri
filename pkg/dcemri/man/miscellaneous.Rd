@@ -3,14 +3,14 @@
 %
 % $Id$
 
-\name{Miscellaneous Functions for Analyze/NIfTI Data}
+\name{Dimension Accessor Functions}
 \alias{nsli}
 \alias{NSLI}
 \alias{ntim}
 \alias{NTIM}
-\title{Miscellaneous Functions for Analyze/NIfTI Data}
+\title{Dimension Accessor Functions}
 \description{
-  Functions to extract the dimensions from Analyze/NIfTI data.
+  Functions to extract the higher dimensions from Analyze/NIfTI data.
 }
 \usage{
 nsli(x)
