@@ -1,6 +1,6 @@
 % Part of the dcemri package for R
 % Distributed under the BSD license: see dcemri/COPYING
-% Time-stamp: <2009-07-14 18:11:40 (bjw34032)>
+%
 % $Id$
 
 \name{dcemri.lm}
@@ -13,10 +13,10 @@
 }
 \usage{
 dcemri.lm(conc, time, img.mask, model="extended", aif=NULL,
-          nprint=0, user=NULL, ...)
+          nprint=0, user=NULL, verbose=FALSE, ...)
 }
 \arguments{
-  \item{conc}{is a multidimensional (1d to 4d) array of contrast agent
+  \item{conc}{is a multidimensional (1D-4D) array of contrast agent
     concentrations.  The last dimension is assumed to be temporal, while
     the previous dimensions are assued to be spatial.}
   \item{time}{is a vector of acquisition times (in minutes) relative to 
@@ -27,32 +27,28 @@ dcemri.lm(conc, time, img.mask, model="extended", aif=NULL,
     minus temporal dimension.}
   \item{model}{is a character string that identifies the type of
     compartmental model to be used.  Acceptable models include:
-
-    \dQuote{weinmann} Tofts & Kermode AIF convolved with single compartment
-	 model
-
-    \dQuote{extended} (default) Weinmann model extended with additional
-	vascular compartment,
-
-    \dQuote{orton.exp} extended model using Orton's exponential AIF
-
-    \dQuote{orton.cos} extended model using Orton's raised cosine AIF
+    \itemize{
+      \item{\dQuote{weinmann}}{Tofts & Kermode AIF convolved with single
+	compartment model}
+      \item{\dQuote{extended}}{Weinmann model extended with additional
+	vascular compartment (default)}
+      \item{\dQuote{orton.exp}}{Extended model using Orton's exponential
+	AIF} 
+      \item{\dQuote{orton.cos}}{Extended model using Orton's raised
+	cosine AIF}
     }
-  \item{aif}{is a character string that identifies the parameters of the type
-    of arterial input function (AIF) used with the above model.
-
-      Acceptable values are:
-
-      \code{tofts.kermode} (default), \code{fritz.hansen} for the \code{weinmann} and \code{extended} models.
-
-      \code{orton.exp} (default) and \code{user} for the \code{orton.exp} model.
-
-      \code{orton.cos} (default) and \code{user} for the
-      \code{orton.cos} model.
-
-      All AIF models set the parametric form and parameter values; except
-\code{user} where a set of user-defined parameter values are allowed.}
-    \item{nprint}{is an integer, that enables controlled printing of
+  }
+  \item{aif}{is a character string that identifies the parameters of the
+    type of arterial input function (AIF) used with the above model.
+    Acceptable values are: \code{tofts.kermode} (default) or
+    \code{fritz.hansen} for the \code{weinmann} and \code{extended}
+    models; \code{orton.exp} (default) and \code{user} for the
+    \code{orton.exp} model; \code{orton.cos} (default) and \code{user}
+    for the \code{orton.cos} model.  All AIF models set the parametric
+    form and parameter values -- except \code{user} where a set of
+    user-defined parameter values are allowed.
+  }
+  \item{nprint}{is an integer, that enables controlled printing of
     iterates if it is positive.  In this case, estimates of \code{par}
     are printed at the beginning of the first iteration and every
     \code{nprint} iterations thereafter and immediately prior to return.
@@ -60,6 +56,7 @@ dcemri.lm(conc, time, img.mask, model="extended", aif=NULL,
     progress of the optimization is produced.}
   \item{user}{is a list with the following paramters required: D, AB,
     muB, AG, muG.}
+  \item{verbose}{.}
   \item{...}{Additional parameters to the function.}
 }
 \details{
@@ -135,19 +132,25 @@ Fritz-Hansen, T., Rostrup, E., Larsson, H.B.W, Sondergaard, L., Ring,
 }
 \examples{
 data("buckley")
-#Set up breast data for dcemri
-img <- array(t(breast$data)[,(1:60)*5], c(13,1,1,60))
-time.min <- buckley$time.min[(1:60)*5]
-mask <- array(rep(TRUE, 13), c(13,1,1))
-#Generate AIF params using the orton.exp function from Buckley's AIF
-aifparams <- with(buckley, orton.exp.lm(time.min,input))
-aifparams$D<-1
-fit <- dcemri.lm(img, time.min, mask, model="orton.exp", aif="user", user=aifparams)
 
-plot(breast$ktrans, fit$ktrans, xlim=c(0,0.75), ylim=c(0,0.75), xlab="True Ktrans", ylab="Estimated Ktrans")
-lines(c(-0.1,0.8), c(-0.1,0.8), lty=3, col="grey")
+## Set up breast data for dcemri
+xi <- seq(5, 300, by=5)
+img <- array(t(breast$data)[,xi], c(13,1,1,60))
+time <- buckley$time.min[xi]
+aif <- buckley$input[xi]
+mask <- array(TRUE, dim(img)[1:3])
+
+## Generate AIF params using the orton.exp function from Buckley's AIF
+aifparams <- orton.exp.lm(time, aif)
+fit <- dcemri.lm(img, time, mask, model="orton.exp",
+                 aif="user", user=aifparams)
+
+## Scatterplot comparing true and estimated Ktrans values
+plot(breast$ktrans, fit$ktrans, xlim=c(0,0.75), ylim=c(0,0.75),
+     xlab=expression(paste("True ", K^{trans})),
+     ylab=expression(paste("Estimated ", K^{trans})))
+abline(0, 1, lwd=1.5, col="red")
 cbind(breast$ktrans, fit$ktrans[,,1])
-
 }
 \author{Brandon Whitcher, Volker Schmid}
 \keyword{models}

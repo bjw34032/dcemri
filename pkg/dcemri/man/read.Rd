@@ -51,6 +51,7 @@ make.hdr(X, Y, Z, T, datatype, type)
 }
 \references{
   ANALYZE 7.5 \url{http://www.mayo.edu/bir/PDF/ANALYZE75.pdf}
+
   NIfTI-1 \url{http://nifti.nimh.nih.gov/}
 }
 \seealso{

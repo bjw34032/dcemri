@@ -1,6 +1,6 @@
 % Part of the dcemri package for R
 % Distributed under the BSD license: see dcemri/COPYING
-% Time-stamp: <2009-08-06 11:10:10 (bjw34032)>
+%
 % $Id$
 
 \name{dcemri.bayes}
@@ -13,53 +13,53 @@
   DCE-MRI.
 }
 \usage{
-dcemri.bayes.single(conc, time, nriters=7000, thin=10, burnin=2000,
-  tune=267, tau.gamma=1, tau.theta=1, ab.vp=c(1, 19),
-  ab.tauepsilon=c(1, 1/1000), aif.model=0,
-  aif.parameter=c(2.4,, 3,  0.62, 0.016), vp=1)
 dcemri.bayes(conc, time, img.mask, model="extended",
                       aif=NULL, user=NULL, 
 	              nriters=9500, thin=30, burnin=2000, tune=267, 
 	              tau.ktrans=1, tau.kep=tau.ktrans, ab.vp=c(1,19),
 	              ab.tauepsilon=c(1,1/1000), samples=FALSE,
                       multicore=FALSE, ...)
+dcemri.bayes.single(conc, time, nriters=7000, thin=10, burnin=2000,
+                    tune=267, tau.gamma=1, tau.theta=1, ab.vp=c(1,19),
+                    ab.tauepsilon=c(1,1/1000), aif.model=0,
+                    aif.parameter=c(2.4,0.62,3,0.016), vp=1)
 }
 \arguments{
-  \item{conc}{Matrix or array of concentration time series.
-    Last dimension must be time.}
+  \item{conc}{Matrix or array of concentration time series (last
+    dimension must be time).}
   \item{time}{Time in minutes.}
   \item{img.mask}{Mask matrix or array. Voxels with mask=0 will be
     excluded.}
   \item{model}{is a character string that identifies the type of
     compartmental model to be used.  Acceptable models include:
-
-    \dQuote{weinmann} Tofts & Kermode AIF convolved with single compartment
-	 model 
-
-    \dQuote{extended} (default) Weinmann model extended with additional
-	vascular compartment,
-
-    \dQuote{orton.exp} extended model using Orton's exponential AIF
+    \itemize{
+      \item{\dQuote{weinmann}}{Tofts & Kermode AIF convolved with single
+	compartment model}
+      \item{\dQuote{extended}}{Weinmann model extended with additional
+	vascular compartment (default)}
+      \item{\dQuote{orton.exp}}{Extended model using Orton's exponential
+	AIF}
     }
-  \item{aif}{is a character string that identifies the parameters of the type
-    of arterial input function (AIF) used with the above model.
-
-      Acceptable values are:
-
-      \code{tofts.kermode} (default), \code{fritz.hansen} for the \code{weinmann} and \code{extended} models.
-
-      \code{orton.exp} (default) and \code{user} for the \code{orton.exp} model.}
-  \item{user}{Vector of AIF parameters. 
-    For Tofts and Kermode: \eqn{a_1},\eqn{m_1},\eqn{a_2},\eqn{m_2}; for
-    Orton \emph{et al.}: \eqn{A_b},\eqn{\mu_b},\eqn{A_g},\eqn{\mu_g}.}
+  }
+  \item{aif}{is a character string that identifies the parameters of the
+    type of arterial input function (AIF) used with the above model.
+    Acceptable values are: \code{tofts.kermode} (default) or
+    \code{fritz.hansen} for the \code{weinmann} and \code{extended}
+    models; \code{orton.exp} (default) or \code{user} for the
+    \code{orton.exp} model.}
+  \item{user}{Vector of AIF parameters. For Tofts and Kermode:
+    \eqn{a_1},\eqn{m_1},\eqn{a_2},\eqn{m_2}; for Orton \emph{et al.}:
+    \eqn{A_b},\eqn{\mu_b},\eqn{A_g},\eqn{\mu_g}.}
   \item{nriters}{Total number of iterations.}
   \item{thin}{Thining factor.}
   \item{burnin}{Number of iterations for burn-in.}
-  \item{tune}{Number for iterations for tuning. Algorithm will be 
-    tuned to an acceptance rate of 0.3 to 0.6.}
-  \item{tau.ktrans}{Variance parameter for prior on \eqn{\log(K^{trans})}.}
+  \item{tune}{Number for iterations for tuning.  The algorithm will be 
+    tuned to an acceptance rate between 0.3 and 0.6.}
+  \item{tau.ktrans}{Variance parameter for prior on
+    \eqn{\log(K^{trans})}.}
   \item{tau.kep}{Variance parameter for prior on \eqn{\log(k_{ep})}.}
-  \item{ab.vp}{Hyper-prior parameters for \eqn{v_p}{vp} Beta prior.}
+  \item{ab.vp}{Hyper-prior parameters for the Beta prior on
+    \eqn{v_p}{vp}.}
   \item{ab.tauepsilon}{Hyper-prior parameters for observation error
     Gamma prior.} 
   \item{samples}{If \code{TRUE} output includes samples drawn
@@ -102,33 +102,46 @@ dcemri.bayes(conc, time, img.mask, model="extended",
   \code{\link{dcemri.lm}}, \code{\link{dcemri.spline}}
 }
 \examples{
-data(buckley)
-img <- array(t(breast$data)[, (1:60)*5], c(13, 1, 1, 60))
-time.min <- buckley$time.min[(1:60)*5]
-mask <- array(rep(TRUE, 13), c(13,1,1))
-## Generate AIF params using the orton.exp function from Buckley's AIF
-aifparams <- with(buckley, orton.exp.lm(time.min, input))
-aifparams$D <- 1
+data("buckley")
+xi <- seq(5, 300, by=5)
+img <- array(t(breast$data)[,xi], c(13,1,1,60))
+mask <- array(TRUE, dim(img)[1:3])
+time <- buckley$time.min[xi]
 
-fit.bayes <- dcemri.bayes(img, time.min, mask, aif="fritz.hansen")
-fit.bayes.aif <- dcemri.bayes(img, time.min, mask, model="orton.exp",
-                              aif="user", user=aifparams)
-plot(breast$ktrans, fit.bayes$ktrans, xlim=c(0,0.75), ylim=c(0,0.75),
-     xlab="True Ktrans", ylab="Estimated Ktrans (Bayes)")
+## Bayesian estimation with Fritz-Hansen default AIF
+fit.bayes <- dcemri.bayes(img, time, mask, aif="fritz.hansen",
+                          nriters=3000, thin=10, burnin=1000)
+
+## Bayesian estimation with "orton.exp" function fit to Buckley's AIF
+aif <- buckley$input[xi]
+aifparams <- orton.exp.lm(time, aif)
+fit.bayes.aif <- dcemri.bayes(img, time, mask, model="orton.exp",
+                              aif="user", user=aifparams, nriters=3000,
+                              thin=10, burnin=1000)
+
+plot(breast$ktrans, fit.bayes$ktrans, xlim=c(0,1), ylim=c(0,1),
+     xlab=expression(paste("True ", K^{trans})),
+     ylab=expression(paste("Estimated ", K^{trans}, " (Bayesian)")))
 points(breast$ktrans, fit.bayes.aif$ktrans, pch=2)
-legend(0.4, 0.2, pch=c(2,1), legend=c("Orton Exp (modelled)","Fritz-Hansen"))
-lines(c(-0.1,0.8), c(-0.1,0.8), lty=3, col="grey")
+abline(0, 1, lwd=1.5, col=2)
+legend("right", c("orton.exp", "fritz.hansen"), pch=1:2)
 
-fit.lm <- dcemri.lm(img, time.min, mask, aif="fritz.hansen")
-fit.lm.aif <- dcemri.lm(img, time.min, mask, model="orton.exp",
-                        aif="user", user=aifparams)
-plot(breast$ktrans, fit.bayes$ktrans, xlim=c(0,0.75), ylim=c(0,0.75),
-     xlab="True Ktrans", ylab="Estimated Ktrans")
-points(breast$ktrans, fit.bayes.aif$ktrans, pch=3)
-points(breast$ktrans, fit.lm$ktrans, pch=2)
+fit.lm <- dcemri.lm(img, time, mask, aif="fritz.hansen")
+fit.lm.aif <- dcemri.lm(img, time, mask, model="orton.exp", aif="user",
+                        user=aifparams)
+
+plot(breast$ktrans, fit.bayes$ktrans, xlim=c(0,1), ylim=c(0,1),
+     xlab=expression(paste("True ", K^{trans})),
+     ylab=expression(paste("Estimated ", K^{trans})))
+points(breast$ktrans, fit.bayes.aif$ktrans, pch=2)
+points(breast$ktrans, fit.lm$ktrans, pch=3)
 points(breast$ktrans, fit.lm.aif$ktrans, pch=4)
-legend(0.6, 0.2, legend=c("LM OE","Bayes OE","LM FH","Bayes FH"), pch=4:1)
-lines(c(-0.1,0.8), c(-0.1,0.8), lty=3, col="grey")
+abline(0, 1, lwd=1.5, col="red")
+legend("bottomright", c("Bayesian Estimation (fritz-hansen)",
+                        "Bayesian Estimation (orton.exp)",
+                        "Levenburg-Marquardt (fritz.hansen)",
+                        "Levenburg-Marquardt (orton.exp)"), pch=1:4)
+
 cbind(breast$ktrans, fit.bayes$ktrans[,,1], fit.bayes.aif$ktrans[,,1],
       fit.lm$ktrans[,,1], fit.lm.aif$ktrans[,,1])
 }

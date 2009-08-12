@@ -29,7 +29,7 @@
 ## (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 ## OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ## 
-##
+## $Id$
 
 dam <- function(low, high, low.deg) {
   alpha <- acos(abs(high /(2*low)))

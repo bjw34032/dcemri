@@ -29,12 +29,12 @@
 ## (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 ## OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ## 
-## Time-stamp: <2009-08-05 08:36:33 (bjw34032)>
+##
 ## $Id: dcemri.R 56 2009-08-04 16:26:21Z bjw34032 $
 ##
 
-dcemri.lm <- function(conc, time, img.mask, model="extended",
-                      aif=NULL, nprint=0, user=NULL, ...) {
+dcemri.lm <- function(conc, time, img.mask, model="extended", aif=NULL,
+                      nprint=0, user=NULL, verbose=FALSE, ...) {
   ## dcemri.lm - a function for fitting 1-compartment PK models to
   ## DCE-MRI images
   ##
@@ -53,53 +53,62 @@ dcemri.lm <- function(conc, time, img.mask, model="extended",
   ##         (ktranserror and keperror)
   ##
   model <- switch(model,
-    weinmann="weinmann",
-    extended="extended",
-    orton.exp="orton.exp",
-    orton.cos="orton.cos",
-    stop("Unknown model ", model, call.=FALSE))
+                  weinmann = "weinmann",
+                  extended = "extended",
+                  orton.exp = "orton.exp",
+                  orton.cos = "orton.cos",
+                  stop("Unknown model ", model, call.=FALSE))
   aif <- switch(model,
-    weinmann=,
-    extended=if (is.null(aif)) {
-      "tofts.kermode"
-    } else {
-      switch(aif,
-	tofts.kermode="tofts.kermode",
-	fritz.hansen="fritz.hansen",
-	stop("Only aif=\"tofts.kermode\" or aif=\"fritz.hansen\" acceptable aifs for model=\"weinmann\" or model=\"extended\"", call.=FALSE)
-	)
-    },
-    orton.exp=if (is.null(aif)) {
-      "orton.exp"
-    } else {
-      switch(aif,
-	orton.exp="orton.exp",
-	user="user",
-	stop("Only aif=\"orton.exp\" or aif=\"user\" acceptable aifs for model=\"orton.exp\""), call.=FALSE)
-    },
-    orton.cos=if (is.null(aif)) {
-      "orton.cos"
-    } else {
-      switch(aif,
-	orton.cos="orton.cos",
-	user="user",
-	stop("Only aif=\"orton.cos\" or aif=\"user\" acceptable aifs for model=\"orton.cos\""), call.=FALSE)
-    },
-    stop("Unknown model: " + model, call.=FALSE))
+                weinmann = ,
+                extended = {
+                  if (is.null(aif)) {
+                    "tofts.kermode"
+                  } else {
+                    switch(aif,
+                           tofts.kermode="tofts.kermode",
+                           fritz.hansen="fritz.hansen",
+                           stop("Only aif=\"tofts.kermode\" or aif=\"fritz.hansen\" acceptable aifs for model=\"weinmann\" or model=\"extended\"", call.=FALSE)
+                           )
+                  }
+                },
+                orton.exp = {
+                  if (is.null(aif)) {
+                    "orton.exp"
+                  } else {
+                    switch(aif,
+                           orton.exp="orton.exp",
+                           user="user",
+                           stop("Only aif=\"orton.exp\" or aif=\"user\" acceptable aifs for model=\"orton.exp\""), call.=FALSE)
+                  }
+                },
+                orton.cos = {
+                  if (is.null(aif)) {
+                    "orton.cos"
+                  } else {
+                    switch(aif,
+                           orton.cos="orton.cos",
+                           user="user",
+                           stop("Only aif=\"orton.cos\" or aif=\"user\" acceptable aifs for model=\"orton.cos\""), call.=FALSE)
+                  }
+                },
+                stop("Unknown model: " + model, call.=FALSE))
   
-
   require("minpack.lm")
-
+  
   mod <- model
   nvoxels <- sum(img.mask)
   I <- nrow(conc)
   J <- ncol(conc)
   K <- nsli(conc)
+  
+  if (!is.numeric(dim(conc))) {
+    I <- J <- K <- 1
+  } else {
+    if (length(dim(conc)) == 2)
+      J <- K <- 1
+  }
 
-  if (!is.numeric(dim(conc))) {I <- J <- K <- 1} 
-	else if (length(dim(conc))==2) {J <- K <-1}
-
-  cat("  Deconstructing data...", fill=TRUE)
+  if (verbose) cat("  Deconstructing data...", fill=TRUE)
   conc.mat <- matrix(conc[img.mask], nvoxels)
   conc.mat[is.na(conc.mat)] <- 0
 
@@ -117,7 +126,7 @@ dcemri.lm <- function(conc, time, img.mask, model="extended",
            D <- 1; aB <- 2.84; muB <- 22.8; aG <- 1.36; muG <- 0.171
          },
          user = {
-           cat("  User-specified AIF parameters...", fill=TRUE);
+           if (verbose) cat("  User-specified AIF parameters...", fill=TRUE);
            D <- try(user$D); AB <- try(user$AB); aB <- try(user$aB);
            muB <- try(user$muB); AG <- try(user$AG); aG <- try(user$aG); 
            muG <- try(user$muG)
@@ -226,7 +235,7 @@ dcemri.lm <- function(conc, time, img.mask, model="extended",
   ktrans <- kep <- list(par=rep(NA, nvoxels), error=rep(NA, nvoxels))
   sse <- rep(NA, nvoxels)
 
-  cat("  Estimating the kinetic parameters...", fill=TRUE)
+  if (verbose) cat("  Estimating the kinetic parameters...", fill=TRUE)
   for(k in 1:nvoxels) {
     fit <- nls.lm(par=guess, fn=func, control=list(nprint=nprint),
                   signal=conc.mat[k,], time=time)
@@ -248,20 +257,20 @@ dcemri.lm <- function(conc, time, img.mask, model="extended",
     }
   }
 
-  cat("  Reconstructing results...", fill=TRUE)
+  if (verbose) cat("  Reconstructing results...", fill=TRUE)
   A <- B <- array(NA, c(I,J,K))
   A[img.mask] <- ktrans$par
   B[img.mask] <- ktrans$error
-  ktrans.out <- list(par = A, error = B)
+  ktrans.out <- list(par=A, error=B)
   A <- B <- array(NA, c(I,J,K))
   A[img.mask] <- kep$par
   B[img.mask] <- kep$error
-  kep.out <- list(par = A, error = B)
+  kep.out <- list(par=A, error=B)
   if(mod %in% c("extended","orton.exp","orton.cos")) {
     A <- B <- array(NA, c(I,J,K))
     A[img.mask] <- Vp$par
     B[img.mask] <- Vp$error
-    Vp.out <- list(par = A, error = B)
+    Vp.out <- list(par=A, error=B)
   }
   A <- B <- array(NA, c(I,J,K))
   A[img.mask] <- sse
