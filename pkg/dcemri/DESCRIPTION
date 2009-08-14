@@ -1,6 +1,6 @@
 Package: dcemri
-Version: 0.10
-Date: 2009-08-12
+Version: 0.10.1
+Date: 2009-08-14
 Title: A Package for Medical Image Analysis
 Author: Brandon Whitcher <bjw34032@users.sourceforge.net> and
   Volker Schmid <volkerschmid@users.sourceforge.net>, with contributions 

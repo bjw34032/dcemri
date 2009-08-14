@@ -59,8 +59,8 @@ write.nifti.img(fname, hdr, img, type, gzipped=TRUE, warn=-1)
 \examples{
 norm <- dnorm(seq(-5, 5, length=32), sd=2)
 norm <- (norm-min(norm)) / max(norm-min(norm))
-img <- norm \%o\% norm \%o\% norm
-img <- round(img*255)
+img <- outer(outer(norm, norm), norm)
+img <- round(255*img)
 img[17:32,,] <- 255 - img[17:32,,]
 X <- nrow(img)
 Y <- ncol(img)

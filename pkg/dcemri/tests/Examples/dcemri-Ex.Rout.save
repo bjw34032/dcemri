@@ -617,8 +617,8 @@ http://www.netlib.org/minpack/disclaimer for the full license.
 > 
 > norm <- dnorm(seq(-5, 5, length=32), sd=2)
 > norm <- (norm-min(norm)) / max(norm-min(norm))
-> img <- norm %o% norm %o% norm
-> img <- round(img*255)
+> img <- outer(outer(norm, norm), norm)
+> img <- round(255*img)
 > img[17:32,,] <- 255 - img[17:32,,]
 > X <- nrow(img)
 > Y <- ncol(img)
@@ -675,7 +675,7 @@ Loading required package: bitops
 > ### * <FOOTER>
 > ###
 > cat("Time elapsed: ", proc.time() - get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  107.747 0.49 109.591 0 0 
+Time elapsed:  109.593 0.541 112.792 0 0 
 > grDevices::dev.off()
 null device 
           1 

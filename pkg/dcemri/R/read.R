@@ -32,101 +32,58 @@
 ## $Id$
 ##
 
-read.hdr <- function(fname, verbose=FALSE) {
-  ## Check if any file extensions are present
-  ANALYZE <- ifelse(length(grep("hdr", fname)) != 0, TRUE, FALSE)
-  NIFTI <- ifelse(length(grep("nii", fname)) != 0, TRUE, FALSE)
-  GZ <- ifelse(length(grep("gz", fname)) != 0, TRUE, FALSE)
+read.hdr <- function(fname, verbose=FALSE, warn=-1) {
 
   cat.file <- function(fname, thefile, fill=TRUE)
     cat(paste("  fname =", fname, "\n  file =", thefile), fill=fill)
-  
-  if (GZ) {
-    if (verbose) cat("  GZ == TRUE", fill=TRUE)
-    if (ANALYZE) {
-      if (verbose) cat("  ANALYZE == TRUE", fill=TRUE)
-      if (file.access(fname) == 0) {
-        if (verbose) cat.file(fname, fname)
-        hdr <- read.analyze.hdr(sub(".hdr.gz", "", fname), gzipped=TRUE,
-                                verbose=verbose)
-        return(hdr)
-      }
-    }
-    if (verbose) cat("  ANALYZE == FALSE", fill=TRUE)
-    if (NIFTI) {
-      if (verbose) cat("  NIFTI == TRUE", fill=TRUE)
-      if (file.access(fname) == 0) {
-        if (verbose) cat.file(fname, fname)
-        hdr <- read.nifti.hdr(sub(".nii.gz", "", fname), gzipped=TRUE,
-                              verbose=verbose)
-        return(hdr)
-      }
-      stop(paste(fname, "is not recognized."))
-    }
+
+  ## Strip any extensions
+  fname <- sub(".gz", "", fname)
+  fname <- sub(".hdr", "", fname)
+  fname <- sub(".nii", "", fname)
+
+  fname.hdr <- paste(fname, "hdr", sep=".")
+  fname.hdr.gz <- paste(fname, "hdr.gz", sep=".")
+  if (file.exists(fname.hdr) && file.exists(fname.hdr.gz)) {
+    stop("-- Both compressed and uncompressed files exist! --")
   } else {
-    if (verbose) cat("  GZ == FALSE", fill=TRUE)
-    if (ANALYZE) {
-      if (file.access(fname) == 0) {
-        if (verbose) cat.file(fname, fname)
-        hdr <- read.analyze.hdr(sub(".hdr", "", fname), gzipped=FALSE,
-                                verbose=verbose)
-        return(hdr)
-      }
-      fname.hdr.gz <- paste(fname, "gz", sep=".")
-      if (file.access(fname.hdr.gz) == 0) {
-        if (verbose) cat.file(fname, fname.hdr.gz)
-        hdr <- read.analyze.hdr(sub(".hdr", "", fname), gzipped=TRUE,
-                                verbose=verbose)
-        return(hdr)
-      }
-      stop(paste(fname, "is not recognized."))
-    } else {
-      if (verbose) cat("  ANALYZE == FALSE", fill=TRUE)
-      if (NIFTI) {
-        if (file.access(fname) == 0) {
-          if (verbose) cat.file(fname, fname)
-          hdr <- read.nifti.hdr(sub(".nii", "", fname), gzipped=FALSE,
-                                verbose=verbose)
-          return(hdr)
-        }
-        fname.nii.gz <- paste(fname, "gz", sep=".")
-        if (file.access(fname.nii.gz) == 0) {
-          if (verbose) cat.file(fname, fname.nii.gz)
-          hdr <- read.nifti.hdr(sub(".nii", "", fname), gzipped=TRUE,
-                                verbose=verbose)
-          return(hdr)
-        }
-        stop(paste(fname, "is not recognized."))
-      } else {
-        if (verbose) cat("  NIFTI == FALSE", fill=TRUE)
-        fname.hdr <- paste(fname, "hdr", sep=".")
-        if (file.access(fname.hdr) == 0) {
-          if (verbose) cat.file(fname, fname.hdr)
-          hdr <- read.analyze.hdr(fname, gzipped=FALSE, verbose=verbose)
-          return(hdr)
-        }
-        fname.hdr.gz <- paste(fname, "hdr.gz", sep=".")
-        if (file.access(fname.hdr.gz) == 0) {
-          if (verbose) cat.file(fname, fname.hdr.gz)
-          hdr <- read.analyze.hdr(fname, gzipped=TRUE, verbose=verbose)
-          return(hdr)
-        }
-        fname.nii <- paste(fname, "nii", sep=".")
-        if (file.access(fname.nii) == 0) {
-          if (verbose) cat.file(fname, fname.nii)
-          hdr <- read.nifti.hdr(fname, gzipped=FALSE, verbose=verbose)
-          return(hdr)
-        }
-        fname.nii.gz <- paste(fname, "nii.gz", sep=".")
-        if (file.access(fname.nii.gz) == 0) {
-          if (verbose) cat.file(fname, fname.nii.gz)
-          hdr <- read.nifti.hdr(fname, gzipped=TRUE, verbose=verbose)
-          return(hdr)
-        }
-        stop(paste(fname, "is not recognized."))
-      }
+    ## If uncompressed files exist, then upload!
+    if (file.exists(fname.hdr)) {
+      if (verbose) cat.file(fname, fname.hdr)
+      hdr <- read.analyze.hdr(fname, gzipped=FALSE, verbose=verbose,
+                              warn=warn)
+      return(hdr)
+    }
+    ## If compressed files exist, then upload!
+    if (file.exists(fname.hdr.gz)) {
+      if (verbose) cat(fname, fname.hdr.gz)
+      aim <- read.analyze.hdr(fname, gzipped=TRUE, verbose=verbose,
+                              warn=warn)
+      return(hdr)
     }
   }
+  fname.nii <- paste(fname, "nii", sep=".")
+  fname.nii.gz <- paste(fname, "nii.gz", sep=".")
+  if (file.exists(fname.nii) && file.exists(fname.nii.gz)) {
+    stop("-- Both compressed and uncompressed files exist! --")
+  } else {
+    ## If uncompressed files exist, then upload!
+    if (file.exists(fname.nii)) {      
+      if (verbose) cat.file(fname, fname.nii)
+      hdr <- read.nifti.hdr(fname, gzipped=FALSE, verbose=verbose,
+                            warn=warn)
+      return(hdr)
+    }
+    ## If compressed files exist, then upload!
+    if (file.exists(fname.nii.gz)) {
+      if (verbose) cat.file(fname, fname.nii.gz)
+      hdr <- read.nifti.hdr(fname, gzipped=TRUE, verbose=verbose,
+                            warn=warn)
+      return(hdr)
+    }
+  }
+  ## If you get this far...
+  stop(paste(fname, "is not recognized."))
 }
 
 read.analyze.hdr <- function(fname, gzipped=TRUE, verbose=FALSE, warn=-1) {
@@ -381,101 +338,61 @@ make.hdr <- function(X, Y, Z, T, datatype, type="analyze") {
   return(hdr)
 }
 
-read.img <- function(fname, verbose=FALSE) {
+read.img <- function(fname, verbose=FALSE, warn=-1) {
   ## Check if any file extensions are present
-  ANALYZE <- ifelse(length(grep("img", fname)) != 0, TRUE, FALSE)
+  ANLZ <- ifelse(length(grep("img", fname)) != 0, TRUE, FALSE)
   NIFTI <- ifelse(length(grep("nii", fname)) != 0, TRUE, FALSE)
-  GZ <- ifelse(length(grep("gz", fname)) != 0, TRUE, FALSE)
 
   cat.file <- function(fname, thefile, fill=TRUE)
     cat(paste("  fname =", fname, "\n  file =", thefile), fill=fill)
-  
-  if (GZ) {
-    if (verbose) cat("  GZ == TRUE", fill=TRUE)
-    if (ANALYZE) {
-      if (verbose) cat("  ANALYZE == TRUE", fill=TRUE)
-      if (file.access(fname) == 0) {
-        if (verbose) cat.file(fname, fname)
-        img <- read.analyze.img(sub(".img.gz", "", fname), gzipped=TRUE,
-                                verbose=verbose)
-        return(img)
-      }
-    }
-    if (verbose) cat("  ANALYZE == FALSE", fill=TRUE)
-    if (NIFTI) {
-      if (verbose) cat("  NIFTI == TRUE", fill=TRUE)
-      if (file.access(fname) == 0) {
-        if (verbose) cat.file(fname, fname)
-        img <- read.nifti.img(sub(".nii.gz", "", fname), gzipped=TRUE,
-                              verbose=verbose)
-        return(img)
-      }
-      stop(paste(fname, "is not recognized."))
-    }
+
+  ## Strip any extensions
+  fname <- sub(".gz", "", fname)
+  fname <- sub(".img", "", fname)
+  fname <- sub(".nii", "", fname)
+
+  fname.img <- paste(fname, "img", sep=".")
+  fname.img.gz <- paste(fname, "img.gz", sep=".")
+  if (file.exists(fname.img) && file.exists(fname.img.gz)) {
+    stop("-- Both compressed and uncompressed files exist! --")
   } else {
-    if (verbose) cat("  GZ == FALSE", fill=TRUE)
-    if (ANALYZE) {
-      if (file.access(fname) == 0) {
-        if (verbose) cat.file(fname, fname)
-        img <- read.analyze.img(sub(".img", "", fname), gzipped=FALSE,
-                                verbose=verbose)
-        return(img)
-      }
-      fname.img.gz <- paste(fname, "gz", sep=".")
-      if (file.access(fname.img.gz) == 0) {
-        if (verbose) cat.file(fname, fname.img.gz)
-        img <- read.analyze.img(sub(".img", "", fname), gzipped=TRUE,
-                                verbose=verbose)
-        return(img)
-      }
-      stop(paste(fname, "is not recognized."))
-    } else {
-      if (verbose) cat("  ANALYZE == FALSE", fill=TRUE)
-      if (NIFTI) {
-        if (file.access(fname) == 0) {
-          if (verbose) cat.file(fname, fname)
-          img <- read.nifti.img(sub(".nii", "", fname), gzipped=FALSE,
-                                verbose=verbose)
-          return(img)
-        }
-        fname.nii.gz <- paste(fname, "gz", sep=".")
-        if (file.access(fname.nii.gz) == 0) {
-          if (verbose) cat.file(fname, fname.nii.gz)
-          img <- read.nifti.img(sub(".nii", "", fname), gzipped=TRUE,
-                                verbose=verbose)
-          return(img)
-        }
-        stop(paste(fname, "is not recognized."))
-      } else {
-        if (verbose) cat("  NIFTI == FALSE", fill=TRUE)
-        fname.img <- paste(fname, "img", sep=".")
-        if (file.access(fname.img) == 0) {
-          if (verbose) cat.file(fname, fname.img)
-          img <- read.analyze.img(fname, gzipped=FALSE, verbose=verbose)
-          return(img)
-        }
-        fname.img.gz <- paste(fname, "img.gz", sep=".")
-        if (file.access(fname.img.gz) == 0) {
-          if (verbose) cat.file(fname, fname.img.gz)
-          img <- read.analyze.img(fname, gzipped=TRUE, verbose=verbose)
-          return(img)
-        }
-        fname.nii <- paste(fname, "nii", sep=".")
-        if (file.access(fname.nii) == 0) {
-          if (verbose) cat.file(fname, fname.nii)
-          img <- read.nifti.img(fname, gzipped=FALSE, verbose=verbose)
-          return(img)
-        }
-        fname.nii.gz <- paste(fname, "nii.gz", sep=".")
-        if (file.access(fname.nii.gz) == 0) {
-          if (verbose) cat.file(fname, fname.nii.gz)
-          img <- read.nifti.img(fname, gzipped=TRUE, verbose=verbose)
-          return(img)
-        }
-        stop(paste(fname, "is not recognized."))
-      }
+    ## If uncompressed files exist, then upload!
+    if (file.exists(fname.img)) {
+      if (verbose) cat.file(fname, fname.img)
+      img <- read.analyze.img(fname, gzipped=FALSE, verbose=verbose,
+                              warn=warn)
+      return(img)
+    }
+    ## If compressed files exist, then upload!
+    if (file.exists(fname.img.gz)) {
+      if (verbose) cat.file(fname, fname.img.gz)
+      aim <- read.analyze.img(fname, gzipped=TRUE, verbose=verbose,
+                              warn=warn)
+      return(img)
     }
   }
+  fname.nii <- paste(fname, "nii", sep=".")
+  fname.nii.gz <- paste(fname, "nii.gz", sep=".")
+  if (file.exists(fname.nii) && file.exists(fname.nii.gz)) {
+    stop("-- Both compressed and uncompressed files exist! --")
+  } else {
+    ## If uncompressed files exist, then upload!
+    if (file.exists(fname.nii)) {      
+      if (verbose) cat.file(fname, fname.nii)
+      img <- read.nifti.img(fname, gzipped=FALSE, verbose=verbose,
+                            warn=warn)
+      return(img)
+    }
+    ## If compressed files exist, then upload!
+    if (file.exists(fname.nii.gz)) {
+      if (verbose) cat.file(fname, fname.nii.gz)
+      img <- read.nifti.img(fname, gzipped=TRUE, verbose=verbose,
+                            warn=warn)
+      return(img)
+    }
+  }
+  ## If you get this far...
+  stop(paste(fname, "is not recognized."))
 }
 
 read.analyze.img <- function(fname, gzipped=TRUE, signed=FALSE,
