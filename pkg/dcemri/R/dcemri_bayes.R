@@ -111,6 +111,14 @@ dcemri.bayes <- function(conc, time, img.mask, model="extended",
   ##         (ktranserror and keperror), samples if samples=TRUE
   ##
 
+  if (nriters<thin)stop("Please check settings for nriters")
+  if (burnin<0)stop("Please check settings for burnin")
+  if (thin<1)stop("Please check settings for thin")
+  if (tune<50)stop("Please check settings for tune")
+
+  if (burnin < tune){burnin=tune;nriters=nriters+tune}
+  if (burnin > nriters){nriters=nriters+burnin}
+  
   mod <- model
   nvoxels <- sum(img.mask)
   I <- nrow(conc) ;  J <- ncol(conc) ;  K <- nsli(conc)
