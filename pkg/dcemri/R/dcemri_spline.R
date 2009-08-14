@@ -251,6 +251,8 @@ dcemri.spline <- function(conc, time, img.mask, time.input=time,
   ##         (ktranserror and keperror)
   ##
 
+  require(splines)
+
   ##function to make precision matrix for random walk
   R <- function(taux,rw) {
     RR <- matrix(0,nrow=length(taux)+rw,ncol=length(taux)+rw)
