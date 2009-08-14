@@ -38,7 +38,7 @@ dcemri.map.single <- function(conc, time, posterior, parameter, transform, start
     return(NA)
 else
 {    
-  map <- optim(par=start, fn=posterior, conc=conc, time=time, hyper=hyper, aif=aif)
+  map <- optim(par=start, fn=posterior, conc=conc, time=time, hyper=hyper, aif=aif,control=list("maxit"=25000))
   return.list<-list()
   for (i in 1:length(parameter))
 	{

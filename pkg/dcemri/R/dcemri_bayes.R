@@ -131,6 +131,8 @@ dcemri.bayes <- function(conc, time, img.mask, model="extended",
     }
   }
 
+  img.mask <- array(img.mask,c(I,J,K))
+ 
   if (verbose) cat("  Deconstructing data...", fill=TRUE)
   conc.mat <- matrix(conc[img.mask], nvoxels)
   conc.mat[is.na(conc.mat)] <- 0
@@ -166,9 +168,9 @@ dcemri.bayes <- function(conc, time, img.mask, model="extended",
 
   ## translate "model" to "aif.model" and "vp.do"
   switch(model,
-         weinmann = { aif.model <- 0 ; vp.do <- FALSE },
-         extended = { aif.model <- 0 ; vp.do <- TRUE },
-         orton.exp = { aif.model <- 1 ; vp.do <- TRUE },
+         weinmann = { aif.model <- 0 ; vp.do <- 0 },
+         extended = { aif.model <- 0 ; vp.do <- 1 },
+         orton.exp = { aif.model <- 1 ; vp.do <- 1 },
          stop("Model is not supported."))
 
   ktrans <- kep <- list(par=rep(NA, nvoxels), error=rep(NA, nvoxels))
@@ -191,13 +193,15 @@ dcemri.bayes <- function(conc, time, img.mask, model="extended",
     fit <- lapply(conc.list, FUN=dcemri.bayes.single,
                   time=time, nriters=nriters, thin=thin, burnin=burnin,
                   tune=tune, ab.vp=ab.vp, ab.tauepsilon=ab.tauepsilon,
-                  aif.model=aif.model, aif.parameter=aif.parameter)
+                  aif.model=aif.model, aif.parameter=aif.parameter,
+		  vp=vp.do)
   } else {
     require(multicore)
     fit <- mclapply(conc.list, FUN=dcemri.bayes.single,
                   time=time, nriters=nriters, thin=thin, burnin=burnin,
                   tune=tune, ab.vp=ab.vp, ab.tauepsilon=ab.tauepsilon,
-                  aif.model=aif.model, aif.parameter=aif.parameter)
+                  aif.model=aif.model, aif.parameter=aif.parameter, 
+                  vp=vp.do)
   }
 
   if (verbose) cat("  Reconstructing results...", fill=TRUE)
@@ -255,14 +259,14 @@ dcemri.bayes <- function(conc, time, img.mask, model="extended",
 	      count = count + 1
 	      A[i,j,k,] <- sample[(1:NRI) + count*NRI]
 	    }
-	    return(A)
 	  }
 	}
       }
+    return(A)
     }
     
     NRI <- length(ktrans.samples) / length(ktrans$par)
-
+	
     ktrans.out <- list(par = ktrans.out$par, error=ktrans.out$error,
       samples = extract.samples(ktrans.samples,I,J,K,NRI))
     kep.out <- list(par = kep.out$par, error=kep.out$error,
