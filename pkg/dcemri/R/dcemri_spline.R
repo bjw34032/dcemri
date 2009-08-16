@@ -252,6 +252,7 @@ dcemri.spline <- function(conc, time, img.mask, time.input=time,
   ##
 
   require(splines)
+  if (nlr) {require(minpack.lm)}
 
   ##function to make precision matrix for random walk
   R <- function(taux,rw) {

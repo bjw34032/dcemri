@@ -32,8 +32,8 @@
 ## $Id: $
 ##
 
-dcemri.bayes.single <- function(conc, time, nriters=7000, thin=10,
-                                burnin=2000, tune=267, tau.gamma=1,
+dcemri.bayes.single <- function(conc, time, nriters=3500, thin=3,
+                                burnin=500, tune=267, tau.gamma=1,
                                 tau.theta=1, ab.vp=c(1,19),
                                 ab.tauepsilon=c(1,1/1000), aif.model=0,
                                 aif.parameter=c(2.4,0.62,3,0.016), vp=1) {
@@ -66,8 +66,8 @@ dcemri.bayes.single <- function(conc, time, nriters=7000, thin=10,
 }
 
 dcemri.bayes <- function(conc, time, img.mask, model="extended",
-                         aif=NULL, user=NULL, nriters=9500, thin=30,
-                         burnin=2000, tune=267, tau.ktrans=1,
+                         aif=NULL, user=NULL, nriters=3500, thin=3,
+                         burnin=500, tune=267, tau.ktrans=1,
                          tau.kep=tau.ktrans, ab.vp=c(1,19),
                          ab.tauepsilon=c(1,1/1000), samples=FALSE,
                          multicore=FALSE, verbose=FALSE, ...) {
