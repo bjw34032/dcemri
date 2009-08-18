@@ -562,17 +562,31 @@ dcemri.spline <- function(conc, time, img.mask, time.input=time,
     }
   }
 
+
+  if (I>1)
+  {
   for (j in 1:p) {
     beta.med[,,,j][img.mask] <- apply(beta.sample[,j,],1,median)
     for (i in 1:nriters)
       beta[,,,j,i][img.mask] <- beta.sample[,j,i]
   }
+  }
+  else
+  {
+  for (j in 1:p) {
+    beta.med[,,,j][img.mask] <- median(beta.sample[,j,])
+    for (i in 1:nriters)
+      beta[,,,j,i][img.mask] <- beta.sample[,j,i]
+  }
+  }
 
   for (j in 1:T) {
-    response.med[,,,j][img.mask] <- apply(response.sample[,j,],1,median)
+    if (I>1)response.med[,,,j][img.mask] <- apply(response.sample[,j,],1,median)
+    if (I==1)response.med[,,,j][img.mask] <- median(response.sample[,j,])
     for (i in 1:nriters)
       response[,,,j,i][img.mask] <- response.sample[,j,i]
-    fitted.med[,,,j][img.mask] <- apply(fitted.sample[,j,],1,median)
+    if (I>1)fitted.med[,,,j][img.mask] <- apply(fitted.sample[,j,],1,median)
+    if (I==1)fitted.med[,,,j][img.mask] <- median(fitted.sample[,j,])
     for (i in 1:nriters)
       fitted[,,,j,i][img.mask] <- fitted.sample[,j,i]
   }
