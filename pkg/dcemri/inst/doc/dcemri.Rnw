@@ -130,10 +130,9 @@ png(filename="avg152T1_LR_nifti.png", width=400, height=400)
 X <- nrow(mni) ; Y <- ncol(mni) ; Z <- nsli(mni)
 zrange <- range(mni)
 par(mfrow=c(10,10), mar=rep(0,4))
-for (z in 1:Z) {
+for (z in 1:Z)
   image(1:X, 1:Y, mni[,,z,1], zlim=zrange, col=grey(0:64/64),
         xlab="", ylab="", axes=FALSE)
-}
 dev.off()
 @ 
 produces a 4D array of the image data, with the default NIfTI axes.
@@ -143,10 +142,9 @@ This may be displayed in a $10{\times}10$ grid of images
 <<avg152T1_LR_nifti-example,eval=FALSE>>=
 zrange <- range(mni)
 par(mfrow=c(10,10), mar=rep(0,4))
-for (z in 1:Z) {
+for (z in 1:Z)
   image(1:nrow(mni), 1:ncol(mni), mni[,,z,1], zlim=zrange, col=grey(0:64/64),
         xlab="", ylab="", axes=FALSE)
-}
 @
 
 \begin{figure}[!htbp]
@@ -165,6 +163,16 @@ Successful execution of the command
 <<avg152T1_RL_nifti>>=
 mni <- read.img("avg152T1_RL_nifti.nii.gz")
 dim(mni)
+@ 
+<<figure2-example,eval=FALSE>>=
+X <- nrow(mni)
+Y <- ncol(mni)
+Z <- nsli(mni)
+zrange <- range(mni)
+par(mfrow=c(10,10), mar=rep(0,4))
+for (z in 1:Z)
+  image(1:X, 1:Y, mni[,,z,1], zlim=zrange, col=grey(0:64/64),
+        xlab="", ylab="", axes=FALSE)
 @ 
 <<figure2,echo=FALSE,results=hide>>=
 png(filename="avg152T1_RL_nifti.png", width=400, height=400)
@@ -205,17 +213,27 @@ command
 <<filtered_func_data>>=
 ffd <- read.img("filtered_func_data.nii.gz")
 dim(ffd)
+X <- nrow(ffd)
+Y <- ncol(ffd)
+Z <- nsli(ffd)
+W <- ntim(ffd)
 @ 
-<<figure3,echo=FALSE,results=hide>>=
-png(filename="ffd.png", width=400, height=400)
-X <- nrow(ffd) ; Y <- ncol(ffd) ; Z <- nsli(ffd) ; W <- ntim(ffd)
+<<figure3.code,eval=FALSE>>=
 zrange <- range(ffd)
 w <- 1
 par(mfrow=c(5,5), mar=rep(0,4))
-for (z in 1:Z) {
+for (z in 1:Z)
   image(1:X, 1:Y, ffd[,,z,w], zlim=zrange,
         col=grey(0:64/64), xlab="", ylab="", axes=FALSE)
-}
+@ 
+<<figure3,echo=FALSE,results=hide>>=
+png(filename="ffd.png", width=400, height=400)
+zrange <- range(ffd)
+w <- 1
+par(mfrow=c(5,5), mar=rep(0,4))
+for (z in 1:Z)
+  image(1:X, 1:Y, ffd[,,z,w], zlim=zrange,
+        col=grey(0:64/64), xlab="", ylab="", axes=FALSE)
 dev.off()
 @ 
 produces a four-dimensional (4D) array of imaging data that may be
@@ -245,6 +263,16 @@ Successful execution of the command
 <<zstat1>>=
 zstat1 <- read.img("zstat1.nii.gz")
 dim(zstat1)
+@ 
+<<figure4-example,eval=FALSE>>=
+par(mfrow=c(5,5), mar=rep(0,4))
+w <- 1
+for (z in 1:Z) {
+  image(1:X, 1:Y, ffd[,,z,w], zlim=zrange, col=grey(0:64/64), 
+        xlab="", ylab="", axes=FALSE)
+  image(1:X, 1:Y, ifelse(abs(zstat1[,,z,1]) > 4, zstat1[,,z,1], NA),
+        zlim=range(zstat1), col=hotmetal(), add=TRUE)
+}
 @ 
 <<figure4,echo=FALSE,results=hide>>=
 png("ffd_zstat1.png", width=400, height=400)
