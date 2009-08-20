@@ -34,3 +34,9 @@
 .First.lib <- function(lib, pkg) { 
   library.dynam("dcemri", pkg, lib)  
 }
+
+.onAttach <- function (lib, pack) {
+  cat("dcemri: A Package for Medical Image Analysis (version = ",
+      as.character(sessionInfo()$otherPkgs$dcemri["Version"]), ")",
+      sep="", fill=TRUE)
+}

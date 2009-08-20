@@ -6,11 +6,11 @@
 \name{dcemri.map}
 \alias{dcemri.map}
 \alias{dcemri.map.single}
-\title{Maximum a Posterior estimation for Pharmacokinetic Modeling of Dynamic
-  Contrast-Enhanced MRI Data}
+\title{Pharmacokinetic Modeling of Dynamic Contrast-Enhanced MRI Data}
 \description{
-  Maximum a posterior (MAP) analysis of contrast agent concentration time
- curves from DCE-MRI.
+  Maximum-a-posteriori (MAP) estimation for single compartment models is
+  performed using literature-based or user-specified arterial input
+  functions.
 }
 \usage{
 dcemri.map(conc, time, img.mask, model="extended", aif=NULL,
@@ -23,7 +23,7 @@ dcemri.map.single(conc, time, posterior, parameter, transform, start, hyper, aif
   \item{conc}{Matrix or array of concentration time series (last
     dimension must be time).}
   \item{time}{Time in minutes.}
-  \item{img.mask}{Mask matrix or array. Voxels with mask=0 will be
+  \item{img.mask}{Mask matrix or array. Voxels with \code{mask=0} will be
     excluded.}
   \item{model}{is a character string that identifies the type of
     compartmental model to be used.  Acceptable models include:
@@ -50,13 +50,22 @@ dcemri.map.single(conc, time, posterior, parameter, transform, start, hyper, aif
     \eqn{v_p}{vp}.}
   \item{ab.tauepsilon}{Hyper-prior parameters for observation error
     Gamma prior.} 
+  \item{samples}{If \code{TRUE} output includes samples drawn
+    from the posterior distribution for all parameters.}
   \item{multicore}{If \code{TRUE} algorithm is parallelized using
     \pkg{multicore}.}
   \item{verbose}{}
   \item{...}{}
+  \item{posterior}{}
+  \item{parameter}{}
+  \item{transform}{}
+  \item{start}{}
+  \item{hyper}{}
+  aif
 }
 \details{
-  Evaluates Maximum A Posterior estimation for Bayesian model in Schmid \emph{et al.} (2006).
+  Implements maximum-a-posteriori (MAP) estimation for the Bayesian
+  model in Schmid \emph{et al.} (2006).
 }
 \value{
   Parameter estimates and their standard errors are provided for the
@@ -73,7 +82,7 @@ dcemri.map.single(conc, time, posterior, parameter, transform, start, hyper, aif
 }
 \references{
   Schmid, V., Whitcher, B., Padhani, A.R., Taylor, N.J. and Yang, G.-Z. 
-  (2006) Mapian methods for pharmacokinetic models in dynamic
+  (2006) Bayesian methods for pharmacokinetic models in dynamic
   contrast-enhanced magnetic resonance imaging, \emph{IEEE Transactions
     on Medical Imaging}, \bold{25} (12), 1627-1636.
 }
@@ -89,11 +98,11 @@ time <- buckley$time.min[xi]
 
 ## MAP estimation with Fritz-Hansen default AIF
 fit.map <- dcemri.map(img, time, mask, aif="fritz.hansen",
-                          nriters=5000)
+                      nriters=5000)
 
 plot(breast$ktrans, fit.map$ktrans, xlim=c(0,1), ylim=c(0,1),
      xlab=expression(paste("True ", K^{trans})),
-     ylab=expression(paste("Estimated ", K^{trans}, " (Mapian)")))
+     ylab=expression(paste("Estimated ", K^{trans}, " (MAP)")))
 abline(0, 1, lwd=1.5, col=2)
 
 \dontrun{
