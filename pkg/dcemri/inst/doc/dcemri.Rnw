@@ -428,34 +428,37 @@ multiplicative factor, derived from the saturated double-angle method,
 is used to produce a spatially-varying flip-angle map and input into
 the appropriate function.
 
-<<t1preprocessing,echo=FALSE>>=
+<<t1estimation>>=
 fnames <- c("fl3d_vibe-5deg","fl3d_vibe-10deg","fl3d_vibe-20deg",
             "fl3d_vibe-25deg","fl3d_vibe-15deg")
 alpha <- c(5,10,20,25,15)
 nangles <- length(alpha)
-X <- Y <- 64 ; Z <- 26
+X <- Y <- 64
+Z <- 26
 flip <- fangles <- array(0, c(X,Y,Z,nangles))
 for (w in 1:nangles) {
   vibe <- read.img(fnames[w])
   flip[,,,w] <- vibe
   fangles[,,,w] <- array(alpha[w], c(X,Y,Z))
 }
-@
-<<t1estimation>>=
 TR <- 4.22 / 1000 # seconds
 fanglesB1 <- fangles * array(SDAM, c(X,Y,Z,nangles))
 zi <- 10:13
 mask[,,(! 1:Z %in% zi)] <- FALSE
 R1 <- R1.fast(flip, mask, fanglesB1, TR, verbose=TRUE)
 @ 
-<<figure6,echo=FALSE,results=hide>>=
+<<figure6-png,echo=FALSE,results=hide>>=
 png("t1_phantom.png", width=400, height=400)
+@ 
+<<figure6-code>>=
 par(mfrow=c(2,2), mar=rep(0,4))
 for (z in zi) {
   image(drop(vibe)[,,z], zlim=c(0,1024), col=grey(0:64/64),
         xlab="", ylab="", axes=FALSE)
   image(1/drop(R1$R10)[,,z], zlim=c(0,2.5), col=hotmetal(), add=TRUE)
 }
+@ 
+<<figure6-dev.off,echo=FALSE,results=hide>>=
 dev.off()
 @ 
 
@@ -474,13 +477,13 @@ By defining regions of interest (ROIs) in
 
 <<FSLmask>>=
 pmask <- read.img("t1_phantom_mask.nii.gz")
-dim(pmask)
 pmask[,,c(1:24,26),1] <- pmask[,,25,1] # repeat masked slice (#25) for all slices
+dim(pmask)
 @ 
 
 \begin{figure}[!htbp]
 \begin{center}
-<<figure7,fig=TRUE,echo=FALSE>>=
+<<figure7,fig=TRUE,echo=TRUE>>=
 T1 <- c(.484,.350,1.07,.648,.456,1.07,.660,1.543,1.543,.353)
 par(mfrow=c(1,1), mar=c(5,4,4,2)+.1)
 boxplot(split(1/drop(R1$R10), as.factor(drop(pmask)))[-1], 
@@ -564,7 +567,7 @@ fit.aif <- with(aifparams, aif.orton.exp(buckley$time.min, AB, muB, AG, muG))
 @
 \begin{figure}[!htbp]
 \begin{center}
-<<figure8,fig=TRUE,echo=FALSE>>=
+<<figure8,fig=TRUE,echo=TRUE>>=
 with(buckley, plot(time.min, input, type="l", lwd=2, xlab="Time (minutes)", 
                    ylab=""))
 with(buckley, lines(time.min, fit.aif, lwd=2, col=2))
@@ -633,14 +636,14 @@ fit <- dcemri.lm(img, time, mask, model="orton.exp",
 @ 
 \begin{figure}[!htbp]
 \begin{center}
-<<figure9,fig=TRUE,echo=FALSE>>=
+<<figure9,fig=TRUE,echo=TRUE>>=
 par(mfrow=c(4,4), mar=c(5,4,4,2)/1.25, mex=0.8)
 for (x in 1:nrow(img)) {
   plot(time, img[x,1,1,], ylim=range(img), xlab="Time (minutes)",
        ylab="", main=paste("Series", x))
   kinparams <- with(fit, c(vp[x,1,1], ktrans[x,1,1], kep[x,1,1]))
   lines(time, model.orton.exp(time, aifparams[1:4], kinparams), 
-        lwd=2, col=2)
+        lwd=1.25, col=2)
 }
 @ 
 \end{center}
