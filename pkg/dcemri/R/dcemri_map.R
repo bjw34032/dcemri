@@ -32,18 +32,16 @@
 ## $Id: $
 ##
 
-dcemri.map.single <- function(conc, time, posterior, parameter, transform, start, hyper, aif)
-{
-  if (sum(is.na(conc)) > 0)
+dcemri.map.single <- function(conc, time, posterior, parameter,
+                              transform, start, hyper, aif) {
+  if (any(is.na(conc)))
     return(NA)
-else
-{    
-  map <- optim(par=start, fn=posterior, conc=conc, time=time, hyper=hyper, aif=aif,control=list("maxit"=25000))
-  return.list<-list()
-  for (i in 1:length(parameter))
-	{
-	return.list[[parameter[i]]] <- transform[[i]](map$par[i])
-	}
+  else {    
+    map <- optim(par=start, fn=posterior, conc=conc, time=time,
+                 hyper=hyper, aif=aif, control=list("maxit"=25000))
+    return.list <- list()
+    for (i in 1:length(parameter))
+      return.list[[parameter[i]]] <- transform[[i]](map$par[i])
     return(return.list)
   }
 }
@@ -67,25 +65,11 @@ dcemri.map <- function(conc, time, img.mask, model="extended",
                 },
                 stop("Unknown model: " + model, call.=FALSE))
 
-  ## dcemri.bayes - a function for fitting 1-compartment PK models to
-  ## DCE-MRI images using Bayes inference
-  ##
-  ## authors: Volker Schmid, Brandon Whitcher
-  ##
-  ## input:
-  ##        conc: array of Gd concentration,
-  ##        time: timepoints of aquisition,
-  ##        img.mask: array of voxels to fit,
-  ##        D(=0.1): Gd dose in mmol/kg,
-  ##        model: AIF... "weinman" or "parker",
-  ##
-  ## output: list with ktrans, kep, ve, std.error of ktrans and kep
-  ##         (ktranserror and keperror), samples if samples=TRUE
-  ##
-
   mod <- model
   nvoxels <- sum(img.mask)
-  I <- nrow(conc) ;  J <- ncol(conc) ;  K <- nsli(conc)
+  I <- nrow(conc)
+  J <- ncol(conc)
+  K <- nsli(conc)
   
   if (!is.numeric(dim(conc))) {
     I <- J <- K <- 1
@@ -129,66 +113,60 @@ dcemri.map <- function(conc, time, img.mask, model="extended",
          print("WARNING: AIF parameters must be specified!"))
 
 
-	convterm <- function(kep, t, aif)
-	{
-	  ret = aif[1]*(exp(-aif[2]*t)-exp(-kep*t))/(kep-aif[2])+aif[3]*(exp(-aif[4]*t)-exp(-kep*t))/(kep-aif[4])
-	  return(ret)
+	convterm <- function(kep, t, aif) {
+	  aif[1] * (exp(-aif[2]*t) - exp(-kep*t)) / (kep-aif[2]) + aif[3] * (exp(-aif[4]*t) - exp(-kep*t)) / (kep-aif[4])
 	}
-	extraterm <- function(t, aif)
-	{
-	  ret = aif[1]*(exp(-aif[2]*t))+aif[3]*(exp(-aif[4]*t))
-	  return(ret)
+	extraterm <- function(t, aif) {
+	  aif[1] * (exp(-aif[2]*t)) + aif[3] * (exp(-aif[4]*t))
 	}
-
 
   ## translate "model" to "aif.model" and "vp.do"
   switch(model,
-         weinmann = 
-	  {
-		inverse <- function(x){1/x}
-		parameter=c("ktrans","kep","sigma2")
-		transform=c(exp,exp,inverse)
-		start=c(1,1,100)
-		hyper=c(tau.ktrans,tau.kep,ab.tauepsilon)
-		posterior<- function(par,conc,time,hyper,aif)
-		{
-		gamma=par[1]
-		theta=par[2]
-		tauepsilon=par[3]
-		T = length(time)
-		p = log(dnorm(gamma,0,hyper[1]))
-		p = p + log(dnorm(theta,0,hyper[2]))
-		p = p + log(dgamma(tauepsilon,hyper[3],rate=hyper[4]))
-		conc.hat <- exp(gamma)*convterm(exp(theta),time,aif)
-		p = p + sum(log(dnorm(conc,conc.hat,sqrt(1/tauepsilon))))
-		if(is.na(p))p=-1e-6
-		return(-p)
-		}
+         weinmann = {
+           inverse <- function(x) 1/x
+           parameter <- c("ktrans", "kep", "sigma2")
+           transform <- c(exp, exp, inverse)
+           start <- c(1, 1, 100)
+           hyper <- c(tau.ktrans, tau.kep, ab.tauepsilon)
+           posterior <- function(par, conc, time, hyper, aif) {
+             gamma <- par[1]
+             theta <- par[2]
+             tauepsilon <- par[3]
+             T <- length(time)
+             p <- log(dnorm(gamma, 0, hyper[1]))
+             p <- p + log(dnorm(theta, 0, hyper[2]))
+             p <- p + log(dgamma(tauepsilon, hyper[3], rate=hyper[4]))
+             conc.hat <- exp(gamma) * convterm(exp(theta), time, aif)
+             p <- p + sum(log(dnorm(conc, conc.hat, sqrt(1/tauepsilon))))
+             if (is.na(p))
+               p <- -1e-6
+             return(-p)
+           }
 	 },		
-         extended = 
-	  {
-		inverse <- function(x){return(1/x)}
-		ident <- function(x){return(x)}
-		parameter=c("ktrans","kep","vp","sigma2")
-		transform=c(exp,exp,ident,inverse)
-		start=c(1,1,0.1,100)
-		hyper=c(tau.ktrans,tau.kep,ab.vp,ab.tauepsilon)
-		posterior <- function(par,conc,time,hyper,aif)
-		{
-		gamma=par[1]
-		theta=par[2]
-		vp=par[3]
-		tauepsilon=par[4]
-		T = length(time)
-		p = log(dnorm(gamma,0,hyper[1]))
-		p = p + log(dnorm(theta,0,hyper[2]))
-		p = p + log(dgamma(tauepsilon,hyper[5],rate=hyper[6]))
-		p = p + log(dbeta(vp,hyper[3],hyper[4]))
-		conc.hat <- vp*extraterm(time,aif)+exp(gamma)*convterm(exp(theta),time,aif)
-		p = p + sum(log(dnorm(conc,conc.hat,sqrt(1/tauepsilon))))
-		if(is.na(p))p=-1e-6
-		return(-p)
-		}
+         extended = {
+           inverse <- function(x){return(1/x)}
+           ident <- function(x){return(x)}
+           parameter <- c("ktrans","kep","vp","sigma2")
+           transform <- c(exp, exp, ident, inverse)
+           start <- c(1, 1, 0.1, 100)
+           hyper <- c(tau.ktrans, tau.kep, ab.vp, ab.tauepsilon)
+           posterior <- function(par, conc, time, hyper, aif) {
+             gamma <- par[1]
+             theta <- par[2]
+             vp <- par[3]
+             tauepsilon <- par[4]
+             T <- length(time)
+             p <- log(dnorm(gamma, 0, hyper[1]))
+             p <- p + log(dnorm(theta, 0, hyper[2]))
+             p <- p + log(dgamma(tauepsilon, hyper[5], rate=hyper[6]))
+             p <- p + log(dbeta(vp,hyper[3], hyper[4]))
+             conc.hat <- (vp * extraterm(time, aif) +
+                          exp(gamma) * convterm(exp(theta), time, aif))
+             p <- p + sum(log(dnorm(conc, conc.hat, sqrt(1/tauepsilon))))
+             if (is.na(p))
+               p <- -1e-6
+             return(-p)
+           }
 	 },		
          stop("Model is not supported."))
 
@@ -209,14 +187,16 @@ dcemri.map <- function(conc, time, img.mask, model="extended",
     conc.list[[i]] <- conc.mat[i,]
 
   if (!multicore) {
-    fit <- lapply(conc.list, FUN=dcemri.map.single,
-                  time=time, posterior=posterior, parameter=parameter,
-		  transform=transform, start=start, hyper=hyper, aif=aif.parameter)
+    fit <- lapply(conc.list, FUN=dcemri.map.single, time=time,
+                  posterior=posterior, parameter=parameter,
+		  transform=transform, start=start, hyper=hyper,
+                  aif=aif.parameter)
   } else {
-    require(multicore)
-    fit <- mclapply(conc.list, FUN=dcemri.map.single,
-                  time=time, posterior=posterior, parameter=parameter,
-		  transform=transform, start=start, hyper=hyper, aif=aif.parameter)
+    require("multicore")
+    fit <- mclapply(conc.list, FUN=dcemri.map.single, time=time,
+                    posterior=posterior, parameter=parameter,
+                    transform=transform, start=start, hyper=hyper,
+                    aif=aif.parameter)
   }
 
   if (verbose) cat("  Reconstructing results...", fill=TRUE)
@@ -232,10 +212,10 @@ dcemri.map <- function(conc, time, img.mask, model="extended",
 
   A <- array(NA, c(I,J,K))
   A[img.mask] <- ktrans$par
-  ktrans.out <- list(par = A)
+  ktrans.out <- list(par=A)
   A <- array(NA, c(I,J,K))
   A[img.mask] <- kep$par
-  kep.out <- list(par = A)
+  kep.out <- list(par=A)
 
   if (mod %in% c("extended", "orton.exp", "orton.cos")) {
     A <- array(NA, c(I,J,K))
@@ -243,13 +223,13 @@ dcemri.map <- function(conc, time, img.mask, model="extended",
     Vp.out <- list(par=A)
   }
 
-
   A <- B <- array(NA, c(I,J,K))
   A[img.mask] <- sigma2
   sigma2.out <- A
 
   returnable <- list(ktrans=ktrans.out$par, kep=kep.out$par,
-    ve=ktrans.out$par/kep.out$par, sigma2=sigma2.out, time=time)
+                     ve=ktrans.out$par/kep.out$par, sigma2=sigma2.out,
+                     time=time)
 
   if (mod %in% c("extended", "orton.exp", "orton.cos")) {
     returnable[["vp"]] <- Vp.out$par
