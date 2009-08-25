@@ -14,7 +14,7 @@
 }
 \usage{
 read.hdr(fname, verbose=FALSE, warn=-1)
-read.img(fname, verbose=FALSE, warn=-1)
+read.img(fname, verbose=FALSE, warn=-1, ...)
 make.hdr(X, Y, Z, T, datatype, type)
 }
 \arguments{
@@ -32,6 +32,8 @@ make.hdr(X, Y, Z, T, datatype, type)
     NIfTI format (default = \code{analyze}).}
   \item{warn}{is a number to regulate the display of warnings (default =
     -1).  See \code{options} for more details.}
+  \item{...}{is for additional parameters that may be passed to
+    \code{read.nifti.img}.}
 }
 \details{
   The function \code{read.hdr} decides whether the input file should be

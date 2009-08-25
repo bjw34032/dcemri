@@ -1,3 +1,6 @@
 <h2>Recent Updates</h2>
 <p><strong>[11/02/2009]</strong> The SourceForge project is
 created. <a href="11_02_2009.html">More&#8230;</a></p>
+<p><strong>[13/08/2009]</strong> Initial version of 
+<strong>dcemri</strong> is released. <a 
+href="13_08_2009.html">More&#8230;</a></p>

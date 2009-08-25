@@ -338,7 +338,7 @@ make.hdr <- function(X, Y, Z, T, datatype, type="analyze") {
   return(hdr)
 }
 
-read.img <- function(fname, verbose=FALSE, warn=-1) {
+read.img <- function(fname, verbose=FALSE, warn=-1, ...) {
   ## Check if any file extensions are present
   ANLZ <- ifelse(length(grep("img", fname)) != 0, TRUE, FALSE)
   NIFTI <- ifelse(length(grep("nii", fname)) != 0, TRUE, FALSE)
@@ -380,14 +380,14 @@ read.img <- function(fname, verbose=FALSE, warn=-1) {
     if (file.exists(fname.nii)) {      
       if (verbose) cat.file(fname, fname.nii)
       img <- read.nifti.img(fname, gzipped=FALSE, verbose=verbose,
-                            warn=warn)
+                            warn=warn, ...)
       return(img)
     }
     ## If compressed files exist, then upload!
     if (file.exists(fname.nii.gz)) {
       if (verbose) cat.file(fname, fname.nii.gz)
       img <- read.nifti.img(fname, gzipped=TRUE, verbose=verbose,
-                            warn=warn)
+                            warn=warn, ...)
       return(img)
     }
   }
@@ -756,7 +756,8 @@ read.nifti.hdr <- function(fname, onefile=TRUE, gzipped=TRUE,
 }
 
 read.nifti.img <- function(fname, onefile=TRUE, gzipped=TRUE,
-                           verbose=FALSE, warn=-1) {
+                           verbose=FALSE, warn=-1, ignoreQform=FALSE,
+                           ignoreSform=FALSE) {
   ## --- the original ANALYZE 7.5 type codes ---
   ## DT_NONE                    0
   ## DT_UNKNOWN                 0     # what it says, dude
@@ -860,14 +861,14 @@ read.nifti.img <- function(fname, onefile=TRUE, gzipped=TRUE,
   img.array <- array(img, nhdr$dim[2:5])
 
   ## check for qform and/or sform flags
-  if (nhdr$qform.code > 0) {
+  if (nhdr$qform.code > 0 && !ignoreQform) {
     if (verbose)
       print("NIfTI-1: qform_code > 0")
     ## qoffset <- c(nhdr$qoffset.x, nhdr$qoffset.x, nhdr$qoffset.x)
     R <- nhdr$R
     if (nhdr$qfac < 0)
       R[3,3] <- -R[3,3]
-    if (all(abs(R) == diag(3))) {
+    if (all(abs(sign(R)) == diag(3))) {
       x <- 1:nrow(img.array) * R[1,1]
       y <- 1:ncol(img.array) * R[2,2]
       z <- 1:nsli(img.array) * R[3,3]
@@ -876,7 +877,7 @@ read.nifti.img <- function(fname, onefile=TRUE, gzipped=TRUE,
       stop("NIfTI-1: Rotation matrix is NOT diagonal with +/- 1s")
     }
   }
-  if (nhdr$sform.code > 0) {
+  if (nhdr$sform.code > 0 && !ignoreSform) {
     if (verbose)
       print("NIfTI-1: sform_code > 0")
     x <- nhdr$srow.x[1] * 1:nrow(img.array) + nhdr$srow.x[4]

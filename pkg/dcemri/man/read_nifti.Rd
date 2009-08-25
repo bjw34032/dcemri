@@ -15,7 +15,7 @@
 read.nifti.hdr(fname, onefile=TRUE, gzipped=TRUE, verbose=FALSE,
                warn=-1)
 read.nifti.img(fname, onefile=TRUE, gzipped=TRUE, verbose=FALSE,
-               warn=-1)
+               warn=-1, ignoreQform=FALSE, ignoreSform=FALSE)
 }
 \arguments{
   \item{fname}{Pathname of the NIfTI file(s).}
@@ -26,6 +26,10 @@ read.nifti.img(fname, onefile=TRUE, gzipped=TRUE, verbose=FALSE,
     allows text-based feedback during execution of the function.}
   \item{warn}{is a number to regulate the display of warnings (default =
     -1).  See \code{options} for more details.}
+  \item{ignoreQform}{is a logical variable (default = \code{FALSE}) that
+    ignores any \sQuote{qform} infomration in the NIfTI header.}
+  \item{ignoreSform}{is a logical variable (default = \code{FALSE}) that
+    ignores any \sQuote{sform} infomration in the NIfTI header.}
 }
 \value{
   \code{read.nifti.hdr} returns a list containing all the fields from

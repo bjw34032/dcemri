@@ -30,9 +30,9 @@
 	environment</a>, for the quantitative analysis of dynamic
 	contrast-enhanced MRI (DCE-MRI) and diffusion-weighted imaging
 	(DWI) for oncology applications. It has been released under
-	the <a href="http://pistoia.sourceforge.net/">Pistoia
-	Alliance</a> and is therefore free to use under the ???
-	license.</p> 
+	the <a
+	href="http://www.opensource.org/licenses/bsd-license.php">BSD
+	license</a>.</p>
 	<p>The scientific backbone of this software is
 	based on research in the area of parameter estimation and
 	statistical inference over several years. Three scientific
@@ -75,6 +75,9 @@
 	<h2>Recent Updates</h2>
 	<p><strong>[11/02/2009]</strong> The SourceForge project is
 	created. <a href="11_02_2009.shtml">More&#8230;</a></p>
+	<p><strong>[13/08/2009]</strong> Initial release of
+	<strong>dcemri</strong>. <a
+	href="13_08_2009.shtml">More&#8230;</a></p>
 	<h2>SourceForge</h2>
 	<ul>
 	  <li><a href="http://sourceforge.net/projects/dcemri/">Project summary page</a></li>

@@ -29,7 +29,7 @@
 ## (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 ## OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ## 
-## $Id: $
+## $Id$
 ##
 
 dcemri.bayes.single <- function(conc, time, nriters=3500, thin=3,
@@ -269,16 +269,16 @@ dcemri.bayes <- function(conc, time, img.mask, model="extended",
       }
       return(A)
     }
-    
     NRI <- length(ktrans.samples) / length(ktrans$par)
-	
-    ktrans.out <- list(par=ktrans.out$par, error=ktrans.out$error,
+    ktrans.out <- list(par=ktrans.out$par,
+                       error=ktrans.out$error,
                        samples=extract.samples(ktrans.samples,I,J,K,NRI))
-    kep.out <- list(par=kep.out$par, error=kep.out$error,
+    kep.out <- list(par=kep.out$par,
+                    error=kep.out$error,
                     samples=extract.samples(kep.samples,I,J,K,NRI))
-
     if (mod %in% c("extended", "orton.exp", "orton.cos"))
-      Vp.out <- list(par=Vp.out$par, error=Vp.out$error,
+      Vp.out <- list(par=Vp.out$par,
+                     error=Vp.out$error,
                      samples=extract.samples(Vp.samples, I, J, K, NRI))
     sigma2.samples <- extract.samples(sigma2.samples, I, J, K, NRI)
   }

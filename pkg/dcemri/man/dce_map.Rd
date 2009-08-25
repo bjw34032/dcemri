@@ -1,7 +1,7 @@
 % Part of the dcemri package for R
 % Distributed under the BSD license: see dcemri/COPYING
 %
-% $Id: dce_map.Rd 115 2009-08-12 16:27:14Z bjw34032 $
+% $Id$
 
 \name{dcemri.map}
 \alias{dcemri.map}
