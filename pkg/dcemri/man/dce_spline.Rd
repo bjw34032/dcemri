@@ -82,7 +82,8 @@ dcemri.spline.single(conc, time, D, time.input, p, rw, knots, k,
     Transactions on Medical Imaging}, \bold{28} (6), 789-798.
 }
 \seealso{
-  \code{\link{dcemri.lm}}, \code{\link{dcemri.bayes}}
+  \code{\link{dcemri.bayes}}, \code{\link{dcemri.lm}},
+  \code{\link{dcemri.map}}
 }
 \examples{
 data("buckley")

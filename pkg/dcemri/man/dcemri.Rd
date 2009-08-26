@@ -127,8 +127,8 @@ Fritz-Hansen, T., Rostrup, E., Larsson, H.B.W, Sondergaard, L., Ring,
     NMR}, \bold{16}, 167-172. 
 }
 \seealso{
-  \code{\link{dcemri.bayes}}, \code{\link{dcemri.spline}},
-  \code{\link[minpack.lm]{nls.lm}}
+  \code{\link{dcemri.bayes}}, \code{\link{dcemri.map}},
+  \code{\link{dcemri.spline}}, \code{\link[minpack.lm]{nls.lm}}
 }
 \examples{
 data("buckley")

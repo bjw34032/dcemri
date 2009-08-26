@@ -100,7 +100,8 @@ dcemri.bayes.single(conc, time, nriters=3500, thin=3,
     on Medical Imaging}, \bold{25} (12), 1627-1636.
 }
 \seealso{
-  \code{\link{dcemri.lm}}, \code{\link{dcemri.spline}}
+  \code{\link{dcemri.lm}}, \code{\link{dcemri.map}},
+  \code{\link{dcemri.spline}}
 }
 \examples{
 data("buckley")
