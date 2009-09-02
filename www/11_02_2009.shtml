@@ -13,7 +13,13 @@
       <h2>A package for medical image analysis</h2>
     </div>
     <div id="menu">
-      <!--#include file="header.inc" -->
+      <ul>
+	<li><a href="index.shtml">Home</a></li>
+	<li><a href="functions.shtml">Functions</a></li>
+	<li><a href="http://pilfer.sourceforge.net/">PILFER</a></li>
+	<li><a href="about.shtml">About Us</a></li>
+	<li><a href="contact.shtml">Contact Us</a></li>
+      </ul>	
     </div>
     <div id="content">
       <div id="left">
@@ -21,10 +27,11 @@
 	<p><strong>dcemri</strong> has been created as an official <a
 	href="http://sourceforge.net">SourceForge</a> project.
 	Although we cannot say exactly when the first beta version of
-	the code will be available, </p>
+	the code will be available.</p>
       </div>
       <div id="right">
 	<!--#include file="news.inc" -->
+	<!--#include file="sf.inc" -->
 	<!--#include file="links.inc" -->
       </div>
     </div>

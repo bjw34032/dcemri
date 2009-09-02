@@ -72,28 +72,13 @@
 	to Analyze or NIfTI.</p>
       </div>
       <div id="right">
-	<h2>Recent Updates</h2>
-	<p><strong>[11/02/2009]</strong> The SourceForge project is
-	created. <a href="11_02_2009.shtml">More&#8230;</a></p>
-	<p><strong>[13/08/2009]</strong> Initial release of
-	<strong>dcemri</strong>. <a
-	href="13_08_2009.shtml">More&#8230;</a></p>
-	<h2>SourceForge</h2>
-	<ul>
-	  <li><a href="http://sourceforge.net/projects/dcemri/">Project summary page</a></li>
-	  <li>Download</li>
-	</ul>
-	<h2>Related Links</h2>
-	<ul>
-	  <li><a href="http://www.r-project.org/">The R Project</a></li>
-	  <li><a href="http://cran.r-project.org">CRAN</a></li>
-	  <li><a href="http://xmedcon.sourceforge.net/">(X)MedCon</a></li>
-	  <li><a href="http://dicom.offis.de/dcmtk.php.en">dcmtk</a></li>
-	</ul>
+	<!--#include file="news.inc" -->
+	<!--#include file="sf.inc" -->
+	<!--#include file="links.inc" -->
       </div>
     </div>
     <div id="footer">
-      <p>Copyright &copy; 2009 <a href="http://www.ma.ic.ac.uk/~bwhitche/">Brandon Whitcher</a>. Designed by <a href="http://www.freecsstemplates.org" class="link1">Free CSS Templates</a></p>
+      <!--#include file="footer.inc" -->
     </div>
   </body>
 </html>
