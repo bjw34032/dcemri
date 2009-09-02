@@ -359,6 +359,29 @@ http://www.netlib.org/minpack/disclaimer for the full license.
 > 
 > 
 > 
+> cleanEx(); nameEx("dcemri-package")
+> ### * dcemri-package
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: dcemri-package
+> ### Title: dcemri: A Package for Medical Image Analysis
+> ### Aliases: dcemri-package dcemri
+> ### Keywords: package
+> 
+> ### ** Examples
+> 
+> ## Not run: 
+> ##D demo(avg152T1)
+> ##D demo(avg152T1_LR)
+> ##D demo(avg152T1_RL)
+> ##D demo(buckley)
+> ##D demo(filtered_func_data)
+> ##D demo(zstat1)
+> ## End(Not run)
+> 
+> 
+> 
 > cleanEx(); nameEx("dcemri")
 > ### * dcemri
 > 
@@ -715,7 +738,7 @@ Loading required package: bitops
 > ### * <FOOTER>
 > ###
 > cat("Time elapsed: ", proc.time() - get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  91.647 0.325 93.277 0 0 
+Time elapsed:  89.658 0.198 91.651 0 0 
 > grDevices::dev.off()
 null device 
           1 

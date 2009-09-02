@@ -14,7 +14,8 @@
 }
 \usage{
 write.analyze.img(fname, hdr, img, type, gzipped=TRUE, warn=-1)
-write.nifti.img(fname, hdr, img, type, gzipped=TRUE, warn=-1)
+write.nifti.img(fname, hdr, img, type, gzipped=TRUE, warn=-1,
+                ignoreQform=FALSE, ignoreSform=FALSE)
 }
 \arguments{
   \item{fname}{is the pathname to save the Analzye pair (.img and .hdr)
@@ -28,13 +29,17 @@ write.nifti.img(fname, hdr, img, type, gzipped=TRUE, warn=-1)
     compressed (.gz) files (default = \code{TRUE}).}
   \item{warn}{is a number to regulate the display of warnings (default =
     -1).  See \code{\link{options}} for more details.}
+  \item{ignoreQform}{is a logical variable (default = \code{FALSE}) that
+    ignores any \sQuote{qform} infomration in the NIfTI header.}
+  \item{ignoreSform}{is a logical variable (default = \code{FALSE}) that
+    ignores any \sQuote{sform} infomration in the NIfTI header.}
 }
 \details{
   Both functions utilize the internal \code{writeBin} and
   \code{writeChar} command to write infromation to a binary file.
 
   Current acceptable data types include
-  \itemize{
+  \describe{
     \item{\dQuote{uint1}}{DT BINARY (1 bit per voxel)}
     \item{\dQuote{uint8}}{DT UNSIGNED CHAR (8 bits per voxel)}
     \item{\dQuote{int16}}{DT SIGNED SHORT (16 bits per voxel)}
