@@ -435,8 +435,8 @@ dcemri.spline <- function(conc, time, img.mask, time.input=time,
     Fp.img <- array(NA, c(I,J,K))
   Fp.img[img.mask] <- Fp
   Fp.samples <- array(NA, c(nvoxels, nriters))
-  for (i in 1:nvoxels)
-    Fp.samples[i,] <- fit[[k]]$Fp.samples
+  for (k in 1:nvoxels)
+    Fp.samples[k,] <- fit[[k]]$Fp.samples
   if (samples) {
     Fp <- array(NA, c(I,J,K,nriters))
     for (j in 1:nriters)
