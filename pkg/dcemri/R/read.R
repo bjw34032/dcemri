@@ -348,6 +348,7 @@ read.img <- function(fname, verbose=FALSE, warn=-1, ...) {
 
   ## Strip any extensions
   fname <- sub(".gz", "", fname)
+  fname <- sub(".hdr", "", fname)
   fname <- sub(".img", "", fname)
   fname <- sub(".nii", "", fname)
 
@@ -366,7 +367,7 @@ read.img <- function(fname, verbose=FALSE, warn=-1, ...) {
     ## If compressed files exist, then upload!
     if (file.exists(fname.img.gz)) {
       if (verbose) cat.file(fname, fname.img.gz)
-      aim <- read.analyze.img(fname, gzipped=TRUE, verbose=verbose,
+      img <- read.analyze.img(fname, gzipped=TRUE, verbose=verbose,
                               warn=warn)
       return(img)
     }
