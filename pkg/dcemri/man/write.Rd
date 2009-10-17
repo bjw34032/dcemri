@@ -52,10 +52,10 @@ write.nifti.img(fname, hdr, img, type, gzipped=TRUE, warn=-1,
   \code{write.analyze.img} and \code{write.nifti.img} return nothing.
 }
 \references{
-  Analyze 7.5
+  Analyze 7.5\cr
   \url{http://www.mayo.edu/bir/PDF/ANALYZE75.pdf}
   
-  NIfTI-1
+  NIfTI-1\cr
   \url{http://nifti.nimh.nih.gov/}
 }
 \seealso{
