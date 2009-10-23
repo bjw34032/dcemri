@@ -41,8 +41,8 @@ write.analyze.img <- function(fname, hdr, img, type, gzipped=TRUE, warn=-1) {
   if(length(img) != prod(hdr$dim[2:5]))
     stop("Header and image dimensions do not match")
 
-  hdr$cal.min <- min(img)
-  hdr$cal.max <- max(img)
+  hdr$cal.min <- min(img, na.rm=TRUE)
+  hdr$cal.max <- max(img, na.rm=TRUE)
   
   ## Deal with different types...
   switch(type,
