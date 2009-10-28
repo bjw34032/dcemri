@@ -1,0 +1,2 @@
+Blue:		Pantone 2768C 		= RGB 18,28,77 	= RGB 12,1C,4D
+Bright Orange:	Pantone Warm Red C	= RGB 245,64,41	= RGB F5,40,29
