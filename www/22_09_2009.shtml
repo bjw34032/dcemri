@@ -1,0 +1,44 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>dcemri: A Package for Medical Image Analysis</title>
+    <meta name="keywords" content="" />
+    <meta name="description" content="" />
+    <link href="default.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <div id="header">
+      <h1>dcemri</h1>
+      <h2>A package for medical image analysis</h2>
+    </div>
+    <div id="menu">
+      <ul>
+	<li><a href="index.shtml">Home</a></li>
+	<li><a href="functions.shtml">Functions</a></li>
+	<li><a href="http://pilfer.sourceforge.net/">PILFER</a></li>
+	<li><a href="about.shtml">About Us</a></li>
+	<li><a href="contact.shtml">Contact Us</a></li>
+      </ul>	
+    </div>
+    <div id="content">
+      <div id="left">
+	<h2>Version 0.1.5 Released</h2>
+	<p>Several minor updates have lead to the release of an
+	updated version of <strong>dcemri</strong> on <a
+	href="http://cran.r-project.org">CRAN</a>.
+	The source code is available for download (linux), along with
+	appropriate versions for Mac&nbsp;OSX and Windows. </p>
+      </div>
+      <div id="right">
+	<!--#include file="news.inc" -->
+	<!--#include file="sf.inc" -->
+	<!--#include file="links.inc" -->
+      </div>
+    </div>
+    <div id="footer">
+      <!--#include file="footer.inc" -->
+    </div>
+  </body>
+</html>
+

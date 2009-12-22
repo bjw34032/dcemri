@@ -4,3 +4,9 @@ created. <a href="11_02_2009.shtml">More&#8230;</a></p>
 <p><strong>[13/08/2009]</strong> Initial release of
 <strong>dcemri</strong>. <a
 href="13_08_2009.shtml">More&#8230;</a></p>
+<p><strong>[22/09/2009]</strong> Version 0.10.5 of
+<strong>dcemri</strong>. <a
+href="22_09_2009.shtml">More&#8230;</a></p>
+<p><strong>[22/09/2009]</strong> Initial release of
+<strong>dcemriS4</strong>. <a
+href="22_12_2009.shtml">More&#8230;</a></p>
