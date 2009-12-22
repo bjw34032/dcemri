@@ -1,7 +1,12 @@
+% Part of the dcemri package for R
+% Distributed under the BSD license: see dcemri/COPYING
+%
+% $Id$
+
 % \VignetteIndexEntry{dcemri}
 % \VignetteDepends{dcemri}
 % \VignettePackage{dcemri}
-%\VignetteKeywords{}
+% \VignetteKeywords{contrast,dynamic,ehanced,imaging,magnetic,resonance}
 \documentclass[11pt,a4paper]{article}
 \usepackage{a4wide,amsmath,color,fancyvrb,graphicx,natbib,thumbpdf}
 \definecolor{Red}{rgb}{0.7,0,0}
