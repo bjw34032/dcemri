@@ -23,12 +23,12 @@
     </div>
     <div id="content">
       <div id="left">
-	<h2>Version 0.10.5 Released</h2>
+	<h2>Version 0.20.2 Released</h2>
 	<p>Several minor updates have lead to the release of an
-	updated version of <strong>dcemri</strong> on <a
+	updated version of <strong>dcemriS4</strong> on <a
 	href="http://cran.r-project.org">CRAN</a>.
 	The source code is available for download (linux), along with
-	appropriate versions for Mac&nbsp;OSX and Windows. </p>
+	appropriate versions for Mac&nbsp;OSX and Windows.</p>
       </div>
       <div id="right">
 	<!--#include file="news.inc" -->
