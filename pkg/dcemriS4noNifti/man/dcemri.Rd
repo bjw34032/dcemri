@@ -1,7 +1,7 @@
 % Part of the dcemri package for R
 % Distributed under the BSD license: see dcemri/COPYING
 %
-% $Id: dcemri.Rd 332 2010-01-29 16:54:07Z bjw34032 $
+% $Id: dcemri.Rd 336 2010-02-19 17:26:47Z volkerschmid $
 
 \name{dcemri.lm}
 \alias{dcemri.lm}
@@ -43,13 +43,15 @@
     type of arterial input function (AIF) used with the above model.
     Acceptable values are:
     \itemize{
-      \item{\code{tofts.kermode} (default), \code{fritz.hansen} or
-	\dQuote{empirical} for the \code{weinmann} and \code{extended}
+      \item{\code{tofts.kermode}}{(default) for the \code{weinmann} and \code{extended}
 	models}
-      \item{\code{orton.exp} (default) and \code{user} for the
-	\code{orton.exp} model}
-      \item{\code{orton.cos} (default) and \code{user} for the
-	\code{orton.cos} model.}
+      \item{\code{fritz.hansen}}{for the \code{weinmann} and \code{extended}
+	models}
+      \item{\dQuote{empirical}}{for the \code{weinmann} and \code{extended}
+	models}
+      \item{\code{orton.exp}}{(default) for the \code{orton.exp} model}
+      \item{\code{orton.cos}}{(default) for the	\code{orton.cos} model.}
+      \item{\code{user}}{for the \code{orton.exp} and \code{orton.cos} model.}
     }
     All AIF models set the parametric form and parameter values --
     except \code{user}, where a set of user-defined parameter values are

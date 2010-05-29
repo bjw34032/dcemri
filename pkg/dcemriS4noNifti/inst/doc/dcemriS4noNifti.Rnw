@@ -8,14 +8,16 @@
 % \VignettePackage{dcemriS4noNifti}
 % \VignetteKeywords{contrast,diffusion,dynamic,enhanced,imaging,magnetic,resonance,S4}
 \documentclass[11pt,a4paper]{article}
-\usepackage{a4wide,amsmath,color,fancyvrb,graphicx,natbib,thumbpdf}
+\usepackage{a4wide,amsmath,color,fancyvrb,graphicx,thumbpdf}
 \definecolor{Red}{rgb}{0.7,0,0}
 \definecolor{Blue}{rgb}{0,0,0.8}
 \usepackage[colorlinks=true,linkcolor=Blue,citecolor=Blue,urlcolor=Blue]{hyperref}
+\usepackage[authoryear,round,longnamesfirst]{natbib}
 \usepackage{xspace}
 \usepackage{fancyhdr}
 \usepackage{lscape}
 \usepackage{Sweave}
+\bibliographystyle{abbrvnat}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -782,7 +784,6 @@ apoptosis after treatment.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \bibliography{dcemriS4}
-\bibliographystyle{chicago}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \end{document}

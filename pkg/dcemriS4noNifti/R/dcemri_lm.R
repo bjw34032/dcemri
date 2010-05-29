@@ -247,7 +247,7 @@ setMethod("dcemri.lm", signature(conc="array"),
              func <- function(theta, signal, time, ...)
                signal - model.weinmann.empirical(time, theta[1], theta[2], Cp)
            }
-           guess <- c("th1"=0, "th3"=0.1)
+           guess <- c("th1"=-1, "th3"=-1)
          },
          extended = {
            if (aif != "empirical") {
@@ -259,7 +259,7 @@ setMethod("dcemri.lm", signature(conc="array"),
              func <- function(theta, signal, time, ...)
                signal - model.extended.empirical(time, theta[1], theta[2], theta[3], Cp)
            }
-           guess <- c("th0"=-1, "th1"=0, "th3"=0.1)
+           guess <- c("th0"=-1, "th1"=-1, "th3"=-1)
            Vp <- list(par=rep(NA, nvoxels), error=rep(NA, nvoxels))
         },
          orton.exp = {
@@ -292,6 +292,7 @@ setMethod("dcemri.lm", signature(conc="array"),
   }
 
   if (verbose) cat("  Deconstructing data...", fill=TRUE)
+  img.mask <- ifelse(img.mask > 0, TRUE, FALSE)
   conc.mat <- matrix(conc[img.mask], nvoxels)
   conc.mat[is.na(conc.mat)] <- 0
 

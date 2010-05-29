@@ -165,7 +165,9 @@ setMethod("dcemri.bayes", signature(conc="array"),
 
   mod <- model
   nvoxels <- sum(img.mask)
-  I <- nrow(conc) ;  J <- ncol(conc) ;  K <- nsli(conc)
+  I <- nrow(conc)
+  J <- ncol(conc)
+  K <- nsli(conc)
   
   if (!is.numeric(dim(conc))) {
     I <- J <- K <- 1
@@ -178,6 +180,7 @@ setMethod("dcemri.bayes", signature(conc="array"),
   img.mask <- array(img.mask,c(I,J,K))
  
   if (verbose) cat("  Deconstructing data...", fill=TRUE)
+  img.mask <- ifelse(img.mask > 0, TRUE, FALSE)
   conc.mat <- matrix(conc[img.mask], nvoxels)
   conc.mat[is.na(conc.mat)] <- 0
 

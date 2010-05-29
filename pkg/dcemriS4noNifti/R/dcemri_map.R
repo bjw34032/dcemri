@@ -97,6 +97,7 @@ setMethod("dcemri.map", signature(conc="array"),
   }
 
   if (verbose) cat("  Deconstructing data...", fill=TRUE)
+  img.mask <- ifelse(img.mask > 0, TRUE, FALSE)
   conc.mat <- matrix(conc[img.mask], nvoxels)
   conc.mat[is.na(conc.mat)] <- 0
 
