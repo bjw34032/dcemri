@@ -51,27 +51,27 @@ dcemri.spline.single(conc, time, D, time.input, p, rw, knots, k,
   \item{verbose}{(logical) allows text-based feedback during execution
     of the function (default = \code{FALSE}).}
   \item{nlr}{(logical) returns the generated samples.}
-  \item{user}{}
-  \item{ab.hyper}{}
+  \item{user}{...}
+  \item{ab.hyper}{...}
   \item{ab.tauepsilon}{Hyper-prior parameters for observation error
     Gamma prior.}
-  \item{p}{}
-  \item{t0.compute}{}
+  \item{p}{...}
+  \item{t0.compute}{...}
   \item{samples}{If \code{TRUE} output includes samples drawn from the
     posterior distribution for all parameters.}
-  \item{k}{}
-  \item{knots}{}
-  \item{rw}{}
+  \item{k}{...}
+  \item{knots}{...}
+  \item{rw}{...}
   \item{nriters}{Total number of iterations.}
   \item{thin}{Thining factor.}
   \item{burnin}{Number of iterations for burn-in.}
-  \item{D}{}
-  \item{B}{}
-  \item{A}{}
-  \item{silent}{}
-  \item{model.func}{}
-  \item{model.guess}{}
-  \item{...}{}
+  \item{D}{...}
+  \item{B}{...}
+  \item{A}{...}
+  \item{silent}{...}
+  \item{model.func}{...}
+  \item{model.guess}{...}
+  \item{...}{Additional parameters to the function.}
 }
 \details{
   See Schmid \emph{et al.} (2009) for more details.

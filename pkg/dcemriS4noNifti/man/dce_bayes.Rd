@@ -67,13 +67,14 @@ dcemri.bayes.single(conc, time, nriters=3500, thin=3,
     from the posterior distribution for all parameters.}
   \item{multicore}{If \code{TRUE} algorithm is parallelized using
     \pkg{multicore}.}
-  \item{verbose}{}
-  \item{tau.gamma}{}
-  \item{tau.theta}{}
-  \item{aif.model}{}
-  \item{aif.parameter}{}
-  \item{vp}{}
-  \item{...}{}
+  \item{verbose}{Logical variable (default = \code{FALSE}) that
+    allows text-based feedback during execution of the function.}
+  \item{tau.gamma}{...}
+  \item{tau.theta}{...}
+  \item{aif.model}{...}
+  \item{aif.parameter}{...}
+  \item{vp}{...}
+  \item{...}{Additional parameters to the function.}
 }
 \details{
   See Schmid \emph{et al.} (2006) for details.

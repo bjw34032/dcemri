@@ -55,13 +55,14 @@ dcemri.map.single(conc, time, posterior, parameter, transform, start, hyper, aif
     from the posterior distribution for all parameters.}
   \item{multicore}{If \code{TRUE} algorithm is parallelized using
     \pkg{multicore}.}
-  \item{verbose}{}
-  \item{...}{}
-  \item{posterior}{}
-  \item{parameter}{}
-  \item{transform}{}
-  \item{start}{}
-  \item{hyper}{}
+  \item{verbose}{Logical variable (default = \code{FALSE}) that
+    allows text-based feedback during execution of the function.}
+  \item{...}{Additional parameters to the function.}
+  \item{posterior}{...}
+  \item{parameter}{...}
+  \item{transform}{...}
+  \item{start}{...}
+  \item{hyper}{...}
 }
 \details{
   Implements maximum-a-posteriori (MAP) estimation for the Bayesian
