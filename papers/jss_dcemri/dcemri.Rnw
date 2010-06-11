@@ -60,6 +60,14 @@
 
 %% end of declarations %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+<<preliminaries,echo=FALSE,results=hide>>=
+library("dcemriS4noNifti")
+## options(niftiAuditTrail=FALSE)
+options(width=85)
+require("oro.nifti")
+require("minpack.lm")
+require("bitops")
+@
 
 \begin{document}
 
