@@ -10,6 +10,7 @@
 \newcommand{\iaugc}[1]{\text{IAUGC}_{#1}}
 \newcommand{\kep}{k_\text{ep}}
 \newcommand{\vp}{v_\text{p}}
+\newcommand{\TR}{\mathop{\text{TR}}\nolimits}
 
 %% almost as usual
 \author{Brandon Whitcher\\GlaxoSmithKline \And 
@@ -83,11 +84,11 @@ Quantitative analysis of perfusion imaging using dynamic
 contrast-enhanced MRI (DCE-MRI) is achieved through a series of
 processing steps, starting with the raw data acquired from the MRI
 scanner, and involves a combination of physics, mathematics,
-engineering and statistics.  The purpose of the \pkg{dcemriS4noNifti} package
-is to provide a collection of functions that move the experimental
-data through all steps of the data analysis pipeline using standard
-data formats that may be visualized and manipulated across a wide
-variety of software packages.  
+engineering and statistics.  The purpose of the \pkg{dcemriS4noNifti}
+package is to provide a collection of functions that move the
+experimental data through all steps of the data analysis pipeline
+using standard data formats that may be visualized and manipulated
+across a wide variety of software packages.
 
 \section[Dynamic Contrast-enhanced Magnetic Resonance Imaging]{Dynamic Contrast-enhanced Magnetic Resonance Imaging}
 
@@ -110,38 +111,80 @@ steps provided here focus on pharmacokinetic modeling and assumes one
 has converted the dynamic acquisition to contrast agent concentration.
 Please see \cite{col-pad:ieee} for a discussion on this point.
 
-There are a myriad of techniques to quantify T1 using MRI.  Currently
-curve-fitting methods for two popular acquisition schemes are
-available
-\begin{itemize}
-\item Inversion recovery (\url{www.e-mri.org/mri-sequences/inversion-recovery-stir-flair.html})
-\item Multiple flip angles \citep{par-pad:DCE-MRI}
-\end{itemize}
-Once the tissue T1 relaxation rate has been estimated, the dynamic
-acquisition is then converted to contrast agent concentration.  Note,
-the B1 field is assumed to be constant (and accurate) when using
-multiple flip angles to estimate T1.  At higher fields strengths
-(e.g., 3T) the B1 field should be estimated in order to correct the
-prescribed flip angles.
+Multiple flip-angle acquisitions are commonly used to estimate the
+intrinsic relaxation rate maps $\{m_0,R_{10}\}$ of the tissue, the
+stated non-linear equation
+\begin{equation}
+  S(\theta) = \frac{m_0 \sin(\theta) (1 - E_{10})} {1 - \cos(\theta)
+    E_{10}},
+\end{equation}
+where $E_{10}=\exp(-\TR{\cdot}R_{10})$, relates the observed signal
+intensity $S(\cdot)$ with the parameters of interest when varying the
+flip angle.  Note, the transverse relaxation time was
+$\TR=\{\text{?}\}$~ms in the example data acquisition.  The
+Levenberg-Marquardt algorithm, provided in \pkg{minpack.lm}
+\citep{minpack.lm}, was used to estimate the parameters; see a recent
+discussion by \cite{ahe-etal:levenburg-marquardt}.
+
+Estimate the post-injection longitudinal relaxation rate $R_1(t)$
+using the signal intensity from pre- and post-contrast acquisitions
+via
+\begin{eqnarray}
+  A(t) & = & \frac{S(t) - S(0)}{m_0\sin(\theta)}\\
+  B & = & \frac{1 - E_{10}}{1 - \cos(\theta) E_{10}}\\
+  R_1(t) & = & -\frac{1}{\TR} \cdot \ln\left\{\frac{1 - [A(t)+B]}{1
+    - \cos(\theta)[A(t) + B]}\right\},
+\end{eqnarray}
+where $\theta=15^\circ$ was used in the dynamic sequence in the
+example data set.
+
+% There are a myriad of techniques to quantify T1 using MRI.  Currently
+% curve-fitting methods for two popular acquisition schemes are
+% available
+% \begin{itemize}
+% \item Inversion recovery (\url{www.e-mri.org/mri-sequences/inversion-recovery-stir-flair.html})
+% \item Multiple flip angles \citep{par-pad:DCE-MRI}
+% \end{itemize}
+% Once the tissue T1 relaxation rate has been estimated, the dynamic
+% acquisition is then converted to contrast agent concentration.  Note,
+% the B1 field is assumed to be constant (and accurate) when using
+% multiple flip angles to estimate T1.  At higher fields strengths
+% (e.g., 3T) the B1 field should be estimated in order to correct the
+% prescribed flip angles.
+
+\subsection{Contrast Agent Concentration}
+
+The \code{CA.fast} function rearranges the assumed multidimensional
+(2D or 3D) structure of the multiple flip-angle data into a single
+matrix to take advantage of internal R functions instead of loops, and
+calls \code{E10.lm}.  Conversion of the dynamic signal intensities to
+contrast agent concentration is performed via
+\begin{equation*}
+  [\text{Gd}] = \frac{1}{r_1}\left(\frac{1}{T_1} - \frac{1}{T_{10}}\right),
+\end{equation*}
+where $r_1$ is the spin-lattice relaxivity constant and $T_{10}$ is
+the spin-lattice relaxation time in the absence of contrast media
+\citep{buc-par:measuring}.  For computational reasons, we follow the
+method of \cite{li-etal:improved}.
 
 \subsection{B1 Mapping Via the Saturated Double-Angle Method}
 
-For in vivo MRI at high field ($\geq{3}$Tesla) it is essential to
-consider the homogeneity of the active B1 field (B1+).  The B1+ field
-is the transverse, circularly polarized component of B1 that is
+For in vivo MRI at high field ($\geq{3}\text{Tesla}$) it is essential
+to consider the homogeneity of the active B1 field (B1+).  The B1+
+field is the transverse, circularly polarized component of B1 that is
 rotating in the same sense as the magnetization.  When exciting or
 manipulating large collections of spins, non-uniformity in B1+ results
-in nonuniform treatment of spins.  This leads to spatially varying
-image signal and image contrast and to difficulty in image
+in nonuniform treatment of spins.  This leads to a spatially varying
+image signal and image contrast, and to difficulty in image
 interpretation and image-based quantification
 \citep{cun-pau-nay:saturated}.
 
 The proposed method uses an adaptation of the double angle method
 (DAM).  Such methods allow calculation of a flip-angle map, which is
-an indirect measure of the B1+ field.  Two images are acquired:
-$I_1$ with prescribed tip $\alpha_1$ and $I_2$ with prescribed tip
+an indirect measure of the B1+ field.  Two images are acquired: $I_1$
+with prescribed tip $\alpha_1$ and $I_2$ with prescribed tip
 $\alpha_2=2\alpha_1$.  All other signal-affecting sequence parameters
-are kept constant. For each voxel, the ratio of magnitude images
+are kept constant.  For each voxel, the ratio of magnitude images
 satisfies
 \begin{equation*}
   \frac{I_2(r)}{I_1(r)} =
@@ -294,21 +337,6 @@ The eighth and ninth ROIs are taken from the main compartment in the
 phantom; ROI eight is drawn in the middle of the phantom while ROI
 nine is drawn from the outside of the phantom.  The final ROI is taken
 from the central cylinder embedded in the phantom.
-
-\subsection{Contrast Agent Concentration}
-
-The \code{CA.fast} function rearranges the assumed multidimensional
-(2D or 3D) structure of the multiple flip-angle data into a single
-matrix to take advantage of internal R functions instead of loops, and
-called \code{E10.lm}.  Conversion of the dynamic signal intensities to
-contrast agent concentration is performed via
-\begin{equation*}
-  [\text{Gd}] = \frac{1}{r_1}\left(\frac{1}{T_1} - \frac{1}{T_{10}}\right),
-\end{equation*}
-where $r_1$ is the spin-lattice relaxivity constant and $T_{10}$ is
-the spin-lattice relaxation time in the absence of contrast media
-\citep{buc-par:measuring}.  For computational reasons, we follow the
-method of \cite{li-etal:improved}.
 
 \subsection{Arterial Input Function}
 
