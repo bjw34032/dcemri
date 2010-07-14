@@ -1,4 +1,4 @@
-useDynLib("dcemriS4")
+useDynLib("dcemriS4withNIfTi")
 
 import("grDevices", "graphics", "methods", "utils")
 
