@@ -67,13 +67,16 @@
 %% end of declarations %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 <<preliminaries,echo=FALSE,results=hide>>=
+library("oro.dicom")
+library("XML")
+library("oro.nifti")
 library("dcemriS4")
 library("bitops")
-library("XML")
 library("minpack.lm")
+library("splines")
 ## options(niftiAuditTrail=FALSE)
 options(prompt="R> ")
-options(width=80)
+options(width=76)
 @
 
 \begin{document}
@@ -554,14 +557,23 @@ via an increase in the ADC values, from cell necrosis and lysis.  A
 decrease in ADC values may be observed directly through tumor
 apoptosis after treatment.  
 
-\section[]{Analysis of the RIDER Neuro MRI Data Repository}
+\section[]{The RIDER Neuro MRI Data Repository}
+
+The National Biomedical Imaging Archive (NBIA) is a searchable,
+national repository integrating \textit{in vivo} cancer images with
+clinical and genomic data.  The NBIA provides the scientific community
+with public access to DICOM images, image markup, annotations, and
+rich meta data (\texttt{http://cabig.nci.nih.gov/tools/NCIA}).
 
 \subsection[]{Dynamic Contrast-Enhanced MRI}
 
-<<RIDER_Neuro_MRI>>=
-perfusion <- paste("281949", "19040721", "perfusion", sep="_")
+
+
+<<RIDER_Neuro_MRI,eval=FALSE>>=
+perf <- paste("281949", "19040721", "perfusion", sep="_")
 dynamic <- readNIfTI(perf)
 mask <- readANALYZE(paste(perf, "mask", sep="_"))
+mask <- ifelse(mask > 0, TRUE, FALSE)
 TR <- 4.43 / 1000 # taken from CSV file
 dangle <- 25      # taken from CSV file
 fflip <- list.files(pattern="ax[0-9]")
@@ -570,39 +582,43 @@ flip <- array(NA, c(dim(dynamic)[1:3], length(fangles)))
 for (fa in 1:length(fangles)) {
   flip[,,,fa] <- readNIfTI(fflip[fa])
 }
-ca <- CA.fast(dynamic, ifelse(mask > 0, TRUE, FALSE), dangle, 
-              flip, fangles, TR, verbose=TRUE)
+ca <- CA.fast(dynamic, mask, dangle, flip, fangles, TR, verbose=TRUE)
 writeNIfTI(ca$M0, paste(perf, "m0", sep="_"))
 writeNIfTI(ca$R10, paste(perf, "r10", sep="_"))
 writeNIfTI(ca$conc, paste(perf, "gdconc", sep="_"))
 
 acqtimes <- str2time(unique(sort(scan("rawtimes.txt", quiet=TRUE))))$time
 conc <- readNIfTI(paste(perf, "gdconc", sep="_"))
-mask <- readANALYZE(paste(perf, "mask2", sep="_"))
-fit <- dcemri.lm(conc, (acqtimes - acqtimes[9]) / 60,
-                 ifelse(mask > 0, TRUE, FALSE), model="extended",
-                 aif="fritz.hansen", verbose=TRUE)
+fit <- dcemri.lm(conc, (acqtimes - acqtimes[9]) / 60, mask, 
+                 model="extended", aif="fritz.hansen", verbose=TRUE)
 writeNIfTI(fit$ktrans, paste(perf, "ktrans", sep="_"))
 writeNIfTI(fit$vp, paste(perf, "vp", sep="_"))
 writeNIfTI(fit$ve, paste(perf, "ve", sep="_"))
-overlay(dyn[,,6:9,],
-        ifelse(fit$ktrans[,,6:9] < 0.25, fit$ktrans[,,6:9], NA),
-        w=11, zlim.x=c(32,512), zlim.y=c(.02,.15))
-dev.print(png,
-          paste(paste(perf, "ktrans", sep="_"), "png", sep="."),
-          width=2*480, height=2*480)
+png(file=paste(paste(perf, "ktrans", sep="_"), "png", sep="."), 
+    width=2*480, height=2*480)
+overlay(as(dynamic[,,6:9,], "nifti"), 
+        ifelse(fit$ktrans[,,6:9] < 1, fit$ktrans[,,6:9], NA),
+        w=11, zlim.x=c(32,512), zlim.y=c(0,.1))
+dev.off()
 @ 
-<<RiderNeuroMRI+Bayes,results=FALSE,echo=TRUE>>=
-fit <- dcemri.bayes(conc, (acqtimes - acqtimes[9]) / 60,
-                    ifelse(mask > 0, TRUE, FALSE), model="extended",
-                    aif="fritz.hansen", multicore=TRUE, verbose=TRUE)
+<<RiderNeuroMRI+Bayes,eval=FALSE,echo=TRUE>>=
+fit <- dcemri.bayes(conc, (acqtimes - acqtimes[9]) / 60, mask, 
+                    model="extended", aif="fritz.hansen", 
+                    multicore=TRUE, verbose=TRUE)
 overlay(dyn[,,6:9,],
-        ifelse(fit$ktrans[,,6:9] < 0.25, fit$ktrans[,,6:9], NA),
+        ifelse(fit$ktrans[,,6:9] < 1, fit$ktrans[,,6:9], NA),
         w=11, zlim.x=c(32,512), zlim.y=c(0,.125))
 dev.print(png,
           paste(paste(perf, "ktrans", sep="_"), "png", sep="."),
           width=2*480, height=2*480)
 @ 
+\begin{figure}[!htbp]
+  \begin{center}
+    \includegraphics*[width=0.75\textwidth]{281949_19040721_perfusion_ktrans.png}
+  \end{center}
+  \caption{}
+  \label{fig:perfusion-ktrans}
+\end{figure}
 
 
 
@@ -612,24 +628,12 @@ dev.print(png,
 
 \section*{Acknowledgments}
 
-The authors would like to thank...
+The authors would like to thank the National Biomedical Imaging
+Archive, the National Cancer Institute, the National Institute of
+Health and all institutions that have contributed medical imaging
+data.
 
 \bibliography{dcemri}
 
 \end{document}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
