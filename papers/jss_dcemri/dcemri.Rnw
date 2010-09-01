@@ -1,4 +1,4 @@
-\documentclass[article]{jss}
+\documentclass[article,shortnames]{jss}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% declarations for jss.cls %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -101,14 +101,13 @@ as Analyze or NIfTI) that may be visualized and manipulated in
 medical image analysis software packages.
 
 The S4 designation in \pkg{dcemriS4} means that S4 object classes are
-used throughout the functions to ensure the efficient and transparent
-manipulation of Analyze or NIfTI data structures.  Data input and
-output rely upon the \pkg{oro.nifti} \citep{oro.nifti}, where both
-Analyze and NIfTI data are represented in S4 classes.  Parameter
-estimates in \pkg{dcemriS4} inherit attributes from the incoming
-Analyze/NIfTI objects in order to preserve anatomical and
-physiological information for appropriate visualization in
-\proglang{R} or other software packages.
+used throughout to ensure efficient and transparent manipulation of
+Analyze or NIfTI data structures.  Data input and output rely upon the
+\pkg{oro.nifti} \citep{oro.nifti}, where both Analyze and NIfTI data
+are represented in S4 classes.  Parameter estimates in \pkg{dcemriS4}
+inherit attributes from the incoming Analyze/NIfTI objects in order to
+preserve anatomical and physiological information for appropriate
+visualization in \proglang{R} or other software packages.
 
 While initial application of DCE-MRI was in the characterization of
 blood-brain barrier (BBB) integrity
@@ -278,14 +277,42 @@ $>60^\circ$ while the flip angle rapidly becomes $<60^\circ$ when
 moving away from the center in either the $x$, $y$ or $z$ dimensions.
   
 \begin{figure}[!htbp]
-  \centering
-  \includegraphics*[width=.5\textwidth]{sdam.png}
-  \caption{Estimated B1+ field (with isotropic Gaussian smoothing)
-    using the saturated double-angle method.  The colors correspond to
-    a multiplicative factor relative to the true flip angle
-    ($60^\circ$).}
-  \label{fig:sdam}
+  \begin{minipage}[b]{0.5\linewidth}
+    \centering
+    \includegraphics*[scale=1]{sdam.png}\\
+    \textbf{(a)}
+  \end{minipage}
+  \hspace{0.5cm}
+  \begin{minipage}[b]{0.5\linewidth}
+    \centering
+    \includegraphics*[scale=1]{t1_phantom.png}\\
+    \textbf{(b)}
+  \end{minipage}
+  \label{fig:sdam+t1-phantom}
+  \caption{\textbf{(a)} Estimated B1+ field (with isotropic Gaussian
+    smoothing) using the saturated double-angle method.  The colors
+    correspond to a multiplicative factor relative to the true flip
+    angle ($60^\circ$).  \textbf{(b)} Estimated T1 relaxation rates
+    for the phantom data acquisition.  The colors range from 0-2.5
+    seconds.}
 \end{figure}
+
+%\begin{figure}[!htbp]
+%  \centering
+%  \includegraphics
+%  \caption{Estimated B1+ field (with isotropic Gaussian smoothing)
+%    using the saturated double-angle method.  The colors correspond to
+%    a multiplicative factor relative to the true flip angle
+%    ($60^\circ$).}
+%  \label{fig:sdam}
+%\end{figure}
+%\begin{figure}[!htbp]
+%  \centering
+%  \includegraphics
+%  \caption{Estimated T1 relaxation rates for the phantom data
+%  acquisition.  The colors range from 0-2.5 seconds.}
+%  \label{fig:t1-phantom}
+%\end{figure}
 
 Assuming the smoothed version of the B1+ field has been computed
 (\code{SDAM}), multiple flip-angle acquisitions can be used to estimate
@@ -326,14 +353,6 @@ dev.off()
 
 Figure~\ref{fig:t1-phantom} displays the quantitative T1 map for a
 gel-based phantom using information from the estimated B1+ field.
-
-\begin{figure}[!htbp]
-  \centering
-  \includegraphics*[width=.5\textwidth]{t1_phantom.png}
-  \caption{Estimated T1 relaxation rates for the phantom data
-  acquisition.  The colors range from 0-2.5 seconds.}
-  \label{fig:t1-phantom}
-\end{figure}
 
 By defining regions of interest (ROIs) in 
 
@@ -437,7 +456,7 @@ agent concentration curve at each voxel in the region of interest
 function (AIF) and the compartmental model; e.g.,
 \begin{eqnarray*}
   C_t(t) &=& \ktrans \left[ C_p(t) \otimes e^{-\kep t} \right],\\
-  C_t(t) &=& \vp C_P(t) + \ktrans \left[ C_p(t) \otimes e^{-\kep t}
+  C_t(t) &=& \vp C_p(t) + \ktrans \left[ C_p(t) \otimes e^{-\kep t}
     \right].
 \end{eqnarray*}
 
@@ -450,6 +469,7 @@ current version of this software:
   Monte Carlo (MCMC) \citep{sch-etal:TMI},
 \item \code{dcemri.map}: Maximum a posteriori (MAP) Bayesian
   estimation using MCMC.
+\item \code{dcemri.splines}: ???
 \end{itemize}
 % Least-square estimates of the kinetic parameters $\ktrans$ and
 % $\kep$ (also $\vp$ for the extended Kety model) are provided in
@@ -511,14 +531,14 @@ models based on statistical summaries of the kinetic parameters over
 the ROI per subject per visit.  An alternative to this traditional
 approach is to analyze an entire study using a Bayesian hierarchical
 model \citep{sch-etal:hierarchical}, available in the software project
-\pkg{PILFER} (\url{pilfer.sourceforge.net}).
+\pkg{PILFER} (\url{http://pilfer.sourceforge.net}).
 
 One may also question the rationale for hypothesis testing in only one
 kinetic parameter.  Preliminary work has been performed in looking at
 the joint response to treatment of both $\ktrans$ and $\kep$ in
-DCE-MRI by \cite{oco-etal:fPCA}.
+DCE-MRI \citep{oco-etal:fPCA}.
 
-\section[Diffusion Weighted Imaging]{Diffusion Weighted Imaging}
+\section[]{Diffusion Weighted Imaging}
 
 Diffusion weighted imaging (DWI), also known as diffusion-weighted MRI
 (DW-MRI), is a technique that measures the Brownian motion of water
@@ -557,13 +577,17 @@ via an increase in the ADC values, from cell necrosis and lysis.  A
 decrease in ADC values may be observed directly through tumor
 apoptosis after treatment.  
 
+\section[]{Quantitative T2 Imaging}
+
+
+
 \section[]{The RIDER Neuro MRI Data Repository}
 
 The National Biomedical Imaging Archive (NBIA) is a searchable,
 national repository integrating \textit{in vivo} cancer images with
 clinical and genomic data.  The NBIA provides the scientific community
 with public access to DICOM images, image markup, annotations, and
-rich meta data (\texttt{http://cabig.nci.nih.gov/tools/NCIA}).
+rich meta data (\url{http://cabig.nci.nih.gov/tools/NCIA}).
 
 \subsection[]{Dynamic Contrast-Enhanced MRI}
 
@@ -623,6 +647,14 @@ dev.print(png,
 
 
 \subsection[]{Diffusion-Weighted MRI}
+
+
+
+\subsection[]{Quantitative T2 Imaging}
+
+
+
+\section[]{Conclusion}
 
 
 
