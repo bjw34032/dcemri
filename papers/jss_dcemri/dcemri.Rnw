@@ -52,9 +52,11 @@
   URL: \url{http://www.dcemri.org/}\\
   
   Volker J. Schmid\\
+  Bioimaging group\\
+  Department of Statistics\\
   Ludwig-Maximilians Universit\"at M\"unchen\\
-  E-mail: \email{volker.schmid@}\\
-  URL: \url{http://}
+  E-mail: \email{volker.schmid@lmu.de}\\
+  URL: \url{http://volkerschmid.de}
 }
 %% It is also possible to add a telephone and fax number
 %% before the e-mail in the following format:
@@ -103,7 +105,7 @@ medical image analysis software packages.
 The S4 designation in \pkg{dcemriS4} means that S4 object classes are
 used throughout to ensure efficient and transparent manipulation of
 Analyze or NIfTI data structures.  Data input and output rely upon the
-\pkg{oro.nifti} \citep{oro.nifti}, where both Analyze and NIfTI data
+\pkg{oro.nifti} package \citep{oro.nifti}, where both Analyze and NIfTI data
 are represented in S4 classes.  Parameter estimates in \pkg{dcemriS4}
 inherit attributes from the incoming Analyze/NIfTI objects in order to
 preserve anatomical and physiological information for appropriate
@@ -124,17 +126,7 @@ motivation and application of DCE-MRI.
 
 \section[Dynamic Contrast-enhanced Magnetic Resonance Imaging]{Dynamic Contrast-enhanced Magnetic Resonance Imaging}
 
-\subsection[Motion Correction and Co-registration]{Motion Correction and Co-registration}
-
-Basic motion correction within an acquisition, and co-registration
-between acquired series, is available using template matching
-\citep{lew:template-matching}.  A reference volume must be
-pre-specified where a mask has been applied to remove all voxels that
-should not be included in the algorithm.  Note, only three-dimensional
-translations are allowed and no interpolation is used (i.e., only
-whole-voxel translations) at this time.
-
-\subsection[T1 Relaxation and Gadolinium Concentration]{T1 Relaxation and Gadolinium Concentration}
+\subsection[T1 Relaxation and Gadolinium Concentration]{T1 Relaxation rate and Gadolinium Concentration}
 
 Estimation of the tissue T1 relaxation rate is the first step in
 converting signal intensity, obtained in the dynamic acquisition of
@@ -153,7 +145,7 @@ stated non-linear equation
 where $E_{10}=\exp(-\TR{\cdot}R_{10})$, relates the observed signal
 intensity $S(\cdot)$ with the parameters of interest when varying the
 flip angle.  Note, the transverse relaxation time was
-$\TR=\{\text{?}\}$~ms in the example data acquisition.  The
+$\TR=4.22$~ms in the example data acquisition.  The
 Levenberg-Marquardt algorithm, provided in \pkg{minpack.lm}
 \citep{minpack.lm}, was used to estimate the parameters; see a recent
 discussion by \cite{ahe-etal:levenburg-marquardt}.
@@ -184,7 +176,7 @@ example data set.
 % (e.g., 3T) the B1 field should be estimated in order to correct the
 % prescribed flip angles.
 
-\subsection{Contrast Agent Concentration}
+%\subsection{Contrast Agent Concentration}
 
 The \code{CA.fast} function rearranges the assumed multidimensional
 (2D or 3D) structure of the multiple flip-angle data into a single
@@ -198,6 +190,16 @@ where $r_1$ is the spin-lattice relaxivity constant and $T_{10}$ is
 the spin-lattice relaxation time in the absence of contrast media
 \citep{buc-par:measuring}.  For computational reasons, we follow the
 method of \cite{li-etal:improved}.
+
+\subsection[Motion Correction and Co-registration]{Motion Correction and Co-registration}
+
+Basic motion correction within an acquisition, and co-registration
+between acquired series, is available using template matching
+\citep{lew:template-matching}.  A reference volume must be
+pre-specified where a mask has been applied to remove all voxels that
+should not be included in the algorithm.  Note, only three-dimensional
+translations are allowed and no interpolation is used (i.e., only
+whole-voxel translations) at this time.
 
 \subsection{B1 Mapping Via the Saturated Double-Angle Method}
 
@@ -459,6 +461,8 @@ function (AIF) and the compartmental model; e.g.,
   C_t(t) &=& \vp C_p(t) + \ktrans \left[ C_p(t) \otimes e^{-\kep t}
     \right].
 \end{eqnarray*}
+Here, $\ktrans$ represents the volume transfer constant between extracellular extravascular space (EES) per minute, and $\kep$ is the rate constant between EES and blood plasma. The parameter $\vp$ describes the fraction of plasma in the tisse, and $v_e=\ktrans/kep$ can be interpreted as fraction of EES.
+
 
 Parameter estimation is achieved using one of three options in the
 current version of this software:
@@ -467,25 +471,33 @@ current version of this software:
   squares (Levenburg-Marquardt optimization),
 \item \code{dcemri.bayes}: Bayesian estimation using Markov chain
   Monte Carlo (MCMC) \citep{sch-etal:TMI},
-\item \code{dcemri.map}: Maximum a posteriori (MAP) Bayesian
-  estimation using MCMC.
-\item \code{dcemri.splines}: ???
+\item \code{dcemri.map}: Bayesian Maximum a Posteriori (MAP) 
+  estimation using \code{optim},
+\item \code{dcemri.splines}: Non-parametric fit and deconvolution using an adaptive penalized Spline approach. Parameters can be estimated from the deconvolved response function via non-linear least squares \citep{sch-etal:TMI09}.
 \end{itemize}
-% Least-square estimates of the kinetic parameters $\ktrans$ and
-% $\kep$ (also $\vp$ for the extended Kety model) are provided in
-% \code{dcemri.lm} while the posterior median is provided in
-% \code{dcemri.bayes}.  
-When using Bayesian estimation all samples from the joint posterior
-distribution may be provided (using \code{samples=TRUE}), allowing one
-to interrogate the posterior probability density function (PDF) of the
-parameter estimates.
+
+Least-square estimates of the kinetic parameters $\ktrans$ and
+$\kep$ (also $\vp$ for the extended Kety model) are provided in
+\code{dcemri.lm} and maximum a posteriori estimates in \code{dcemri.map}.
+With \code{dcemri.bayes} and \code{dcemri.splines}, the posterior median
+is provided as summary statistic, estimated via Markov chain Monte Carlo.
+All samples from the joint posterior distribution may be provided using 
+\code{samples=TRUE}, allowing one to interrogate the posterior probability
+density function (PDF) of the parameter estimates, which can be used, e.g.,
+to compute credible intervals.
+
+For the Bayesian approaches (\code{dcemri.bayes}, \code{dcemri.map)
+hyper prior parameters have to be specified for the prior 
+distributions on the kinetic parameters. Following 
+\citep{sch-etal:TMI}, Gaussian priors on $\log(\ktrans)$ and
+$\log(\kep)$, a Beta prior on $\vp$, 
+and a Gamma prior on the variance of the observation error are used.
 
 Using the simulated breast data from \cite{buc:uncertainty}, we
 illustrate fitting the ``extended Kety'' model to the contrast agent
 concentration curves using the exponential model for the AIF.  We use
 non-linear regression to fit the data on an under-sampled subset (in
-time) of
-the simulated curves.
+time) of the simulated curves.
 
 <<buckley.kinetic>>=
 xi <- seq(5, 300, by=5)
@@ -593,7 +605,7 @@ rich meta data (\url{http://cabig.nci.nih.gov/tools/NCIA}).
 
 
 
-<<RIDER_Neuro_MRI,eval=FALSE>>=
+<<RIDER_Neuro_MRI,eval=TRUE>>=
 perf <- paste("281949", "19040721", "perfusion", sep="_")
 dynamic <- readNIfTI(perf)
 mask <- readANALYZE(paste(perf, "mask", sep="_"))
@@ -606,6 +618,9 @@ flip <- array(NA, c(dim(dynamic)[1:3], length(fangles)))
 for (fa in 1:length(fangles)) {
   flip[,,,fa] <- readNIfTI(fflip[fa])
 }
+dynamic <- dynamic[,,5:10,]
+mask<-mask[,,5:10]
+flip<-flip[,,5:10,]
 ca <- CA.fast(dynamic, mask, dangle, flip, fangles, TR, verbose=TRUE)
 writeNIfTI(ca$M0, paste(perf, "m0", sep="_"))
 writeNIfTI(ca$R10, paste(perf, "r10", sep="_"))
@@ -620,17 +635,17 @@ writeNIfTI(fit$vp, paste(perf, "vp", sep="_"))
 writeNIfTI(fit$ve, paste(perf, "ve", sep="_"))
 png(file=paste(paste(perf, "ktrans", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
-overlay(as(dynamic[,,6:9,], "nifti"), 
-        ifelse(fit$ktrans[,,6:9] < 1, fit$ktrans[,,6:9], NA),
+overlay(as(dynamic[,,2:5,], "nifti"), 
+        ifelse(fit$ktrans[,,2:5] < 1, fit$ktrans[,,2:5], NA),
         w=11, zlim.x=c(32,512), zlim.y=c(0,.1))
 dev.off()
 @ 
-<<RiderNeuroMRI+Bayes,eval=FALSE,echo=TRUE>>=
+<<RiderNeuroMRI+Bayes,eval=TRUE,echo=TRUE>>=
 fit <- dcemri.bayes(conc, (acqtimes - acqtimes[9]) / 60, mask, 
                     model="extended", aif="fritz.hansen", 
                     multicore=TRUE, verbose=TRUE)
-overlay(dyn[,,6:9,],
-        ifelse(fit$ktrans[,,6:9] < 1, fit$ktrans[,,6:9], NA),
+overlay(dynamic[,,2:5,],
+        ifelse(fit$ktrans[,,2:5] < 1, fit$ktrans[,,2:5], NA),
         w=11, zlim.x=c(32,512), zlim.y=c(0,.125))
 dev.print(png,
           paste(paste(perf, "ktrans", sep="_"), "png", sep="."),
@@ -663,7 +678,8 @@ dev.print(png,
 The authors would like to thank the National Biomedical Imaging
 Archive, the National Cancer Institute, the National Institute of
 Health and all institutions that have contributed medical imaging
-data.
+data. VS is supported by the LMUinnovative project BioMed-S: 
+Analysis and Modelling of Complex Systems.
 
 \bibliography{dcemri}
 
