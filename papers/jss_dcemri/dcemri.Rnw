@@ -140,7 +140,7 @@ intrinsic relaxation rate maps $\{m_0,R_{10}\}$ of the tissue, the
 stated non-linear equation
 \begin{equation}
   S(\theta) = \frac{m_0 \sin(\theta) (1 - E_{10})} {1 - \cos(\theta)
-    E_{10}},
+    E_{10}},\label{eqn:signal}
 \end{equation}
 where $E_{10}=\exp(-\TR{\cdot}R_{10})$, relates the observed signal
 intensity $S(\cdot)$ with the parameters of interest when varying the
@@ -183,9 +183,9 @@ The \code{CA.fast} function rearranges the assumed multidimensional
 matrix to take advantage of internal R functions instead of loops, and
 calls \code{E10.lm}.  Conversion of the dynamic signal intensities to
 contrast agent concentration is performed via
-\begin{equation*}
-  [\text{Gd}] = \frac{1}{r_1}\left(\frac{1}{T_1} - \frac{1}{T_{10}}\right),
-\end{equation*}
+\begin{equation}
+  C_t(t) = \frac{1}{r_1}\left(\frac{1}{T_1} - \frac{1}{T_{10}}\right),\label{eqn:conc}
+\end{equation}
 where $r_1$ is the spin-lattice relaxivity constant and $T_{10}$ is
 the spin-lattice relaxation time in the absence of contrast media
 \citep{buc-par:measuring}.  For computational reasons, we follow the
@@ -456,13 +456,12 @@ parametric model is chosen for the biological system, the contrast
 agent concentration curve at each voxel in the region of interest
 (ROI) is approximated using the convolution of an arterial input
 function (AIF) and the compartmental model; e.g.,
-\begin{eqnarray*}
-  C_t(t) &=& \ktrans \left[ C_p(t) \otimes e^{-\kep t} \right],\\
-  C_t(t) &=& \vp C_p(t) + \ktrans \left[ C_p(t) \otimes e^{-\kep t}
+\begin{eqnarray}
+  C_t(t) &=& \ktrans \left[ C_p(t) \otimes e^{-\kep t} \right], \label{eqn:kety}\\
+  C_t(t) &=& \vp C_p(t) + \ktrans \left[ C_p(t) \otimes e^{-\kep t} \label{eqn:extendedkety}
     \right].
-\end{eqnarray*}
+\end{eqnarray}
 Here, $\ktrans$ represents the volume transfer constant between extracellular extravascular space (EES) per minute, and $\kep$ is the rate constant between EES and blood plasma. The parameter $\vp$ describes the fraction of plasma in the tisse, and $v_e=\ktrans/kep$ can be interpreted as fraction of EES.
-
 
 Parameter estimation is achieved using one of three options in the
 current version of this software:
@@ -473,25 +472,34 @@ current version of this software:
   Monte Carlo (MCMC) \citep{sch-etal:TMI},
 \item \code{dcemri.map}: Bayesian Maximum a Posteriori (MAP) 
   estimation using \code{optim},
-\item \code{dcemri.splines}: Non-parametric fit and deconvolution using an adaptive penalized Spline approach. Parameters can be estimated from the deconvolved response function via non-linear least squares \citep{sch-etal:TMI09}.
 \end{itemize}
 
 Least-square estimates of the kinetic parameters $\ktrans$ and
 $\kep$ (also $\vp$ for the extended Kety model) are provided in
 \code{dcemri.lm} and maximum a posteriori estimates in \code{dcemri.map}.
-With \code{dcemri.bayes} and \code{dcemri.splines}, the posterior median
+With \code{dcemri.bayes} the posterior median
 is provided as summary statistic, estimated via Markov chain Monte Carlo.
 All samples from the joint posterior distribution may be provided using 
 \code{samples=TRUE}, allowing one to interrogate the posterior probability
 density function (PDF) of the parameter estimates, which can be used, e.g.,
-to compute credible intervals.
+to compute credible intervals. Given estimated kinetic parameters, 
+\code{kineticModel} and \code{orton.exp.lm} can be used to compute 
+constrast agent concentration for specific models. 
 
-For the Bayesian approaches (\code{dcemri.bayes}, \code{dcemri.map)
+For the Bayesian approaches (\code{dcemri.bayes}, \code{dcemri.map}
 hyper prior parameters have to be specified for the prior 
 distributions on the kinetic parameters. Following 
 \citep{sch-etal:TMI}, Gaussian priors on $\log(\ktrans)$ and
 $\log(\kep)$, a Beta prior on $\vp$, 
 and a Gamma prior on the variance of the observation error are used.
+
+As alternative to parametric modelling, \code{dcemri.spline} can be
+used to de-convolve and de-noise the contrast agent concentration
+cureve using an adaptive penalized Spline approach \citep{sch-etal:TMI09}.
+Kinetic parameters can however be estimated by fitting the response model
+to the estimated response curve; e.g., an exponential in case of a Weinman model.
+\code{dcemri.spline} also uses a Bayesian approach, i.e., smoothing hyperpriors
+have to be defined and posterior pdfs can be computed for all results. 
 
 Using the simulated breast data from \cite{buc:uncertainty}, we
 illustrate fitting the ``extended Kety'' model to the contrast agent
@@ -603,9 +611,15 @@ rich meta data (\url{http://cabig.nci.nih.gov/tools/NCIA}).
 
 \subsection[]{Dynamic Contrast-Enhanced MRI}
 
+Functions of the \pkg{oro.nifti} package are used to read the raw 
+MR signal intensity files. In this example pre-contrast multiple flip 
+angle data are available for estimation of contrast agent concentration.
+We use \code{CA.fast} to estimate the intrinsic relaxation rate
+$R_10$ and $m_0$ from Eqn.\ref{eqn:signal} and the contrast agent concentration
+curve $C_t(t)$ from Eqn.\ref{eqn:conc}. In order to save memory, we only use
+four slices of the data.
 
-
-<<RIDER_Neuro_MRI,eval=TRUE>>=
+<<RIDER_Neuro_MRI,eval=FALSE,echo=TRUE>>=
 perf <- paste("281949", "19040721", "perfusion", sep="_")
 dynamic <- readNIfTI(perf)
 mask <- readANALYZE(paste(perf, "mask", sep="_"))
@@ -618,47 +632,253 @@ flip <- array(NA, c(dim(dynamic)[1:3], length(fangles)))
 for (fa in 1:length(fangles)) {
   flip[,,,fa] <- readNIfTI(fflip[fa])
 }
-dynamic <- dynamic[,,5:10,]
-mask<-mask[,,5:10]
-flip<-flip[,,5:10,]
+dynamic <- dynamic[,,5:8,]
+mask<-mask[,,5:8]
+flip<-flip[,,5:8,]
 ca <- CA.fast(dynamic, mask, dangle, flip, fangles, TR, verbose=TRUE)
 writeNIfTI(ca$M0, paste(perf, "m0", sep="_"))
 writeNIfTI(ca$R10, paste(perf, "r10", sep="_"))
 writeNIfTI(ca$conc, paste(perf, "gdconc", sep="_"))
+@ 
 
+Using the contrast agent concentration curve we estimate kinetic parameters
+with \code{dcemri.lm}. Here, we use a standard arterial input function 
+(sum of two exponentials) from literature, with values according to 
+\citep{tof-ker:measurement}, and the "extended" Kety model including a
+vascular compartment.
+
+<<RIDER_Neuro_MRI+lm,eval=FALSE,echo=TRUE>>=
 acqtimes <- str2time(unique(sort(scan("rawtimes.txt", quiet=TRUE))))$time
 conc <- readNIfTI(paste(perf, "gdconc", sep="_"))
-fit <- dcemri.lm(conc, (acqtimes - acqtimes[9]) / 60, mask, 
-                 model="extended", aif="fritz.hansen", verbose=TRUE)
-writeNIfTI(fit$ktrans, paste(perf, "ktrans", sep="_"))
+fit <- dcemri.lm(ca$conc, (acqtimes - acqtimes[9]) / 60, mask, 
+                 model="extended", aif="fritz.hansen", verbose=TRUE,
+                 multicore=TRUE)
+@ 
+<<RIDER_Neuro_MRI+lm2,eval=FALSE,echo=FALSE>>=
+#writeNIfTI(fit$ktrans, paste(perf, "ktrans", sep="_"))
+writeNIfTI(fit$kep, paste(perf, "kep", sep="_"))
 writeNIfTI(fit$vp, paste(perf, "vp", sep="_"))
 writeNIfTI(fit$ve, paste(perf, "ve", sep="_"))
+writeNIfTI(fit$sse, paste(perf, "sse", sep="_"))
 png(file=paste(paste(perf, "ktrans", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
-overlay(as(dynamic[,,2:5,], "nifti"), 
-        ifelse(fit$ktrans[,,2:5] < 1, fit$ktrans[,,2:5], NA),
+@ 
+<<RIDER_Neuro_MRI+lm2,eval=FALSE,echo=TRUE>>=
+overlay(as(dynamic, "nifti"), 
+        ifelse(fit$ktrans < .1, fit$ktrans, NA),
         w=11, zlim.x=c(32,512), zlim.y=c(0,.1))
+@ 
+<<RIDER_Neuro_MRI+lm3,eval=FALSE,echo=FALSE>>=
+dev.off()
+fit.kep.lm <- readNIfTI(paste(perf, "kep", sep="_"))
+fit.vp.lm <- readNIfTI(paste(perf, "vp", sep="_"))
+fit.ve.lm <- fit.ktrans.lm/fit.kep.lm
+fit.sse.lm <- readNIfTI(paste(perf, "sse", sep="_"))
+png(file=paste(paste(perf, "kep", sep="_"), "png", sep="."), 
+    width=480, height=480)
+overlay(as(dynamic, "nifti"), 
+        ifelse(fit.kep.lm < 1, fit.kep.lm, NA),
+        w=11, z=2, zlim.x=c(32,512), zlim.y=c(0,1.25), plot.type="single")
+dev.off()
+png(file=paste(paste(perf, "vp", sep="_"), "png", sep="."), 
+    width=480, height=480)
+overlay(as(dynamic, "nifti"), 
+        ifelse(fit.vp.lm < 1, fit.vp.lm, NA),
+        w=11, z=2, zlim.x=c(32,512), zlim.y=c(0,.03), plot.type="single")
+dev.off()
+png(file=paste(paste(perf, "ve", sep="_"), "png", sep="."), 
+    width=480, height=480)
+overlay(as(dynamic, "nifti"), 
+        ifelse(fit.ve.lm[,,2:5] < 1, fit.ve.lm[,,2:5], NA),
+        w=11, z=2, zlim.x=c(32,512), zlim.y=c(0,.3), plot.type="single")
+dev.off()
+png(file=paste(paste(perf, "sse", sep="_"), "png", sep="."), 
+    width=480, height=480)
+overlay(as(dynamic, "nifti"), 
+        ifelse(fit.sse.lm < 1, fit.sse.lm, NA),
+        w=11, z=2, zlim.x=c(32,512), zlim.y=c(0,.04), plot.type="single",main="SSE")
 dev.off()
 @ 
-<<RiderNeuroMRI+Bayes,eval=TRUE,echo=TRUE>>=
-fit <- dcemri.bayes(conc, (acqtimes - acqtimes[9]) / 60, mask, 
-                    model="extended", aif="fritz.hansen", 
-                    multicore=TRUE, verbose=TRUE)
-overlay(dynamic[,,2:5,],
-        ifelse(fit$ktrans[,,2:5] < 1, fit$ktrans[,,2:5], NA),
-        w=11, zlim.x=c(32,512), zlim.y=c(0,.125))
-dev.print(png,
-          paste(paste(perf, "ktrans", sep="_"), "png", sep="."),
-          width=2*480, height=2*480)
-@ 
+
 \begin{figure}[!htbp]
   \begin{center}
     \includegraphics*[width=0.75\textwidth]{281949_19040721_perfusion_ktrans.png}
+  \end{center}
+  \caption{$\ktrans$ parameter maps for four slices of the RIDER example.
+    Two potential tumours are visible with ring-shaped increased $\ktrans$ 
+    and centers of decreased $\ktrans$.
+  \label{fig:perfusion-ktrans}}
+\end{figure}
+
+Fig.~\ref{fig:perfusion-ktrans} shows the estimated $\ktrans$ parameter maps
+for four of the five tumour slices. Two rings of increased $\ktrans$ values 
+can be identified from the parameter maps, which indicates two tumours. In both
+cases $\ktrans$ is nearly zero in the centre of both rings, indicating that no
+blood is supplied to the probably necrotic core of the tumours. 
+Fig.~\ref{fig:perfusion-parametermaps} depicts parameter maps of slice 7 
+(top right in Fig.~\ref{fig:perfusion-ktrans}) for other kinetic parameters.
+All maps strengthen the finding of two tumours with necrotic cores. For both tumours
+the fraction of extravascular extracellular space (EES) $v_e$ is increased at
+the rim, which indicates that normal tissue was destroyed here. There is nearly no
+perfusion in the tumours, i.e., low values of $\kep$ and $v_p$, indicating
+necrotic cores. The bottom left figure of Fig.~\ref{fig:perfusion-parametermaps}
+shows sum of squared error of the fit to the kinetic model. This can be used as
+quality check. Here, for example, the region of interest covers cerebrospinal 
+fluid, scull, and air, for all of which the kinetic model is not appropriate.
+However, across the tissue goodness of fit is nearly invariant.
+
+\begin{figure}[!htbp]
+  \begin{tabular}{cc}
+    $\kep$ & $v_p$\\    
+    \includegraphics*[width=0.375\textwidth]{281949_19040721_perfusion_kep.png}&
+    \includegraphics*[width=0.375\textwidth]{281949_19040721_perfusion_vp.png}\\
+    $v_e$ & sum of squared error\\    
+    \includegraphics*[width=0.375\textwidth]{281949_19040721_perfusion_ve.png}&
+    \includegraphics*[width=0.375\textwidth]{281949_19040721_perfusion_sse.png}
+  \end{tabular}
+  \caption{Parameter maps for central tumour slice of the RIDER data. 
+    Top left: $\kep$ map; efflux is reduced in the area of both tumours.
+    Top right: $v_p$ map; apparently no plasma in the center od both tumours.
+    Bottom left: $v_e$ map; increased value on tumour rims.
+    Bottom right: sum of squared error of fit; qualitity of fit is equal over the tumour region.}
+  \label{fig:perfusion-parametermaps}
+\end{figure}
+
+\pkg{dcemriS4} supports the audit trail functionality of \pkg{oro.nifti}. 
+Hence, from a parameter map given in NIfTi class, we can follow back all steps
+from parameter estimation to raw signal:
+
+<<AuditTrail,eval=FALSE>>=
+print(audit.trail(fit$ktrans.lm))
+@ 
+\tiny
+<<AuditTrail,eval=FALSE,echo=FALSE>>=
+print(audit.trail(fit$ktrans))
+@ 
+\normalsize
+
+<<RiderNeuroMRI+Bayes,eval=TRUE,echo=TRUE>>=
+perf <- paste("281949", "19040721", "perfusion", sep="_")
+acqtimes <- str2time(unique(sort(scan("rawtimes.txt", quiet=TRUE))))$time
+conc <- readNIfTI(paste(perf, "gdconc", sep="_"))
+mask <- readANALYZE(paste(perf, "mask", sep="_"))
+mask <- ifelse(mask > 0, TRUE, FALSE)
+mask<-mask[,,5:10]
+mask<-apply(mask[,,2],1:2,sum)
+x<-apply(mask,1,sum)!=0
+y<-apply(mask,2,sum)!=0
+fit.bayes <- dcemri.bayes(conc[x,y,2,], (acqtimes - acqtimes[9]) / 60,
+                    array(TRUE,c(sum(x),sum(y))),
+                   model="extended", aif="fritz.hansen", 
+                    multicore=TRUE, verbose=TRUE, samples=TRUE,
+                    burnin=500,nriters=1000,thin=5)
+writeNIfTI(fit.bayes$ktrans, paste(perf, "ktrans","bayes", sep="_"))
+writeNIfTI(apply(fit.bayes$ktrans.samples,1:2,var,na.rm=TRUE), paste(perf, "ktrans","bayes", "var", sep="_"))
+@ 
+<<RiderNeuroMRI+Bayes2,eval=TRUE,echo=FALSE>>=
+perf <- paste("281949", "19040721", "perfusion", sep="_")
+ktrans.bayes<-readNIfTI(paste(perf, "ktrans","bayes", sep="_"))
+ktrans <- readNIfTI(paste(perf, "ktrans", sep="_"))
+
+png(file=paste(paste(perf, "ktrans", "bayes" sep="_"), "png", sep="."), 
+    width=480, height=480)
+overlay(as(dynamic[,,6:9,], "nifti"), 
+        ifelse(fit.ktrans.lm[,,2:5] < 1, fit.ktrans.lm[,,2:5], NA),
+        w=11, zlim.x=c(32,512), zlim.y=c(0,.1), plot.type="single", z=3)
+dev.off()
+@
+\begin{figure}[!htbp]
+  \begin{center}
+    \includegraphics*[width=0.375\textwidth]{281949_19040721_perfusion_ktrans_bayes.png}
+    \includegraphics*[width=0.375\textwidth]{281949_19040721_perfusion_ktrans_bayes_var.png}
   \end{center}
   \caption{}
   \label{fig:perfusion-ktrans}
 \end{figure}
 
+
+
+<<RiderNeuroMRI+Spline,eval=FALSE,echo=TRUE>>=
+perf <- paste("281949", "19040721", "perfusion", sep="_")
+acqtimes <- str2time(unique(sort(scan("rawtimes.txt", quiet=TRUE))))$time
+conc <- readNIfTI(paste(perf, "gdconc", sep="_"))
+x<-y<-rep(FALSE,256)
+x[149:176]=TRUE
+y[73:103]=TRUE
+x<-y<-rep(FALSE,256)
+x[149:156]=TRUE
+y[73:83]=TRUE
+
+fit <- dcemri.spline(conc[x,y,4,], (acqtimes - acqtimes[9]) / 60,
+                    array(TRUE,c(sum(x),sum(y))),nriters=50,thin=10,
+                   model="extended", aif="fritz.hansen", 
+                    multicore=TRUE, verbose=FALSE, samples=FALSE,
+                    t0.compute=TRUE)
+writeNIfTI(fit.bayes$ktrans, paste(perf, "ktrans","bayes", sep="_"))
+fkbs<-apply(fit.bayes$ktrans.samples,1:2,var,na.rm=TRUE)
+writeNIfTI(fkbs, paste(perf, "ktrans","bayes","var", sep="_"))
+@ 
+<<RiderNeuroMRI+map,eval=FALSE,echo=TRUE>>=
+perf <- paste("281949", "19040721", "perfusion", sep="_")
+acqtimes <- str2time(unique(sort(scan("rawtimes.txt", quiet=TRUE))))$time
+conc <- readNIfTI(paste(perf, "gdconc", sep="_"))
+mask <- readANALYZE(paste(perf, "mask", sep="_"))
+mask <- ifelse(mask > 0, TRUE, FALSE)
+mask<-mask[,,5:10]
+fit.map <- dcemri.map(conc, (acqtimes - acqtimes[9]) / 60, mask, 
+                    model="extended", aif="fritz.hansen",
+                    multicore=TRUE, verbose=FALSE)
+writeNIfTI(fit.map$ktrans, paste(perf, "ktrans","map", sep="_"))
+@ 
+
+
+
+<<RIDER_Neuro_print,eval=FALSE>>=
+perf <- paste("281949", "19040721", "perfusion", sep="_")
+dynamic <- readNIfTI(perf)
+fit.ktrans.lm <- readNIfTI(paste(perf, "ktrans", sep="_"))
+png(file=paste(paste(perf, "ktrans", sep="_"), "png", sep="."), 
+    width=2*480, height=2*480)
+overlay(as(dynamic[,,6:9,], "nifti"), 
+        ifelse(fit.ktrans.lm[,,2:5] < 1, fit.ktrans.lm[,,2:5], NA),
+        w=11, zlim.x=c(32,512), zlim.y=c(0,.1))
+dev.off()
+png(file=paste(paste(perf, "ktrans","bayes", sep="_"), "png", sep="."), 
+    width=480, height=480)
+fit.ktrans.bayes <- readNIfTI(paste(perf, "ktrans", "bayes", sep="_"))
+fit.ktrans.bayes.var <- readNIfTI(paste(perf, "ktrans", "bayes", "var", sep="_"))
+par(mfrow=c(2,1))
+fkb<- readNIfTI(paste(perf, "ktrans", sep="_"))
+mask <- readANALYZE(paste(perf, "mask", sep="_"))
+mask <- ifelse(mask > 0, TRUE, FALSE)
+mask<-mask[,,5:10]
+mask<-apply(mask[,,4],1:2,sum)
+x<-apply(mask,1,sum)!=0
+y<-apply(mask,2,sum)!=0
+fkb[x,y,4]=fit.ktrans.bayes
+overlay(as(dynamic[,,c(4,4),], "nifti"), 
+        ifelse(fkb[,,c(4,4)] < 1, fkb[,,c(4,4)], NA),
+        w=1, zlim.x=c(32,512), zlim.y=c(0,.1),plot.type="single")
+dev.off()
+png(file=paste(paste(perf, "ktrans","bayes", "var", sep="_"), "png", sep="."), 
+    width=480, height=480)
+fkb[x,y,4]=fit.ktrans.bayes.var
+overlay(as(dynamic[,,c(4,4),], "nifti"), 
+        ifelse(fkb[,,c(4,4)] < 1, fkb[,,c(4,4)], NA),
+        w=1, zlim.x=c(32,512), zlim.y=c(0,.0001),plot.type="single")
+dev.off()
+png(file=paste(paste(perf, "ktrans","compare", sep="_"), "png", sep="."), 
+    width=2*480, height=1*480)
+fit.ktrans.map <- readNIfTI(paste(perf, "ktrans", "map",sep="_"))
+par(mfrow=c(2,1))
+overlay(as(dynamic[,,4,], "nifti"), 
+        ifelse(fit.bayes < 1, fit.bayes, NA),
+        w=11, zlim.x=c(32,512), zlim.y=c(0,.1))
+overlay(as(dynamic[,,4,], "nifti"), 
+        ifelse(fit.bayes.var < 1, fit.bayes.var, NA),
+        w=11, zlim.x=c(32,512), zlim.y=c(0,.1))
+dev.off()
+@ 
 
 
 \subsection[]{Diffusion-Weighted MRI}
@@ -682,6 +902,10 @@ data. VS is supported by the LMUinnovative project BioMed-S:
 Analysis and Modelling of Complex Systems.
 
 \bibliography{dcemri}
+
+<<end,eval=FALSE,echo=FALSE>>=
+options(prompt="R> ")
+@ 
 
 \end{document}
 
