@@ -797,7 +797,7 @@ and variance $1$ on $\log(\kep)$ as priors.  For $v_p$, we use
 Beta-distribution with $a=1, b=19$, i.e., an a prior expected value of
 0.5.
 
-<<RiderNeuroMRI+map1,eval=FALSE,echo=TRUE>>=
+<<RiderNeuroMRI+map1,eval=TRUE,echo=TRUE>>=
 fit.map <- dcemri.map(conc, acqtimes, mask, model="extended", 
                       aif="fritz.hansen", ab.ktrans=c(log(0.05),1),
                       ab.kep=c(log(0.7),1), ab.vp=c(1,19),
