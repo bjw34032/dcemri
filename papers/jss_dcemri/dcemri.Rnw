@@ -105,11 +105,12 @@ medical image analysis software packages.
 The S4 designation in \pkg{dcemriS4} means that S4 object classes are
 used throughout to ensure efficient and transparent manipulation of
 Analyze or NIfTI data structures.  Data input and output rely upon the
-\pkg{oro.nifti} package \citep{oro.nifti}, where both Analyze and NIfTI data
-are represented in S4 classes.  Parameter estimates in \pkg{dcemriS4}
-inherit attributes from the incoming Analyze/NIfTI objects in order to
-preserve anatomical and physiological information for appropriate
-visualization in \proglang{R} or other software packages.
+\pkg{oro.nifti} package \citep{oro.nifti}, where both Analyze and
+NIfTI data are represented in S4 classes.  Parameter estimates in
+\pkg{dcemriS4} inherit attributes from the incoming Analyze/NIfTI
+objects in order to preserve anatomical and physiological information
+for appropriate visualization in \proglang{R} or other software
+packages.
 
 While initial application of DCE-MRI was in the characterization of
 blood-brain barrier (BBB) integrity
@@ -183,8 +184,8 @@ The \code{CA.fast} function rearranges the assumed multidimensional
 matrix to take advantage of internal R functions instead of loops, and
 calls \code{E10.lm}.  Conversion of the dynamic signal intensities to
 contrast agent concentration is performed via
-\begin{equation}
-  C_t(t) = \frac{1}{r_1}\left(\frac{1}{T_1} - \frac{1}{T_{10}}\right),\label{eqn:conc}
+\begin{equation}\label{eqn:conc}
+  C_t(t) = \frac{1}{r_1}\left(\frac{1}{T_1} - \frac{1}{T_{10}}\right),
 \end{equation}
 where $r_1$ is the spin-lattice relaxivity constant and $T_{10}$ is
 the spin-lattice relaxation time in the absence of contrast media
@@ -614,6 +615,8 @@ apoptosis after treatment.
 
 \section[]{Quantitative T2 Imaging}
 
+
+
 \section[]{The RIDER Neuro MRI Data Repository}
 
 The National Biomedical Imaging Archive (NBIA) is a searchable,
@@ -797,7 +800,7 @@ and variance $1$ on $\log(\kep)$ as priors.  For $v_p$, we use
 Beta-distribution with $a=1, b=19$, i.e., an a prior expected value of
 0.5.
 
-<<RiderNeuroMRI+map1,eval=TRUE,echo=TRUE>>=
+<<RiderNeuroMRI+map1,eval=FALSE,echo=TRUE>>=
 fit.map <- dcemri.map(conc, acqtimes, mask, model="extended", 
                       aif="fritz.hansen", ab.ktrans=c(log(0.05),1),
                       ab.kep=c(log(0.7),1), ab.vp=c(1,19),
@@ -936,7 +939,7 @@ Further details can be found in \cite{sch-etal:TMI09}.  The function
 gives not only the fit to the data, but also the deconvolved response
 function in each voxel.
 
-<<RiderNeuroMRI+Spline,eval=TRUE,echo=TRUE>>=
+<<RiderNeuroMRI+Spline,eval=FALSE,echo=TRUE>>=
 mask.spline <- array(FALSE, dim(mask))
 z <- 7
 mask.spline[,,z] <- mask[,,z]
@@ -956,6 +959,8 @@ overlay(as(dynamic[xx,yy,,], "nifti"),
         ifelse(fit.spline$ktrans[xx,yy,] < 0.1, fit.spline$ktrans[xx,yy,], NA),
         z=7, w=11, zlim.x=c(32,512), zlim.y=c(0,0.1), plot.type="single")
 dev.off()
+png(file=paste(paste(perf, "Fp", "spline", sep="_"), "png", sep="."), 
+    width=2*480, height=2*480)
 fit.spline$Fp <- readNIfTI(paste(perf, "Fp","spline", sep="_"))
 overlay(as(dynamic[xx,yy,,], "nifti"), 
         ifelse(fit.spline$Fp[xx,yy,] < 0.15, fit.spline$Fp[xx,yy,], NA),
