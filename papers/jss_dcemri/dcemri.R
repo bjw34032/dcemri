@@ -8,6 +8,7 @@ library("dcemriS4")
 library("bitops")
 library("minpack.lm")
 library("splines")
+## options(niftiAuditTrail=FALSE)
 options(prompt="R> ")
 options(width=76)
 
@@ -149,7 +150,7 @@ for (x in 1:nrow(img)) {
 
 
 ###################################################
-### chunk number 16: RIDER_Neuro_MRI
+### chunk number 16: RIDER_Neuro_MRI+pre1
 ###################################################
 perf <- paste("281949", "19040721", "perfusion", sep="_")
 mask <- readANALYZE(paste(perf, "mask", sep="_"))
@@ -163,112 +164,121 @@ flip <- array(NA, c(dim(dynamic)[1:3], length(fangles)))
 for (fa in 1:length(fangles)) {
   flip[,,,fa] <- readNIfTI(fflip[fa])
 }
-##dynamic <- dynamic[,,5:8,]
-##mask <- mask[,,5:8]
-##flip <- flip[,,5:8,]
-ca <- CA.fast(dynamic, mask, dangle, flip, fangles, TR, verbose=TRUE)
-writeNIfTI(ca$M0, paste(perf, "m0", sep="_"))
-writeNIfTI(ca$R10, paste(perf, "r10", sep="_"))
-writeNIfTI(ca$conc, paste(perf, "gdconc", sep="_"))
-rm(ca)
 
 
 ###################################################
-### chunk number 17: RIDER_Neuro_MRI+lm
+### chunk number 17: RIDER_Neuro_MRI+pre2 eval=FALSE
+###################################################
+## ca <- CA.fast(dynamic, mask, dangle, flip, fangles, TR, verbose=TRUE)
+## writeNIfTI(ca$M0, paste(perf, "m0", sep="_"))
+## writeNIfTI(ca$R10, paste(perf, "r10", sep="_"))
+## writeNIfTI(ca$conc, paste(perf, "gdconc", sep="_"))
+
+
+###################################################
+### chunk number 18: RIDER_Neuro_MRI+lm0
 ###################################################
 acqtimes <- str2time(unique(sort(scan("rawtimes.txt", quiet=TRUE))))$time
 acqtimes <- (acqtimes - acqtimes[9]) / 60 # minutes
 conc <- readNIfTI(paste(perf, "gdconc", sep="_"))
-fit.lm <- dcemri.lm(conc, acqtimes, mask, model="extended", 
-                    aif="fritz.hansen", verbose=TRUE, multicore=TRUE)
-writeNIfTI(fit.lm$ktrans, paste(perf, "ktrans", sep="_"))
 
 
 ###################################################
-### chunk number 18: RIDER_Neuro_MRI+lm2
+### chunk number 19: RIDER_Neuro_MRI+lm1 eval=FALSE
 ###################################################
-writeNIfTI(fit.lm$kep, paste(perf, "kep", sep="_"))
-writeNIfTI(fit.lm$vp, paste(perf, "vp", sep="_"))
-writeNIfTI(fit.lm$ve, paste(perf, "ve", sep="_"))
-writeNIfTI(fit.lm$sse, paste(perf, "sse", sep="_"))
-rm(fit.lm)
+## fit.lm <- dcemri.lm(conc, acqtimes, mask, model="extended", 
+##                     aif="fritz.hansen", verbose=TRUE)
+## writeNIfTI(fit.lm$ktrans, paste(perf, "ktrans", sep="_"))
+
+
+###################################################
+### chunk number 20: RIDER_Neuro_MRI+lm2 eval=FALSE
+###################################################
+## writeNIfTI(fit.lm$kep, paste(perf, "kep", sep="_"))
+## writeNIfTI(fit.lm$vp, paste(perf, "vp", sep="_"))
+## writeNIfTI(fit.lm$ve, paste(perf, "ve", sep="_"))
+## writeNIfTI(fit.lm$sse, paste(perf, "sse", sep="_"))
+## rm(fit.lm)
+
+
+###################################################
+### chunk number 21: RIDER_Neuro_MRI+lm3
+###################################################
 png(file=paste(paste(perf, "ktrans", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
 
 
 ###################################################
-### chunk number 19: RIDER_Neuro_MRI+lm3
+### chunk number 22: RIDER_Neuro_MRI+lm4
 ###################################################
 fit.lm <- list(ktrans=readNIfTI(paste(perf, "ktrans", sep="_")))
 
 
 ###################################################
-### chunk number 20: RIDER_Neuro_MRI+lm4 eval=FALSE
+### chunk number 23: RIDER_Neuro_MRI+lm5
 ###################################################
-## overlay(as(dynamic, "nifti"), 
-##         ifelse(fit.lm$ktrans < 0.1, fit.lm$ktrans, NA),
-##         w=11, zlim.x=c(32,512), zlim.y=c(0,0.1))
+overlay(dynamic, ifelse(fit.lm$ktrans < 0.1, fit.lm$ktrans, NA),
+        w=11, zlim.x=c(32,512), zlim.y=c(0,0.1))
 
 
 ###################################################
-### chunk number 21: RIDER_Neuro_MRI+lm5 eval=FALSE
+### chunk number 24: RIDER_Neuro_MRI+lm6
 ###################################################
-## dev.off()
-## fit.lm$kep <- readNIfTI(paste(perf, "kep", sep="_"))
-## fit.lm$vp <- readNIfTI(paste(perf, "vp", sep="_"))
-## fit.lm$ve <- fit.lm$ktrans / fit.lm$kep
-## fit.lm$sse <- readNIfTI(paste(perf, "sse", sep="_"))
-## xx <- 37:220 ; yy <- 25:208
-## png(file=paste(paste(perf, "kep", sep="_"), "png", sep="."), 
-##     width=480, height=480)
-## overlay(as(dynamic[xx,yy,,], "nifti"), 
-##         ifelse(fit.lm$kep[xx,yy,] < 1.25, fit.lm$kep[xx,yy,], NA),
-##         w=11, z=3, zlim.x=c(32,512), zlim.y=c(0,1.25), plot.type="single")
-## dev.off()
-## png(file=paste(paste(perf, "vp", sep="_"), "png", sep="."), 
-##     width=480, height=480)
-## overlay(as(dynamic[xx,yy,,], "nifti"), 
-##         ifelse(fit.lm$vp[xx,yy,] < 0.3, fit.lm$vp[xx,yy,], NA),
-##         w=11, z=3, zlim.x=c(32,512), zlim.y=c(0,.03), plot.type="single")
-## dev.off()
-## png(file=paste(paste(perf, "ve", sep="_"), "png", sep="."), 
-##     width=480, height=480)
-## overlay(as(dynamic[xx,yy,,], "nifti"), 
-##         ifelse(fit.lm$ve[xx,yy,] < .3, fit.lm$ve[xx,yy,], NA),
-##         w=11, z=3, zlim.x=c(32,512), zlim.y=c(0,.3), plot.type="single")
-## dev.off()
-## png(file=paste(paste(perf, "sse", sep="_"), "png", sep="."), 
-##     width=480, height=480)
-## overlay(as(dynamic[xx,yy,,], "nifti"), 
-##         ifelse(fit.lm$sse[xx,yy,] < .04, fit.lm$sse[xx,yy,], NA),
-##         w=11, z=3, zlim.x=c(32,512), zlim.y=c(0,.04), plot.type="single")
-## dev.off()
+dev.off()
+fit.lm$kep <- readNIfTI(paste(perf, "kep", sep="_"))
+fit.lm$vp <- readNIfTI(paste(perf, "vp", sep="_"))
+fit.lm$ve <- readNIfTI(paste(perf, "ve", sep="_"))
+fit.lm$sse <- readNIfTI(paste(perf, "sse", sep="_"))
+xx <- 41:220
+yy <- 21:220
+png(file=paste(paste(perf, "kep", sep="_"), "png", sep="."), 
+    width=2*480, height=2*480)
+overlay(as(dynamic[xx,yy,,], "nifti"), 
+        ifelse(fit.lm$kep[xx,yy,] < 1.25, fit.lm$kep[xx,yy,], NA),
+        z=7, w=11, zlim.x=c(32,512), zlim.y=c(0,1.25), plot.type="single")
+dev.off()
+png(file=paste(paste(perf, "vp", sep="_"), "png", sep="."), 
+    width=2*480, height=2*480)
+overlay(as(dynamic[xx,yy,,], "nifti"), 
+        ifelse(fit.lm$vp[xx,yy,] < 0.3, fit.lm$vp[xx,yy,], NA),
+        z=7, w=11, zlim.x=c(32,512), zlim.y=c(0,0.03), plot.type="single")
+dev.off()
+png(file=paste(paste(perf, "ve", sep="_"), "png", sep="."), 
+    width=2*480, height=2*480)
+overlay(as(dynamic[xx,yy,,], "nifti"), 
+        ifelse(fit.lm$ve[xx,yy,] < 0.3, fit.lm$ve[xx,yy,], NA),
+        z=7, w=11, zlim.x=c(32,512), zlim.y=c(0,0.3), plot.type="single")
+dev.off()
+png(file=paste(paste(perf, "sse", sep="_"), "png", sep="."), 
+    width=2*480, height=2*480)
+overlay(as(dynamic[xx,yy,,], "nifti"), 
+        ifelse(fit.lm$sse[xx,yy,] < 0.05, fit.lm$sse[xx,yy,], NA),
+        z=7, w=11, zlim.x=c(32,512), zlim.y=c(0,0.05), plot.type="single")
+dev.off()
 
 
 ###################################################
-### chunk number 22: RiderNeuroMRI+map eval=FALSE
+### chunk number 25: RiderNeuroMRI+map1 eval=FALSE
 ###################################################
 ## fit.map <- dcemri.map(conc, acqtimes, mask, model="extended", 
-##                       aif="fritz.hansen", ab.ktrans=c(log(0.05),1), 
-##                       ab.kep=c(log(0.7),1), ab.vp=c(1,19), 
-##                       multicore=TRUE, verbose=FALSE)
+##                       aif="fritz.hansen", ab.ktrans=c(log(0.05),1),
+##                       ab.kep=c(log(0.7),1), ab.vp=c(1,19),
+##                       multicore=TRUE)
 ## writeNIfTI(fit.map$ktrans, paste(perf, "ktrans", "map", sep="_"))
 
 
 ###################################################
-### chunk number 23: RiderNeuroMRI+map2
+### chunk number 26: RiderNeuroMRI+map2
 ###################################################
-rm(fit.map)
 fit.map <- list(ktrans=readNIfTI(paste(perf, "ktrans", "map", sep="_")))
-xx <- 37:220 ; yy <- 25:208
 png(file=paste(paste(perf, "ktrans", "map", sep="_"), "png", sep="."), 
-    width=480, height=480)
+    width=2*480, height=2*480)
 overlay(as(dynamic[xx,yy,,], "nifti"), 
         ifelse(fit.map$ktrans[xx,yy,] < 0.1, fit.map$ktrans[xx,yy,], NA),
-        z=3, w=11, zlim.x=c(32,512), zlim.y=c(0,0.1), plot.type="single")
+        z=7, w=11, zlim.x=c(32,512), zlim.y=c(0,0.1), plot.type="single")
 dev.off()
 png(file=paste(paste(perf, "ktrans", "compare", sep="_"), "png", sep="."), 
-    width=480, height=480)
+    width=2*480, height=2*480)
 plot(fit.lm$ktrans, fit.map$ktrans, xlim=c(0,0.3), ylim=c(0,0.3),
      xlab=expression(paste(K^{trans}, " (Levenberg-Marquardt)")), 
      ylab=expression(paste(K^{trans}, " (Maximum A Posteriori)")), 
@@ -278,7 +288,7 @@ dev.off()
 
 
 ###################################################
-### chunk number 24: RiderNeuroMRI+map3
+### chunk number 27: RiderNeuroMRI+map3
 ###################################################
 x <- apply(mask, 1, sum) != 0
 y <- apply(mask, 2, sum) != 0
@@ -288,155 +298,90 @@ print(c(sum(mask[x,y,]),
 
 
 ###################################################
-### chunk number 25: RiderNeuroMRI+Bayes0 eval=FALSE
+### chunk number 28: RiderNeuroMRI+Bayes0 eval=FALSE
 ###################################################
-## fit.bayes <- dcemri.bayes(conc[x,y,3,], acqtimes, 
-##                           array(TRUE, c(sum(x), sum(y))),
-##                           model="extended", aif="fritz.hansen", 
-##                           multicore=TRUE, verbose=TRUE, samples=TRUE,
-##                           ab.ktrans=c(log(0.05),1), ab.kep=c(log(0.7),1), 
-##                           ab.vp=c(1,19))
-## writeNIfTI(fit.bayes$ktrans, paste(perf, "ktrans","bayes", sep="_"))
-## writeNIfTI(as(apply(fit.bayes$ktrans.samples, 1:2, sd, na.rm=TRUE), "nifti"),
-##            paste(perf, "ktrans","bayes", "sd", sep="_"))
+## fit.bayes <- dcemri.bayes(conc, acqtimes, mask, model="extended", 
+##                           aif="fritz.hansen", ab.ktrans=c(log(0.05),1), 
+##                           ab.kep=c(log(0.7),1), ab.vp=c(1,19),
+##                           multicore=TRUE)
+## writeNIfTI(fit.bayes$ktrans, paste(perf, "ktrans", "bayes", sep="_"))
 
 
 ###################################################
-### chunk number 26: RiderNeuroMRI+Bayes eval=FALSE
+### chunk number 29: RiderNeuroMRI+Bayes1 eval=FALSE
 ###################################################
-mask.bayes <- array(FALSE, dim(mask))
-z <- 7
-mask.bayes[,,z] <- mask[,,z]
-fit.bayes <- dcemri.bayes(conc, acqtimes, mask.bayes, 
-                          model="extended", aif="fritz.hansen", 
-                          #nriters=1000, thin=4, burnin=250,
-                          multicore=FALSE, verbose=TRUE, samples=TRUE,
-                          ab.ktrans=c(log(0.05),1), ab.kep=c(log(0.7),1), 
-                          ab.vp=c(1,19))
-## writeNIfTI(fit.bayes$ktrans, paste(perf, "ktrans","bayes", sep="_"))
-## sd <- apply(fit.bayes$ktrans.samples, 1:3, sd, na.rm=TRUE)
-## as(sd, "nifti") <- fit.bayes$ktrans
-## ##writeNIfTI(as.nifti(apply(fit.bayes$ktrans.samples, 1:2, sd, na.rm=TRUE)),
-## writeNIfTI(sd, paste(perf, "ktrans","bayes", "sd", sep="_"))
+## writeNIfTI(fit.bayes$ktranserror, paste(perf, "ktrans", "bayes", "sd", sep="_"))
+## writeNIfTI(fit.bayes$kep, paste(perf, "kep", "bayes", sep="_"))
+## writeNIfTI(fit.bayes$keperror, paste(perf, "kep","bayes", "sd", sep="_"))
+## rm(fit.bayes)
 
 
 ###################################################
-### chunk number 27: RiderNeuroMRI+Bayes2
+### chunk number 30: RiderNeuroMRI+Bayes2
 ###################################################
-rm(fit.bayes)
 fit.bayes <- list(ktrans=readNIfTI(paste(perf, "ktrans","bayes", sep="_")))
-## ktrans[x,y,3]<-ktrans.bayes #Why doesn't this work?
-for (i in 1:256) {
-  for (j in 1:256) {
-    if(x[i]) {
-      if(y[j]) {
-        ktrans[i,j,2] <- ktrans.bayes[i-min(which(x))+1, j-min(which(y))+1, 1]
-      }
-    }
-  }
-}
 png(file=paste(paste(perf, "ktrans", "bayes", sep="_"), "png", sep="."), 
-    width=480, height=480)
+    width=2*480, height=2*480)
 overlay(as(dynamic[xx,yy,,], "nifti"), 
-        ifelse(ktrans[xx,yy,] < 0.1, ktrans[xx,yy,], NA), 
-        z=3, w=11, zlim.x=c(32,512), zlim.y=c(0,.1), plot.type="single")
+        ifelse(fit.bayes$ktrans[xx,yy,] < 0.1, fit.bayes$ktrans[xx,yy,], NA), 
+        z=7, w=11, zlim.x=c(32,512), zlim.y=c(0,0.1), plot.type="single")
 dev.off()
-fit.bayes$sd <- readNIfTI(paste(perf, "ktrans","bayes","sd", sep="_"))
-sd <- ktrans
-for (i in 1:256) {
-  for (j in 1:256) {
-    if(x[i]) {
-      if(y[j]) {
-        sd[i,j,3] <- fit.bayes$sd[i-min(which(x))+1, j-min(which(y))+1]
-      }
-    }
-  }
-}
+fit.bayes$ktranserror <- readNIfTI(paste(perf, "ktrans","bayes","sd", sep="_"))
 png(file=paste(paste(perf, "ktrans", "bayes", "sd", sep="_"), "png", sep="."), 
-    width=480, height=480)
-overlay(as(dynamic[xx,yy,,], "nifti"), 
-        ifelse(sd[xx,yy,] < 0.005, sd[xx,yy,], NA),
-        z=3, w=11, zlim.x=c(32,512), zlim.y=c(0,0.005), plot.type="single")
+    width=2*480, height=2*480)
+overlay(dynamic[xx,yy,,], 
+        ifelse(fit.bayes$ktranserror[xx,yy,] < 0.0075, fit.bayes$ktranserror[xx,yy,], NA),
+        z=7, w=11, zlim.x=c(32,512), zlim.y=c(0,0.0075), plot.type="single")
 dev.off()
-png(file=paste(paste(perf, "ktrans", "bayes", "sdktrans", sep="_"), 
-      "png", sep="."), width=480, height=480)
+png(file=paste(paste(perf, "ktrans", "bayes", "cv", sep="_"), "png", sep="."), 
+    width=2*480, height=2*480)
 overlay(as(dynamic[xx,yy,,], "nifti"), 
-        ifelse(sd[xx,yy,] / ktrans[xx,yy,] < 0.1, 
-               sd[xx,yy,] / ktrans[xx,yy,], 
-               NA),
-        z=3, w=11, zlim.x=c(32,512), zlim.y=c(0,.1), plot.type="single")
+        ifelse(fit.bayes$ktranserror[xx,yy,] / fit.bayes$ktrans[xx,yy,] < 0.2, 
+               fit.bayes$ktranserror[xx,yy,] / fit.bayes$ktrans[xx,yy,], NA),
+        z=7, w=11, zlim.x=c(32,512), zlim.y=c(0,0.2), plot.type="single")
 dev.off()
 
 
 ###################################################
-### chunk number 28: RiderNeuroMRI+Spline eval=FALSE
+### chunk number 31: RiderNeuroMRI+Spline
 ###################################################
-## fit.spline <- dcemri.spline(conc[x,y,3,-(1:8)], acqtimes[-(1:8)],
-##                             array(TRUE,c(sum(x),sum(y))), 
-##                             model="weinmann", aif="fritz.hansen", 
-##                             ab.tauepsilon=c(1/10,1/1000), 
-##                             ab.hyper=c(0.01,0.01),
-##                             multicore=TRUE, samples=FALSE, nlr=TRUE)
+mask.spline <- array(FALSE, dim(mask))
+z <- 7
+mask.spline[,,z] <- mask[,,z]
+fit.spline <- dcemri.spline(conc[,,,-(1:8)], acqtimes[-(1:8)], mask.spline,
+                            model="weinmann", aif="fritz.hansen", 
+                            ab.tauepsilon=c(1/10,1/1000), 
+                            ab.hyper=c(0.01,0.01), multicore=TRUE, 
+                            nlr=TRUE)
+writeNIfTI(fit.spline$ktrans, paste(perf, "ktrans","spline", sep="_"))
+writeNIfTI(fit.spline$Fp, paste(perf, "Fp","spline", sep="_"))
 
 
 ###################################################
-### chunk number 29: RiderNeuroMRI+Spline2 eval=FALSE
+### chunk number 32: RiderNeuroMRI+Spline2
 ###################################################
-## writeNIfTI(fit.spline$Fp, paste(perf, "Fp","spline", sep="_"))
-## writeNIfTI(fit.spline$ktrans, paste(perf, "ktrans","spline", sep="_"))
+fit.spline <- list(ktrans=readNIfTI(paste(perf, "ktrans","spline", sep="_")))
+png(file=paste(paste(perf, "ktrans", "spline", sep="_"), "png", sep="."), 
+    width=2*480, height=2*480)
+overlay(as(dynamic[xx,yy,,], "nifti"), 
+        ifelse(fit.spline$ktrans[xx,yy,] < 0.1, fit.spline$ktrans[xx,yy,], NA),
+        z=7, w=11, zlim.x=c(32,512), zlim.y=c(0,0.1), plot.type="single")
+dev.off()
+fit.spline$Fp <- readNIfTI(paste(perf, "Fp","spline", sep="_"))
+overlay(as(dynamic[xx,yy,,], "nifti"), 
+        ifelse(fit.spline$Fp[xx,yy,] < 0.15, fit.spline$Fp[xx,yy,], NA),
+        z=7, w=11, zlim.x=c(32,512), zlim.y=c(0,0.15), plot.type="single")
+dev.off()
 
 
 ###################################################
-### chunk number 30: RiderNeuroMRI+Spline2 eval=FALSE
-###################################################
-## fit.spline <- list(ktrans=readNIfTI(paste(perf, "ktrans","spline", sep="_")))
-## ##ktrans <- readNIfTI(paste(perf, "ktrans", sep="_"))
-## mask <- readANALYZE(paste(perf, "mask", sep="_"))
-## mask <- ifelse(mask > 0, TRUE, FALSE)
-## mask <- mask[,,5:10]
-## mask <- apply(mask[,,2],1:2,sum) # huh?
-## x <- apply(mask,1,sum) != 0
-## y <- apply(mask,2,sum) != 0
-## for (i in 1:256) {
-##   for (j in 1:256) {
-##     if(x[i]) {
-##       if(y[j]) {
-##         ktrans[i,j,2] <- ktrans.spline[i-min(which(x))+1, j-min(which(y))+1, 1]
-##       }
-##     }
-##   }
-## }
-## png(file=paste(paste(perf, "ktrans", "spline", sep="_"), "png", sep="."), 
-##     width=480, height=480)
-## overlay(as(dynamic[xx,yy,5:8,], "nifti"), 
-##         ifelse(ktrans[xx,yy,] < 0.1, ktrans[xx,yy,], NA),
-##         z=2, w=11, zlim.x=c(32,512), zlim.y=c(0,0.1), plot.type="single")
-## dev.off()
-## Fp.spline <- readNIfTI(paste(perf, "Fp","spline", sep="_"))
-## Fp <- ktrans
-## for (i in 1:256)for (j in 1:256)if(x[i])if(y[j])ktrans[i,j,2]<-ktrans.spline[i-min(which(x))+1,j-min(which(y))+1,1]
-## png(file=paste(paste(perf, "Fp", "spline", sep="_"), "png", sep="."), 
-##     width=480, height=480)
-## overlay(as(dynamic[xx,yy,5:8,], "nifti"), 
-##         ifelse(Fp[xx,yy,] < 0.15, Fp[xx,yy,], NA),
-##         z=2, w=11, zlim.x=c(32,512), zlim.y=c(0,0.15), plot.type="single")
-## dev.off()
-
-
-###################################################
-### chunk number 31: AuditTrail eval=FALSE
-###################################################
-## print(audit.trail(fit$ktrans))
-
-
-###################################################
-### chunk number 32: AuditTrail
+### chunk number 33: AuditTrail
 ###################################################
 print(audit.trail(fit$ktrans))
 
 
 ###################################################
-### chunk number 33: end eval=FALSE
+### chunk number 34: end eval=FALSE
 ###################################################
 ## options(prompt="R> ")
 
