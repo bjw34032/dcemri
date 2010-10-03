@@ -20,7 +20,7 @@
 %% for pretty printing and a nice hypersummary also set:
 \Plainauthor{Brandon Whitcher, Volker Schmid} %% comma-separated
 \Plaintitle{Quantitative Analysis of Dynamic Contrast-Enhanced and Diffusion-Weighted Magnetic Resonance Imaging for Oncology Studies in R} %% without formatting
-\Shorttitle{DCE-MRI and DW-MRI in \proglang{R}} %% a short title (if necessary)
+\Shorttitle{\pkg{dcemriS4}: DCE-MRI and DW-MRI in \proglang{R}} %% a short title (if necessary)
 
 %% an abstract and keywords
 \Abstract{
@@ -85,7 +85,7 @@ options(width=76)
 %% include your article here, just as usual
 %% Note that you should use the \pkg{}, \proglang{} and \code{} commands.
 
-\section[Introduction]{Introduction}
+\section{Introduction}
 %% Note: If there is markup in \(sub)section, then it has to be escape as above.
 
 Quantitative analysis of perfusion imaging using dynamic
@@ -134,11 +134,11 @@ and application of DCE-MRI.
 Diffusion weighted imaging (DWI) is under rapid development as an
 oncology imaging biomarker \citep{che-etal:diffusion,koh-col:DW-MRI}.
 
-\section[]{Dynamic Contrast-enhanced Magnetic Resonance Imaging}
+\section{Dynamic Contrast-Enhanced Magnetic Resonance Imaging}
 
 \textbf{OUTLINE HIGH-LEVEL OVERVIEW OF DCE-MRI ACQUISITION}
 
-\subsection[]{T1 Relaxation Rate and Contrast Agent Concentration}
+\subsection{T1 Relaxation Rate and Contrast Agent Concentration}
 
 Estimation of the tissue T1 relaxation rate is the first step in
 converting signal intensity, obtained in the dynamic acquisition of
@@ -158,7 +158,7 @@ where $E_{10}=\exp(-\TR{\cdot}R_{10})$, relates the observed signal
 intensity $S(\cdot)$ with the parameters of interest when varying the
 flip angle $\theta$.  Note, the transverse relaxation time of
 $\TR\approx4$~ms is common for clinical acquisitions in practice.  The
-Levenberg-Marquardt (LM) algorithm, provided in \pkg{minpack.lm}
+Levenberg-Marquardt algorithm, provided in \pkg{minpack.lm}
 \citep{minpack.lm}, is applied to estimate the parameters; see the
 discussion by \cite{ahe-etal:levenburg-marquardt}.  It is worthwhile
 to consult known T1 values $(T_{10}=1/R_{10})$ for different tissue
@@ -197,10 +197,10 @@ The function \code{R1.fast} (embedded within \code{CA.fast})
 rearranges the multi-dimensional structure of the multiple flip-angle
 acquisitions into a single matrix, to take advantage of internal
 \proglang{R} functions instead of loops, and calls \code{E10.lm} to
-perform the non-linear regression using the LM algorithm.  The final
-step o fthe conversion of the dynamic signal intensities to contrast
-agent concentration, using the \code{CA.fast} function, is performed
-via
+perform the non-linear regression using the Levenberg-Marquardt
+algorithm.  The final step o fthe conversion of the dynamic signal
+intensities to contrast agent concentration, using the \code{CA.fast}
+function, is performed via
 \begin{equation}\label{eqn:conc}
   C_t(t) = \frac{1}{r_1}\left(\frac{1}{T_1} - \frac{1}{T_{10}}\right),
 \end{equation}
@@ -210,7 +210,7 @@ the spin-lattice relaxation time in the absence of contrast media
 \citep{buc-par:measuring}.  For computational reasons we follow the
 method of \cite{li-etal:improved}.
 
-\subsection[]{Motion Correction and Co-registration}
+\subsection{Motion Correction and Co-registration}
 
 Basic motion correction within an acquisition, and co-registration
 between acquired series, is available using the \code{ftm} function
@@ -472,7 +472,7 @@ legend("topright", c("Simulated AIF", "Estimated AIF"), lwd=2, col=1:2,
 Figure~\ref{fig:fitted-aif} shows both the true AIF and the best
 parametric description using a least-squares fitting criterion.
 
-\subsection[]{Kinetic Parameter Estimation}
+\subsection{Kinetic Parameter Estimation}
 
 The standard Kety model \citep{ket:blood-tissue}, a single-compartment
 model, or the extended Kety model, the standard Kety model with an
@@ -500,14 +500,23 @@ the current version of this software
 \begin{enumerate}
 \item \code{dcemri.lm}: Non-linear regression using non-linear least
   squares (Levenberg-Marquardt optimization),
+\item \code{dcemri.map}: Bayesian \emph{maximum a posteriori} (MAP)
+  estimation using \code{optim}.
 \item \code{dcemri.bayes}: Bayesian estimation using Markov chain
   Monte Carlo (MCMC) \citep{sch-etal:TMI},
-\item \code{dcemri.map}: Bayesian Maximum a Posteriori (MAP) 
-  estimation using \code{optim}.
+\item \code{dcemri.spline}: Non-parametric curve estimation using
+  Bayesian penalized splines \citep{sch-etal:TMI09}.
 \end{enumerate}
+
+\subsubsection{Non-linear Regression}
+
+
+
+\subsubsection{Bayesian Maximum a Posteriori Estimation}
+
 Least-square estimates of the kinetic parameters $(\ktrans,\kep)$,
 also $\vp$ for the extended Kety model, are provided in
-\code{dcemri.lm} and maximum \emph{a posteriori} estimates in
+\code{dcemri.lm} and \emph{maximum a posteriori} (MAP) estimates in
 \code{dcemri.map}.  The function \code{dcemri.bayes} provides the
 posterior median as the summary statistic for $(\ktrans,\kep,\vp)$,
 estimated via Markov chain Monte Carlo (MCMC).  All samples from the
@@ -520,12 +529,16 @@ Using the estimated kinetic parameters, the functions
 estimated contrast agent concentration time curves for the given
 parametric models.
 
+\subsubsection{Bayesian Markov Chain Monte Carlo}
+
 For the Bayesian parametric estimation procedures
 (\code{dcemri.bayes}, \code{dcemri.map}) hyperprior parameters must be
 specified for the prior distributions on the kinetic parameters.
 Following \citet{sch-etal:TMI}, we use Gaussian priors for
 $\log(\ktrans)$ and $\log(\kep)$, a Beta prior for $\vp$, and a Gamma
 prior on the variance of the observation errors.
+
+\subsubsection{Bayesian Penalized Splines}
 
 As alternative to parametric modeling, \code{dcemri.spline} may be
 used to de-convolve and de-noise the contrast agent concentration time
@@ -536,6 +549,8 @@ curve; e.g., a single exponential in case of a \code{"weinmann"}
 model.  The function \code{dcemri.spline} also uses a Bayesian
 approach for estimation, where smoothing hyperpriors must be defined
 and posterior PDFs are computed for all necessary parameters.
+
+\subsubsection{Example using Simulated Data}
 
 Using the simulated breast data from \cite{buc:uncertainty}, we
 illustrate fitting the ``extended Kety'' model to the contrast agent
@@ -561,9 +576,10 @@ except for Series~6 which exhibits rapid changes in contrast agent
 concentration in the first minute of acquisition and, hence, cannot be
 explained by the specified parametric model.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{figure}[!htbp]
 \begin{center}
-<<figure9,fig=TRUE,echo=TRUE>>=
+<<figure9,fig=TRUE,echo=FALSE>>=
 par(mfrow=c(4,4), mar=c(5,4,4,2)/1.25, mex=0.8)
 for (x in 1:nrow(img)) {
   plot(time, img[x,1,1,], ylim=range(img), xlab="Time (minutes)",
@@ -579,8 +595,9 @@ for (x in 1:nrow(img)) {
   model for the AIF and the ``extended Kety'' model.}
 \label{fig:fitted-kinetic}
 \end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection[]{Statistical Inference}
+\subsection{Statistical Inference}
 
 No specific support is provided for hypothesis testing in
 \pkg{dcemriS4}.  We recommend one uses built-in functions in
@@ -596,7 +613,7 @@ Preliminary work has been performed in looking at the joint response
 to treatment of both $\ktrans$ and $\kep$ in DCE-MRI
 \citep{oco-etal:fPCA}.
 
-\section[]{Diffusion Weighted Imaging}
+\section{Diffusion Weighted Imaging}
 
 Diffusion weighted imaging (DWI), also known as diffusion-weighted MRI
 (DW-MRI), is a technique that measures the Brownian motion of water
@@ -607,16 +624,18 @@ direction in three-dimensional space (anisotropic diffusion) relative
 to any particular direction (isotropic diffusion).  Using the
 Stejskal--Tanner equation
 \begin{equation}
-  \frac{S}{S_0} =
-  \exp\left(-\gamma^2G^2\delta^2(\Delta-\delta/3)D\right) =
-  \exp\left(-bD\right),
+  S = S_0 \exp\left(-\gamma^2G^2\delta^2(\Delta-\delta/3)D\right) =
+  S_0 \exp\left(-bD\right),
 \end{equation}
 one may solve for the unknown diffusion to obtain the \emph{apparent
-diffusion coefficient} (ADC) $D$.  For completeness, $S_0$ is the
-signal intensity without the diffusion weighting, $S$ is the signal
-with the gradient applied, $\gamma$ is the gyromagnetic ratio, $G$ is
-the strength of the gradient pulse, $\delta$ is the duration of the
-gradient pulse and $\Delta$ is the time between the two pulses.  The
+  diffusion coefficient} (ADC) $D$.  For completeness, $S_0$ is the
+(unknown) signal intensity without the diffusion weighting, $S$ is the
+observed signal with the gradient applied, $\gamma$ is the
+gyromagnetic ratio, $G$ is the strength of the gradient pulse,
+$\delta$ is the duration of the gradient pulse and $\Delta$ is the
+time between the two pulses.  The micro-parameters
+$(\gamma,G,\Delta,\delta)$ are selected prior to data acquisition and
+may be combined into a single parameter known as the $b$-value.  The
 functions \code{ADC.fast} and \code{adc.lm} perform parameter
 estimation using a similar interface to kinetic parameter estimation
 previously introduced for DCE-MRI.
@@ -633,7 +652,7 @@ via an increase in the ADC values, from cell necrosis and lysis.  A
 decrease in ADC values may be observed directly through tumor
 apoptosis after treatment.
 
-\section[]{The RIDER Neuro MRI Data Repository}
+\section{The RIDER Neuro MRI Data Repository}
 
 The National Biomedical Imaging Archive (NBIA) is a searchable,
 national repository integrating \emph{in vivo} cancer images with
@@ -641,27 +660,32 @@ clinical and genomic data.  The NBIA provides the scientific community
 with public access to DICOM images, image markup, annotations, and
 rich meta data (\url{http://cabig.nci.nih.gov/tools/NCIA}).  
 
-\subsection[]{Dynamic Contrast-Enhanced MRI}
+\url{https://wiki.nci.nih.gov/display/CIP/QIBA+DCE-MRI}
+
+\subsection{Dynamic Contrast-Enhanced MRI}
 
 Functions of the \pkg{oro.nifti} package are utilized to read the
 signal intensity files, in Analyze or NIfTI format, obtained from the
 MRI scanner (after conversion from DICOM).  In this example
-pre-contrast multiple flip angle data are available for estimation of
-contrast agent concentration.  We use \code{CA.fast} to estimate the
-intrinsic relaxation rate $R_10$ and $m_0$ from \eqref{eqn:signal} and
-the contrast agent concentration curve $C_t(t)$ from \eqref{eqn:conc}.
-In order to save computation time and memory, we utilize a binary mask
-with a very limited region-of-interest (ROI).
+pre-contrast multiple flip angle acquisitions are available for
+estimation of contrast agent concentration.  We use \code{CA.fast} to
+estimate the intrinsic relaxation rate $R_10$ and scaling factor $m_0$
+from \eqref{eqn:signal} and the contrast agent concentration curve
+$C_t(t)$ from \eqref{eqn:conc}.  In order to save computation time and
+memory, we utilize a binary mask with a very limited
+region-of-interest (ROI) created in FSLView
+(\url{http://fsl.fmrib.ox.ac.uk/fsl/fslview/}) and saved in Analyze
+format.
 
 <<RIDER_Neuro_MRI+pre1,eval=TRUE,echo=TRUE>>=
 perf <- paste("281949", "19040721", "perfusion", sep="_")
+dynamic <- readNIfTI(perf)
 mask <- readANALYZE(paste(perf, "mask", sep="_"))
 mask <- ifelse(mask > 0, TRUE, FALSE)
-dynamic <- readNIfTI(perf)
 TR <- 4.43 / 1000 # taken from CSV file
 dangle <- 25      # taken from CSV file
-fflip <- list.files(pattern="ax[0-9]")
-fangles <- as.numeric(sub(".*ax([0-9]+).*", "\\1", fflip))
+(fflip <- list.files(pattern="ax[0-9]"))
+(fangles <- as.numeric(sub(".*ax([0-9]+).*", "\\1", fflip)))
 flip <- array(NA, c(dim(dynamic)[1:3], length(fangles)))
 for (fa in 1:length(fangles)) {
   flip[,,,fa] <- readNIfTI(fflip[fa])
@@ -674,14 +698,41 @@ writeNIfTI(ca$R10, paste(perf, "r10", sep="_"))
 writeNIfTI(ca$conc, paste(perf, "gdconc", sep="_"))
 @ 
 
-After estimation of contrast agent concentration curves in each voxel
-we want to fit a kinetic model to these curves.  Here, we use the
-``extended'' Kety model, which includes a vascular compartment.  An
-arterial input function has to be defined, here we use the standard
-AIF, sum of two exponentials, with values taken from
-\cite{tof-ker:measurement}.  A numeric optimization of the least
-square fit using the Levenberg-Marquardt algorithm is provided by
-\code{dcemri.lm()}:
+Note, we have used information in the file names to provide the flip
+angles (\code{fangles}) for input into \code{CA.fast} ensuring that
+the flip angles match the flip-angle array (\code{flip}).  After
+estimating the contrast agent concentration time curve in each voxel
+we fit a compartmental model to obtain estimates of the kinetic
+parameters that describe the simplified biological process of
+perfusion.  Here, the ``extended'' Kety model is used, which includes
+a vascular compartment.  An arterial input function (AIF) must be
+defined in order to complete the compartmental model in
+\eqref{eqn:extendedkety}.  It is relatively striaghtforward to
+estimate such an AIF from contrast agent concentration time curves
+from an appropriate voxel or collection of voxels.  However, for
+simplicity we select a literature-based AIF, the sum of two
+exponentials with values taken from \cite{fri-etal:measurement}, that
+is available for all compartmental model fitting procedures.  
+
+\subsubsection{Non-linear Regression}
+
+A numeric optimization of the least-square criterion, using the
+Levenberg-Marquardt algorithm, is provided by \code{dcemri.lm()} and
+illustrated below.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[!htbp]
+  \begin{center}
+    \includegraphics*[width=0.9\textwidth]{281949_19040721_perfusion_ktrans.png}
+  \end{center}
+  \caption{Statistical images of $\ktrans$ maps for the RIDER Neuro
+    MRI data (slice $z=7$).  Two potential tumors are visible, in the
+    region-of-interest, by enhanced rims of high $\ktrans$ and central
+    cores of low $\ktrans$.  The values of $\ktrans$ are
+    $[0,0.1]\,\text{min}^{-1}$.}
+  \label{fig:perfusion-ktrans}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 <<RIDER_Neuro_MRI+lm0,eval=TRUE,echo=TRUE>>=
 acqtimes <- str2time(unique(sort(scan("rawtimes.txt", quiet=TRUE))))$time
@@ -690,7 +741,7 @@ conc <- readNIfTI(paste(perf, "gdconc", sep="_"))
 @ 
 <<RIDER_Neuro_MRI+lm1,eval=FALSE,echo=TRUE>>=
 fit.lm <- dcemri.lm(conc, acqtimes, mask, model="extended", 
-                    aif="fritz.hansen", verbose=TRUE)
+                    aif="fritz.hansen")
 writeNIfTI(fit.lm$ktrans, paste(perf, "ktrans", sep="_"))
 @ 
 <<RIDER_Neuro_MRI+lm2,eval=FALSE,echo=FALSE>>=
@@ -717,46 +768,41 @@ fit.lm$kep <- readNIfTI(paste(perf, "kep", sep="_"))
 fit.lm$vp <- readNIfTI(paste(perf, "vp", sep="_"))
 fit.lm$ve <- readNIfTI(paste(perf, "ve", sep="_"))
 fit.lm$sse <- readNIfTI(paste(perf, "sse", sep="_"))
-xx <- 41:220
-yy <- 21:220
+x <- 41:220
+y <- 21:220
+png(file=paste(paste(perf, "ktrans7", sep="_"), "png", sep="."), 
+    width=2*480, height=2*480)
+overlay(as(dynamic[x,y,,], "nifti"), 
+        ifelse(fit.lm$ktrans[x,y,] < 0.1, fit.lm$ktrans[x,y,], NA),
+        z=7, w=11, zlim.x=c(32,512), zlim.y=c(0,0.1), plot.type="single")
+dev.off()
 png(file=paste(paste(perf, "kep", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
-overlay(as(dynamic[xx,yy,,], "nifti"), 
-        ifelse(fit.lm$kep[xx,yy,] < 1.25, fit.lm$kep[xx,yy,], NA),
+overlay(as(dynamic[x,y,,], "nifti"), 
+        ifelse(fit.lm$kep[x,y,] < 1.25, fit.lm$kep[x,y,], NA),
         z=7, w=11, zlim.x=c(32,512), zlim.y=c(0,1.25), plot.type="single")
 dev.off()
 png(file=paste(paste(perf, "vp", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
-overlay(as(dynamic[xx,yy,,], "nifti"), 
-        ifelse(fit.lm$vp[xx,yy,] < 0.3, fit.lm$vp[xx,yy,], NA),
+overlay(as(dynamic[x,y,,], "nifti"), 
+        ifelse(fit.lm$vp[x,y,] < 0.3, fit.lm$vp[x,y,], NA),
         z=7, w=11, zlim.x=c(32,512), zlim.y=c(0,0.03), plot.type="single")
 dev.off()
 png(file=paste(paste(perf, "ve", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
-overlay(as(dynamic[xx,yy,,], "nifti"), 
-        ifelse(fit.lm$ve[xx,yy,] < 0.3, fit.lm$ve[xx,yy,], NA),
+overlay(as(dynamic[x,y,,], "nifti"), 
+        ifelse(fit.lm$ve[x,y,] < 0.3, fit.lm$ve[x,y,], NA),
         z=7, w=11, zlim.x=c(32,512), zlim.y=c(0,0.3), plot.type="single")
 dev.off()
 png(file=paste(paste(perf, "sse", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
-overlay(as(dynamic[xx,yy,,], "nifti"), 
-        ifelse(fit.lm$sse[xx,yy,] < 0.05, fit.lm$sse[xx,yy,], NA),
+overlay(as(dynamic[x,y,,], "nifti"), 
+        ifelse(fit.lm$sse[x,y,] < 0.05, fit.lm$sse[x,y,], NA),
         z=7, w=11, zlim.x=c(32,512), zlim.y=c(0,0.05), plot.type="single")
 dev.off()
 @ 
 
-\begin{figure}[!htbp]
-  \begin{center}
-    \includegraphics*[width=0.9\textwidth]{281949_19040721_perfusion_ktrans.png}
-  \end{center}
-  \caption{Statistical images of $\ktrans$ maps for the RIDER Neuro
-    MRI data (slice $z=7$).  Two potential tumors are visible, in the
-    region-of-interest, by enhanced rims of high $\ktrans$ and central
-    cores of low $\ktrans$.  The values of $\ktrans$ are
-    $[0,0.1]\,\text{min}^{-1}$.}
-  \label{fig:perfusion-ktrans}
-\end{figure}
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{figure}[!htbp]
   \begin{center}
   \begin{tabular}{cc}
@@ -768,55 +814,62 @@ dev.off()
     \includegraphics*[width=0.4\textwidth]{281949_19040721_perfusion_sse.png}
     \end{tabular}
   \end{center}
-  \caption{Statistical images, for slice $z=7$, of the RIDER Neuro MRI
-    data using non-linear regression.  $\kep$ is the rate constant
-    between EES and blood plasma (units are
-    $[0,1.25]\,\text{min}^{-1}$).  $v_p$ is the vascular space
-    fraction of plasma, units are $[0,30]\,\text{\%}$.  $v_e$ is the
-    EES space fraction, units $[0,30]\,\text{\%}$.  SSE measures the
-    quality of fit over the tumor region-of-interest, units are
-    $[0,0.05]$.}
+  \caption{Statistical images of the RIDER Neuro MRI data using
+    non-linear regression for slice~$z=7$.  The parameter $\kep$ is
+    the rate constant between EES and blood plasma (units are
+    $[0,1.25]\,\text{min}^{-1}$), $v_p$ is the vascular space fraction
+    of plasma (units are $[0,30]\,\text{\%}$) and $v_e$ is the EES
+    space fraction (units $[0,30]\,\text{\%}$).  The sums-of-squared
+    error (SSE) measures the quality of fit over the tumor
+    region-of-interest (units are $[0,0.05]$).}
   \label{fig:perfusion-parametermaps}
 \end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  
-Fig.~\ref{fig:perfusion-ktrans} shows the estimated $\ktrans$
-parameter maps for four slices.  Two rings of increased $\ktrans$
-values can be identified from the parameter maps, which indicates the
-presence of two tumors.  In both cases $\ktrans$ is nearly zero in the
-center of both rings, indicating that no blood is supplied to the
-probably necrotic core of the tumors.
-Fig.~\ref{fig:perfusion-parametermaps} depicts parameter maps of slice
-$z=7$ (bottom left in Fig.~\ref{fig:perfusion-ktrans}) for the other
-kinetic parameters.  All maps strengthen the finding of two tumors
-with necrotic cores.  For both tumors the fraction of extravascular
-extracellular space (EES) $v_e$ is increased at the rim, which
-indicates that normal tissue was destroyed here.  There is nearly no
-perfusion in the tumors, i.e., low values of $\kep$ and $v_p$,
-indicating necrotic cores.  Fig.~\ref{fig:perfusion-parametermaps}
-shows sum of squared error SSE of the fit to the kinetic model. This
-image can be used as quality check. Here, for example, the region of
-interest covers cerebrospinal fluid, scull, and air, for all of which
-the kinetic model is not appropriate and, hence, SSE is high. However,
-across the healthy and the tumor tissue goodness of fit is nearly
-invariant.
+Figure~\ref{fig:perfusion-ktrans} shows the estimated $\ktrans$
+statistical images in the pre-defined ROI overlayed on the dynamic
+acquisition (for anatomical reference).  Two rings of high $\ktrans$
+values are visually apparent from the statistical images, indicating
+the presence of two tumors.  In both cases $\ktrans$ is nearly zero in
+the center of both rings, indicating that no blood is being supplied
+to the core of the tumors (most likely caused by necrotic or apoptotic
+processes).  Figure~\ref{fig:perfusion-parametermaps} provides
+statistical images that summarize the entire model-fitting procedure
+for slice~$z=7$.  For both tumors the fraction of contast agent in the
+extravascular extracellular space (EES) $v_e$ is high at the tumor
+rim, a common feature in a tumor that is hypervascular compared to the
+surrounding tissue.  The perfusion/permeability is vastly diminished
+in the core of the tumor, exhibited by low values of $\kep$ and $v_p$.
+Goodness-of-fit for the compartmental model may be assessed using the
+sums-of-squared error (SSE).  The SSE over the given ROI covers a
+variety of tissue types; e.g., white matter, gray matter,
+cerebrospinal fluid (CSF), skull and air.  The SSE is high for tissue
+types in which the compartmental model is not appropriate.  In
+contrast, the SSE is nearly spatially invariant across the healthy
+brain tissue and tumor.
 
-As all non-linear regression algorithms, the Levenberg-Marquardt
-algorithm used in \code{dcemri.lm} is not guaranteed to converge and
-is quite susceptible to noise.  More robust results can be achieved by
-using biological prior information in a Bayesian framework
-\citep{sch-etal:TMI}.  Two possibilities to gain parameter estimates
-from a Bayesian model are implemented in \pkg{dcemriS4}. Whereas
-\code{dcemri.bayes} uses a Markov Chain Monte Carlo (MCMC) algorithm
-to explore the posterior PDF, \code{dcemri.map} uses numerical
-optimization in order to maximize the posterior.
+\subsubsection{Bayesian Maximum a Posteriori Estimation}
 
-For neurological DCE-MRI data, $\ktrans$ values are typically roughly
-in the range of $0-0.1$, and $\kep$ values are in the range of
-$0-1.25$ (see above).  Here, we use a Gaussian distribution with mean
-$\log(0.05)$ and variance $1$ on $\log(\ktrans)$, and mean $\log(0.7)$
-and variance $1$ on $\log(\kep)$ as priors.  For $v_p$, we use
-Beta-distribution with $a=1, b=19$, i.e., an a prior expected value of
-0.5.
+Caution must be exercised when using non-linear regression algorithms,
+since the Levenberg-Marquardt algorithm used in \code{dcemri.lm} is
+\emph{not} guaranteed to converge and is highly susceptible to noise.
+More robust results may be achieved by using biologically-relevant
+prior information in a Bayesian framework \citep{sch-etal:TMI}.  Two
+methods for parameter estimation from a Bayesian perspective are
+implemented in \pkg{dcemriS4}.  The function \code{dcemri.bayes} uses
+Markov Chain Monte Carlo (MCMC) to explore the posterior~PDF and
+\code{dcemri.map} uses numerical optimization to maximize the
+posterior \textbf{[reference?]}.
+
+From the non-linear regression analysis of the RIDER~Neuro~MRI data,
+it appears that approximately $\ktrans\in[0,0.1]$ and
+$\kep\in[0,1.25]$ (Figure~\ref{fig:perfusion-ktrans}).  Hence, we use
+a Gaussian distribution with $\mu=\log(0.05)$ and $\sigma^2=1$ on
+$\log(\ktrans)$, and a Gaussian distribution with $\mu=\log(0.7)$ and
+$\sigma^2=1$ on $\log(\kep)$ as priors.  For $\vp$, we use the Beta
+distribution $B(a=1,b=19)$; i.e., the expected value of $\vp$ is
+$E(\vp)=0.5$.  Paramer estimation via \code{dcemri.map} follows a
+consistent user interface established in \code{dcemri.lm}.
 
 <<RiderNeuroMRI+map1,eval=FALSE,echo=TRUE>>=
 fit.map <- dcemri.map(conc, acqtimes, mask, model="extended", 
@@ -829,8 +882,8 @@ writeNIfTI(fit.map$ktrans, paste(perf, "ktrans", "map", sep="_"))
 fit.map <- list(ktrans=readNIfTI(paste(perf, "ktrans", "map", sep="_")))
 png(file=paste(paste(perf, "ktrans", "map", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
-overlay(as(dynamic[xx,yy,,], "nifti"), 
-        ifelse(fit.map$ktrans[xx,yy,] < 0.1, fit.map$ktrans[xx,yy,], NA),
+overlay(as(dynamic[x,y,,], "nifti"), 
+        ifelse(fit.map$ktrans[x,y,] < 0.1, fit.map$ktrans[x,y,], NA),
         z=7, w=11, zlim.x=c(32,512), zlim.y=c(0,0.1), plot.type="single")
 dev.off()
 png(file=paste(paste(perf, "ktrans", "compare", sep="_"), "png", sep="."), 
@@ -843,121 +896,155 @@ abline(0, 1, col="red", lwd=2)
 dev.off()
 @ 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{figure}[!htbp]
-\begin{center}
-  $\ktrans$\\
-  \includegraphics*[width=0.4\textwidth]{281949_19040721_perfusion_ktrans_map.png}
-\end{center}
-  \caption{Maximum a posteriori $\ktrans$ parameter map for slice
-    $z=7$ of the RIDER DCE-MRI data.}
-    \label{fig:perfusion-map}
+  \begin{center}
+    \begin{tabular}{cc}
+      Levenberg-Marquardt & MAP\\
+      \includegraphics*[width=0.4\textwidth]{281949_19040721_perfusion_ktrans7.png}  &
+      \includegraphics*[width=0.4\textwidth]{281949_19040721_perfusion_ktrans_map.png}
+    \end{tabular}
+  \end{center}
+  \caption{Statistical images of $\ktrans$ for the RIDER Neuro MRI
+    data (slice $z=7$).  Two methods for parameter estimation are
+    displayed: non-linear regression using the Levenberg-Marquardt
+    algorithm (left) and \emph{maximum a posteriori} (MAP) estimation
+    (right).  The values of $\ktrans$ are $[0,0.1]\,\text{min}^{-1}$
+    for both images.}
+  \label{fig:perfusion-map}
 \end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Fig.~\ref{fig:perfusion-map} depicts the $\ktrans$ parameter map for
-the central tumor slice of the RIDER example (bottom left slice in
-Fig.~\ref{fig:perfusion-ktrans}) gained by the maximum a posterior
-estimator.  Estimated values are roughly the same as with the
-Levenberg-Marquardt algorithm. However, the estimation is a little bit
-more robust.  Here, by using biological prior information the number
-of voxel where the algorithm did not converge is reduced by a fifth:
+Figure~\ref{fig:perfusion-map} shows the $\ktrans$ statistical image
+for the slice~$z=7$ obtained using the Bayesian~MAP estimator.
+Estimated values are similar to those obtained using non-linear
+regression (reproduced in Figure~\ref{fig:perfusion-map} to facilitate
+a side-by-side comparison).  The estimation is similar, but subtely
+different.  For example, by using a biological prior on the kinetic
+parameters the number of voxels where the MAP estimator does not
+converge is vastly reduced when compared with non-linear regression.
 
 <<RiderNeuroMRI+map3,eval=TRUE,echo=TRUE>>=
-x <- apply(mask, 1, sum) != 0
-y <- apply(mask, 2, sum) != 0
-print(c(sum(mask[x,y,]), 
-        sum(is.na(fit.lm$ktrans[x,y,])),
-        sum(is.na(fit.map$ktrans[x,y,]))))
+sum.lm <- sum(is.na(fit.lm$ktrans[mask]))
+sum.map <- sum(is.na(fit.map$ktrans[mask]))
+100 * c("LM"=sum.lm, "MAP"=sum.map) / sum(mask > 0)
 @ 
 
-Computation times for \code{dcemri.lm} and \code{dcemri.lm} are
-roughly the same.  Using the MCMC algorithm provided by
-\code{dcemri.bayes} is much more computational intensive.  However,
-the MCMC algorithm explores the complete posterior PDF.  Hence, random
-samples of the posteriori PDF are given as a result (with
-\code{samples=TRUE}).  From this, statistics about the reliability of
-the estimated parameters can be gained.  For example, here we use the
-standard deviation of the $\ktrans$ parameter.
+Because we have avoided a computationally expensive procedure, the
+computing times for \code{dcemri.lm} and \code{dcemri.map} are roughly
+the same.  However, the MAP estimator is not a truly Bayesian
+estimation procedure.
 
-<<RiderNeuroMRI+Bayes0,eval=FALSE,echo=TRUE>>=
+\subsubsection{Bayesian Markov Chain Monte Carlo}
+
+Using the MCMC algorithm provided by \code{dcemri.bayes} is
+computationally expensive when compared with all previous estimation
+procedures.  However, the MCMC algorithm explores the complete
+posterior~PDF.  Statistical summaries of the marginal posteriors,
+associated with all parameters of interest, are provided by default
+but all samples from the joint posterior may be obtained using the
+option \code{samples=TRUE} (internal memory may become an issue when
+using this option).  Using samples from the joint posterior,
+additional statistics may be derived from the model-fitting procedure;
+e.g., the reliability of the estimated parameters using credible
+intervals.  The following application of \code{dcemri.bayes} uses the
+default \code{samples=FALSE} and, hence, we are restricted to
+posterior medians and standard deviations for all parameters in the
+comparmental model.
+
+<<RiderNeuroMRI+bayes0,eval=FALSE,echo=TRUE>>=
 fit.bayes <- dcemri.bayes(conc, acqtimes, mask, model="extended", 
                           aif="fritz.hansen", ab.ktrans=c(log(0.05),1), 
                           ab.kep=c(log(0.7),1), ab.vp=c(1,19),
                           multicore=TRUE)
 writeNIfTI(fit.bayes$ktrans, paste(perf, "ktrans", "bayes", sep="_"))
 @ 
-<<RiderNeuroMRI+Bayes1,eval=FALSE,echo=FALSE>>=
+<<RiderNeuroMRI+bayes1,eval=FALSE,echo=FALSE>>=
 writeNIfTI(fit.bayes$ktranserror, paste(perf, "ktrans", "bayes", "sd", sep="_"))
 writeNIfTI(fit.bayes$kep, paste(perf, "kep", "bayes", sep="_"))
 writeNIfTI(fit.bayes$keperror, paste(perf, "kep","bayes", "sd", sep="_"))
 rm(fit.bayes)
 @ 
-<<RiderNeuroMRI+Bayes2,eval=TRUE,echo=FALSE,results=hide>>=
+<<RiderNeuroMRI+bayes2,eval=TRUE,echo=FALSE,results=hide>>=
 fit.bayes <- list(ktrans=readNIfTI(paste(perf, "ktrans","bayes", sep="_")))
 png(file=paste(paste(perf, "ktrans", "bayes", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
-overlay(as(dynamic[xx,yy,,], "nifti"), 
-        ifelse(fit.bayes$ktrans[xx,yy,] < 0.1, fit.bayes$ktrans[xx,yy,], NA), 
+overlay(as(dynamic[x,y,,], "nifti"), 
+        ifelse(fit.bayes$ktrans[x,y,] < 0.1, fit.bayes$ktrans[x,y,], NA), 
         z=7, w=11, zlim.x=c(32,512), zlim.y=c(0,0.1), plot.type="single")
 dev.off()
 fit.bayes$ktranserror <- readNIfTI(paste(perf, "ktrans","bayes","sd", sep="_"))
 png(file=paste(paste(perf, "ktrans", "bayes", "sd", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
-overlay(dynamic[xx,yy,,], 
-        ifelse(fit.bayes$ktranserror[xx,yy,] < 0.0075, fit.bayes$ktranserror[xx,yy,], NA),
+overlay(dynamic[x,y,,], 
+        ifelse(fit.bayes$ktranserror[x,y,] < 0.0075, fit.bayes$ktranserror[x,y,], NA),
         z=7, w=11, zlim.x=c(32,512), zlim.y=c(0,0.0075), plot.type="single")
 dev.off()
 png(file=paste(paste(perf, "ktrans", "bayes", "cv", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
-overlay(as(dynamic[xx,yy,,], "nifti"), 
-        ifelse(fit.bayes$ktranserror[xx,yy,] / fit.bayes$ktrans[xx,yy,] < 0.2, 
-               fit.bayes$ktranserror[xx,yy,] / fit.bayes$ktrans[xx,yy,], NA),
+overlay(as(dynamic[x,y,,], "nifti"), 
+        ifelse(fit.bayes$ktranserror[x,y,] / fit.bayes$ktrans[x,y,] < 0.2, 
+               fit.bayes$ktranserror[x,y,] / fit.bayes$ktrans[x,y,], NA),
         z=7, w=11, zlim.x=c(32,512), zlim.y=c(0,0.2), plot.type="single")
 dev.off()
 @
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{figure}[!htbp]
   \begin{center}
     \begin{tabular}{cc}
-      $\text{median}(\ktrans)$ & $\text{sd}(\ktrans)$\\ 
-      \includegraphics*[width=0.4\textwidth]{281949_19040721_perfusion_ktrans_bayes.png} &
-      \includegraphics*[width=0.4\textwidth]{281949_19040721_perfusion_ktrans_bayes_sd.png}\\
-      $\text{sd}(\ktrans)/\text{median}(\ktrans)$\\
+      MAP & $\text{median}(\ktrans)$\\
+      \includegraphics*[width=0.4\textwidth]{281949_19040721_perfusion_ktrans_map.png}  &
+      \includegraphics*[width=0.4\textwidth]{281949_19040721_perfusion_ktrans_bayes.png}\\
+      $\text{sd}(\ktrans)$ & $\text{sd}(\ktrans)/\text{median}(\ktrans)$\\
+      \includegraphics*[width=0.4\textwidth]{281949_19040721_perfusion_ktrans_bayes_sd.png} &
       \includegraphics*[width=0.4\textwidth]{281949_19040721_perfusion_ktrans_bayes_cv.png}
     \end{tabular}
   \end{center}
-  \caption{Median posterior $\ktrans$ parameter map.  Map of standard
-    deviation of $\ktrans$ posterior distribution.  Map of standard
-    deviation divided by estimated $\ktrans$ value.}
+  \caption{Statistical images of $\ktrans$ for the RIDER~Neuro~MRI
+    data (slice $z=7$) using Bayesian estimation.  The posterior
+    median $\ktrans$, posterior standard deviation of $\ktrans$ and
+    the ratio of these two statistics have been obtained from a fully
+    Bayesian~MCMC algorithm.  The MAP estimator of $\ktrans$ is also
+    diplayed for comparison.  The values of $\ktrans$ are
+    $[0,0.1]\,\text{min}^{-1}$ for both estimation techniques.}
   \label{fig:perfusion-bayes}
 \end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Fig.~\ref{fig:perfusion-bayes} depicts the $\ktrans$ parameter map
-estimated as the median of the marginal $\ktrans$ posterior
-PDF. Please note, that in general the median posterior value is
-different from the maximum a posterior estimator computed by
-\code{dcemri.map}. However, $\ktrans$ values in
-Fig.~\ref{fig:perfusion-bayes} are similar to those estimated by
-\code{dcemri.lm} and \code{dcemri.map}.
-Fig.~\ref{fig:perfusion-bayes} also shows the $\ktrans$ standard
-deviation map and a map of standard deviation divided by estimated
-$\ktrans$ values.  As can be seen from the maps, the standard
-deviation of $\ktrans$ is increased in the area of increased
-$\ktrans$, even after adjusting for the estimated $\ktrans$ value.
-However, in general the standard deviation is quite low, below $0.1$,
-in the area of the tumor.
+Figure~\ref{fig:perfusion-bayes} displays statistical summaries of
+$\ktrans$ (posterior median and standard deviation) provided the
+default settings of \code{dcemri.bayes}.  It is clear that the
+posterior median differs from the MAP~estimator (reproduced in
+Figure~\ref{fig:perfusion-bayes} for a side-by-side comparison) across
+the majority of non-tumor voxels in the ROI.  However, $\ktrans$
+values around the enhancing rim of the tumor are similar across all
+three methods: \code{dcemri.lm}, \code{dcemri.map} and
+\code{dcemri.bayes}.  Figure~\ref{fig:perfusion-bayes} also provides
+the posterior standard deviation of $\ktrans$ and an image of the
+ratio $\text{sd}(\ktrans)/\text{median}(\ktrans)$.  Values of
+$\text{sd}(\ktrans)$ are higher in areas of large $\ktrans$ values,
+even when one adjusts for the estimated $\text{median}(\ktrans)$.
+However, $\text{sd}(\ktrans)$ is quite low overall, usuall less than
+$0.1$, in the tumor ROI.
 
-As alternative to fit a kinetic model, \code{dcemri.spline} allows to
-fit a smooth, non-parametric curve to the data.  Smoothness of the
-curve and fit to the data are controlled by two Gamma priors: the
-prior for the adaptive smoothness parameters (\code{ab.hyper}) and the
-prior for the variance of the observation error
-(\code{ab.tauepsilon}).  A method to compute the onset of contrast
-agent concentration is also implemented in \code{dcemri.spline}.
-Further details can be found in \cite{sch-etal:TMI09}.  The function
-gives not only the fit to the data, but also the deconvolved response
-function in each voxel.
+\subsubsection{Bayesian Penalized Splines}
 
-<<RiderNeuroMRI+Spline,eval=FALSE,echo=TRUE>>=
+As alternative to parametric methods of the biological system, by
+specifying a compartmental model, the function \code{dcemri.spline}
+allows one to fit a non-parametric curve to the data using penalized
+splines \textbf{[reference?]}.  Smoothness of the curve and
+goodness-of-fit to the data are controlled by two Gamma distributions:
+a prior for the adaptive smoothness parameters (\code{ab.hyper}) and a
+prior for the variance of the observational error
+(\code{ab.tauepsilon}).  A automated method to estimate the onset of
+contrast agent (from a bolus injection) is also implemented.  Full
+details on the methodology for Bayesian penalized $P$-splines are
+provided in \cite{sch-etal:TMI09}.  The function \code{dcemri.spline}
+not only provides the fit to the data, but also the deconvolved response
+function in each voxel \textbf{[What do you mean by this?]}.
+
+<<RiderNeuroMRI+spline1,eval=FALSE,echo=TRUE>>=
 mask.spline <- array(FALSE, dim(mask))
 z <- 7
 mask.spline[,,z] <- mask[,,z]
@@ -969,23 +1056,24 @@ fit.spline <- dcemri.spline(conc[,,,-(1:8)], acqtimes[-(1:8)], mask.spline,
 writeNIfTI(fit.spline$ktrans, paste(perf, "ktrans","spline", sep="_"))
 writeNIfTI(fit.spline$Fp, paste(perf, "Fp","spline", sep="_"))
 @ 
-<<RiderNeuroMRI+Spline2,eval=TRUE,echo=FALSE,results=hide>>=
+<<RiderNeuroMRI+spline2,eval=TRUE,echo=FALSE,results=hide>>=
 fit.spline <- list(ktrans=readNIfTI(paste(perf, "ktrans","spline", sep="_")))
 png(file=paste(paste(perf, "ktrans", "spline", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
-overlay(as(dynamic[xx,yy,,], "nifti"), 
-        ifelse(fit.spline$ktrans[xx,yy,] < 0.1, fit.spline$ktrans[xx,yy,], NA),
+overlay(as(dynamic[x,y,,], "nifti"), 
+        ifelse(fit.spline$ktrans[x,y,] < 0.1, fit.spline$ktrans[x,y,], NA),
         z=7, w=11, zlim.x=c(32,512), zlim.y=c(0,0.1), plot.type="single")
 dev.off()
 png(file=paste(paste(perf, "Fp", "spline", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
 fit.spline$Fp <- readNIfTI(paste(perf, "Fp","spline", sep="_"))
-overlay(as(dynamic[xx,yy,,], "nifti"), 
-        ifelse(fit.spline$Fp[xx,yy,] < 0.15, fit.spline$Fp[xx,yy,], NA),
+overlay(as(dynamic[x,y,,], "nifti"), 
+        ifelse(fit.spline$Fp[x,y,] < 0.15, fit.spline$Fp[x,y,], NA),
         z=7, w=11, zlim.x=c(32,512), zlim.y=c(0,0.15), plot.type="single")
 dev.off()
 @
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{figure}[!htbp]
   \begin{center}
     \begin{tabular}{cc}
@@ -994,44 +1082,75 @@ dev.off()
       \includegraphics*[width=0.4\textwidth]{281949_19040721_perfusion_ktrans_spline.png}
     \end{tabular}
   \end{center}
-  \caption{Left: $F_p$ parameter map computed as maximum of the
-    response function after deconvolution using an adaptive Spline
-    fit.  Right: $\ktrans$ parameter map estimated from a response
-    model fit.}
+  \caption{Statistical images of $\ktrans$ for the RIDER~Neuro~MRI
+    data (slice $z=7$) using Bayesian penalized splines.  The
+    parameter $F_p$ (left) is given by the maximum of the response
+    function after deconvolution using an adaptive spline fitting
+    procedure, while the parameter $\ktrans$ (right) is obtained from
+    fitting a response model.}
   \label{fig:perfusion-spline}
 \end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 As a summary statistic the maximum of the response function can be
-used. Fig.~\ref{fig:perfusion-spline} depicts the maximum response
+used.  Figure~\ref{fig:perfusion-spline} depicts the maximum response
 function, i.e., the maximum perfusion $Fp$.  Alternatively, a response
 model can be fitted to the response function (\code{nlr=TRUE}).
-Please note that a sample of the posterior PDF is given for the
+Please note that a sample of the posterior~PDF is given for the
 response function and, hence, a non-linear fit to the response model
 is performed for each response function in the sample.  The
 \code{dcemri.spline} function supports two models, the standard Kety
 model and the adiabatic approximation of tissue homogeneity (AATH)
 \citep{stl-lee:aath}.
 
-Fig.~\ref{fig:perfusion-spline} depicts the maximum perfusion $F_p$
-parameter map for the central tumor slice. Increased perfusion is
-also visible in this map.  Fig.~\ref{fig:perfusion-spline} also shows
+Figure~\ref{fig:perfusion-spline} depicts the maximum perfusion $F_p$
+parameter map for the central tumor slice.  Increased perfusion is
+also visible in this map.  Figure~\ref{fig:perfusion-spline} also shows
 the median $\ktrans$ parameter map estimated from fitting a Kety
 response model to the estimated response function.  Here, compared to
 the results above, $\ktrans$ is slightly increased in top left area of
 the region of interest due to the negligence of the vascular
 compartment in the standard Kety model.
 
-\pkg{dcemriS4} supports the \code{audit.trail} functionality of
-\pkg{oro.nifti}.  Hence, from a parameter map given in NIfTI class, we
-can follow back all steps from parameter estimation to raw signal
+\subsubsection{Audit Trail}
 
-\small
-<<AuditTrail,eval=TRUE,echo=TRUE>>=
-print(audit.trail(fit$ktrans))
+The \pkg{dcemriS4} package supports and enhances the
+\code{audit.trail} functionality of \pkg{oro.nifti}.  Hence, from a
+statistical image that is stored as a \code{nifti} object we can trace
+back all the steps from parameter estimation to uploading the original
+signal intensities (Figure~\ref{fig:audit-trail}).
+
+\begin{figure}[p]
+<<AuditTrail01,eval=TRUE,echo=FALSE>>=
+rm(fit.lm)
+fit.lm <- list(ktrans=readNIfTI(paste(perf, "ktrans", sep="_")))
+@ 
+\tiny
+<<AuditTrail02,eval=TRUE,echo=TRUE>>=
+audit.trail(fit.lm$ktrans)
 @ 
 \normalsize
+\caption{XML-based ``audit trail'' for the estimated $\ktrans$ values
+  obtained using non-linear regression.}
+\label{fig:audit-trail}
+\end{figure}
 
-\subsection[]{Diffusion-Weighted MRI}
+\subsection{Diffusion Weighted Imaging}
+
+The RIDER~Neuro~MRI data repository does not provide DWI acquisitions
+\emph{per se} but a diffusion tensor imaging (DTI) acquisition has
+been performed at each visit.\footnote{The analysis of DTI data is
+  beyond the scope of this article, but the interested reader is
+  pointed to the following references:
+  \citet{Horsfield2002,tof:book}.}  The methodology behind DWI and DTI
+are virtually identical, so we will ignore the extra information
+provide by a DTI acquisition and analyze the non-directional aspects
+of the diffusion process here.  There are 13 data volumes in the DWI
+acquisition: a single T2-weighted image without diffusion weighting
+($b=0$) and 12 volumes with different gradient encodings but the same
+diffusion weighting.  Unfortunately, the exact $b$-value is not known
+for these data so we will use $b=1000$ since it is a common value in
+clinical practice.
 
 <<RIDERNeuroMRI+dwi1,eval=TRUE,echo=TRUE>>=
 tensor <- paste("281949", "19040721", "axtensor", sep="_")
@@ -1053,15 +1172,21 @@ overlay(as(dwi[,,17:20,], "nifti"),
 dev.off()
 @ 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{figure}[!htbp]
   \begin{center}
-      \includegraphics*[width=0.4\textwidth]{281949_19040721_axtensor_D.png}
+      \includegraphics*[width=0.7\textwidth]{281949_19040721_axtensor_D.png}
   \end{center}
-  \caption{}
+  \caption{Statistical images of the apparent diffusion coefficient
+    (ADC) for the RIDER~Neuro~MRI data.  The displayed values of the
+    ADC are $[0.0005,0.003]\,\text{mm$^2$/s}$.}
   \label{fig:tensor}
 \end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section[]{Conclusion}
+\citep{yan-etal:integration}
+
+\section{Conclusion}
 
 
 
