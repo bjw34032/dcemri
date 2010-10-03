@@ -633,17 +633,13 @@ via an increase in the ADC values, from cell necrosis and lysis.  A
 decrease in ADC values may be observed directly through tumor
 apoptosis after treatment.
 
-\section[]{Quantitative T2 Imaging}
-
-
-
 \section[]{The RIDER Neuro MRI Data Repository}
 
 The National Biomedical Imaging Archive (NBIA) is a searchable,
 national repository integrating \emph{in vivo} cancer images with
 clinical and genomic data.  The NBIA provides the scientific community
 with public access to DICOM images, image markup, annotations, and
-rich meta data (\url{http://cabig.nci.nih.gov/tools/NCIA}).
+rich meta data (\url{http://cabig.nci.nih.gov/tools/NCIA}).  
 
 \subsection[]{Dynamic Contrast-Enhanced MRI}
 
@@ -1037,11 +1033,33 @@ print(audit.trail(fit$ktrans))
 
 \subsection[]{Diffusion-Weighted MRI}
 
+<<RIDERNeuroMRI+dwi1,eval=TRUE,echo=TRUE>>=
+tensor <- paste("281949", "19040721", "axtensor", sep="_")
+dwi <- readNIfTI(tensor)
+tmask <- readANALYZE(paste(tensor, "mask", sep="_"))
+tmask <- ifelse(tmask > 0, TRUE, FALSE)
+b <- c(0, rep(1000,12)) # this is a guess!
+fit.adc <- ADC.fast(dwi, b, tmask)
+writeNIfTI(fit.adc$S0, paste(tensor, "S0", sep="_"))
+writeNIfTI(fit.adc$D, paste(tensor, "D", sep="_"))
+@ 
+<<RiderNeuroMRI+dwi2,eval=TRUE,echo=FALSE,results=hide>>=
+fit.adc <- list(D=readNIfTI(paste(tensor, "D", sep="_")))
+png(file=paste(paste(tensor, "D", sep="_"), "png", sep="."), 
+    width=2*480, height=2*480)
+overlay(as(dwi[,,17:20,], "nifti"),
+        ifelse(fit.adc$D[,,17:20] > 0, fit.adc$D[,,17:20], NA),
+        zlim.x=c(32,2515), zlim.y=c(0.0005,0.003))
+dev.off()
+@ 
 
-
-\subsection[]{Quantitative T2 Imaging}
-
-
+\begin{figure}[!htbp]
+  \begin{center}
+      \includegraphics*[width=0.4\textwidth]{281949_19040721_axtensor_D.png}
+  \end{center}
+  \caption{}
+  \label{fig:tensor}
+\end{figure}
 
 \section[]{Conclusion}
 
