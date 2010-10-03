@@ -9,25 +9,48 @@
 \newcommand{\ktrans}{K^\text{trans}}
 \newcommand{\iaugc}[1]{\text{IAUGC}_{#1}}
 \newcommand{\kep}{k_\text{ep}}
+\newcommand{\kepi}{k_\text{ep,i}}
 \newcommand{\vp}{v_\text{p}}
 \newcommand{\TR}{\mathop{\text{TR}}\nolimits}
 
 %% almost as usual
 \author{Brandon Whitcher\\GlaxoSmithKline \And 
         Volker J. Schmid\\Ludwig-Maximilians Universit\"at M\"unchen}
-\title{Quantitative Analysis of Dynamic Contrast-Enhanced and Diffusion-Weighted Magnetic Resonance Imaging for Oncology Studies in \proglang{R}}
+\title{Quantitative Analysis of Dynamic Contrast-Enhanced and Diffusion-Weighted Magnetic Resonance Imaging for Oncology in \proglang{R}}
 
 %% for pretty printing and a nice hypersummary also set:
 \Plainauthor{Brandon Whitcher, Volker Schmid} %% comma-separated
-\Plaintitle{Quantitative Analysis of Dynamic Contrast-Enhanced and Diffusion-Weighted Magnetic Resonance Imaging for Oncology Studies in R} %% without formatting
+\Plaintitle{Quantitative Analysis of Dynamic Contrast-Enhanced and Diffusion-Weighted Magnetic Resonance Imaging for Oncology in R} %% without formatting
 \Shorttitle{\pkg{dcemriS4}: DCE-MRI and DW-MRI in \proglang{R}} %% a short title (if necessary)
 
 %% an abstract and keywords
 \Abstract{
-  The abstract of the article.
+
+The package \pkg{dcemriS4} provides a complete set of data analysis
+tools for a quantitative assessment of dynamic contrast-enhanced MRI
+and diffusion-weighted MRI .  Image processing is provided for the
+Analyze and NIfTI data formats as input with all parameter estimates
+being output in the NIfTI format.  Estimation of T1 relaxation from
+multple flip-angle acquisitions, using either constant or
+spatially-varying flip angles, is performed via nonlinear regression.
+Both literature-based and data-driven arterial input functions are
+available to be combined with a variety of compartmental models.
+Kinetic parameter may be derived using via nonlinear regression,
+Bayesian estimation via Markov Chain Monte Carlo and Bayesian
+\emph{maximum a posteriori} estimation.  A non-parametric model, using
+penalized splines, is also available.  Given the size of
+multi-dimensional data sets commonly acquired in imaging studies, care
+has been taken to maximize computational efficiency and minimize
+memory usage.  All methods are illustrated using both simulated and
+real-world imaging data available in the public domain.
+
 }
-\Keywords{contrast, \pkg{dcemriS4}, diffusion, dynamic, enhanced, imaging, magnetic, resonance}
-\Plainkeywords{contrast, dcemriS4, diffusion, dynamic, enhanced, imaging, magnetic, resonance} %% without formatting
+
+\Keywords{contrast, \pkg{dcemriS4}, diffusion, dynamic, enhanced,
+  imaging, magnetic, resonance}
+
+\Plainkeywords{contrast, dcemriS4, diffusion, dynamic, enhanced,
+  imaging, magnetic, resonance} %% without formatting
 %% at least one keyword must be supplied
 
 %% publication information
@@ -43,11 +66,11 @@
 %% in the following format:
 \Address{
   Brandon Whitcher\\
-  GlaxoSmithKline\\
-  Clinical Imaging Centre\\
+  GlaxoSmithKline Clinical Imaging Centre\\
   Hammersmith Hospital\\
   Du Cane Road\\
-  London W12 0HS, United Kingdom\\
+  London W12 0HS\\
+  United Kingdom\\
   E-mail: \email{bjw34032@users.sourceforge.net}\\
   URL: \url{http://www.dcemri.org/}\\
   
@@ -55,6 +78,7 @@
   Bioimaging group\\
   Department of Statistics\\
   Ludwig-Maximilians Universit\"at M\"unchen\\
+  Germany\\
   E-mail: \email{volker.schmid@lmu.de}\\
   URL: \url{http://volkerschmid.de}
 }
@@ -118,7 +142,7 @@ facilitate interoperability.  As voxel-wise quantitative analysis can
 be time consuming, \pkg{dcemriS4} supports basic parallel computing by
 incorprating the \pkg{multicore} package \citep{multicore}.
 Computations are easily parallelized with the variable
-\code{multicore=TRUE} in most computationally intense functions.
+\code{multicore=TRUE} in the most computationally expensive functions.
 
 While initial application of DCE-MRI was in the characterization of
 blood-brain barrier (BBB) integrity
@@ -129,14 +153,14 @@ reader will find several chapters in \citet{jac-buc-par:dce-mri} and
 \citet{tof:book} pertaining to the scientific background, methodology
 and application of DCE-MRI.
 
-[{\bf Diffusion Weighted Imaging}]
+\textbf{[More on Diffusion Weighted Imaging!!!]}
 
 Diffusion weighted imaging (DWI) is under rapid development as an
 oncology imaging biomarker \citep{che-etal:diffusion,koh-col:DW-MRI}.
 
 \section{Dynamic Contrast-Enhanced Magnetic Resonance Imaging}
 
-\textbf{OUTLINE HIGH-LEVEL OVERVIEW OF DCE-MRI ACQUISITION}
+\textbf{[OUTLINE HIGH-LEVEL OVERVIEW OF DCE-MRI ACQUISITION]}
 
 \subsection{T1 Relaxation Rate and Contrast Agent Concentration}
 
@@ -176,22 +200,6 @@ performed via
 where $\theta\in[10^\circ,30^\circ]$ is common for clinical
 acquisitions and depends on both the field strength of the magnet and
 the anatomy of interest.
-
-% There are a myriad of techniques to quantify T1 using MRI.  Currently
-% curve-fitting methods for two popular acquisition schemes are
-% available
-% \begin{itemize}
-% \item Inversion recovery (\url{www.e-mri.org/mri-sequences/inversion-recovery-stir-flair.html})
-% \item Multiple flip angles \citep{par-pad:DCE-MRI}
-% \end{itemize}
-% Once the tissue T1 relaxation rate has been estimated, the dynamic
-% acquisition is then converted to contrast agent concentration.  Note,
-% the B1 field is assumed to be constant (and accurate) when using
-% multiple flip angles to estimate T1.  At higher fields strengths
-% (e.g., 3T) the B1 field should be estimated in order to correct the
-% prescribed flip angles.
-
-%\subsection{Contrast Agent Concentration}
 
 The function \code{R1.fast} (embedded within \code{CA.fast})
 rearranges the multi-dimensional structure of the multiple flip-angle
@@ -280,30 +288,34 @@ sdam120 <- readNIfTI(system.file(f120, package="dcemriS4"))
 sdam.image <- rowMeans(dam(sdam60, sdam120, 60), dims=3)
 mask <- (rowSums(sdam60, dims=3) > 500)
 @ 
-<<figure5-png,echo=FALSE,results=hide>>=
-png("sdam.png", width=400, height=400)
+<<dam+png,echo=FALSE,results=hide>>=
+png("sdam.png", width=480, height=480)
 @ 
-<<figure5-code>>=
+<<dam+figure>>=
 # A smooth version of "sdam.image"
 fsmooth <- file.path("nifti", "SDAM_smooth.nii.gz")
 SDAM <- readNIfTI(system.file(fsmooth, package="dcemriS4"))
 overlay(sdam120, ifelse(mask, SDAM, NA), z=13, zlim.x=range(sdam120), 
         zlim.y=c(0.5,1.5), plot.type="single")
 @ 
-<<figure5-dev.off,echo=FALSE,results=hide>>=
+<<dam+dev.off,echo=FALSE,results=hide>>=
 dev.off()
 @ 
 
-Isotropic smoothing should be applied before using this field to
-modify flip angles associated with additional acquisitions; e.g., in
-the \pkg{AnalyzeFMRI} package \citep{AnalyzeFMRI}.
-Figure~\ref{fig:sdam+t1-phantom}a is the estimated B1+ field (with
-isotropic Gaussian smoothing) for a gel-based phantom containing a
-variety of T1 relaxation times.  The center of the phantom exhibits a
-flip angle $>60^\circ$ while the flip angle rapidly becomes
-$<60^\circ$ when moving away from the center in either the $x$, $y$ or
-$z$ dimensions.
+Three-dimensional isotropic smoothing should be applied before using
+this field to modify flip angles associated with additional
+acquisitions; e.g., in the \pkg{AnalyzeFMRI} package
+\citep{AnalyzeFMRI}.  Figure~\ref{fig:sdam+t1-phantom}a is the
+estimated B1+ field (with isotropic Gaussian smoothing) for a
+gel-based phantom containing a variety of T1 relaxation times.  The
+center of the phantom exhibits a flip angle $>60^\circ$ while the flip
+angle rapidly becomes $<60^\circ$ when moving away from the center in
+either the $x$, $y$ or $z$ dimensions.  The function \code{overlay} is
+part of the \pkg{oro.nifti} package, additional functions for the
+visualization of Analyze/NIfTI data are \code{image} (overloaded for
+classes \code{nifti} and \code{anlz}) and \code{orthographic}.
   
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{figure}[!htbp]
   \begin{minipage}[b]{0.5\linewidth}
     \centering
@@ -324,23 +336,7 @@ $z$ dimensions.
     seconds.}
   \label{fig:sdam+t1-phantom}
 \end{figure}
-
-%\begin{figure}[!htbp]
-%  \centering
-%  \includegraphics
-%  \caption{Estimated B1+ field (with isotropic Gaussian smoothing)
-%    using the saturated double-angle method.  The colors correspond to
-%    a multiplicative factor relative to the true flip angle
-%    ($60^\circ$).}
-%  \label{fig:sdam}
-%\end{figure}
-%\begin{figure}[!htbp]
-%  \centering
-%  \includegraphics
-%  \caption{Estimated T1 relaxation rates for the phantom data
-%  acquisition.  The colors range from 0-2.5 seconds.}
-%  \label{fig:t1-phantom}
-%\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Assuming the smoothed version of the B1+ field has been computed (in
 the \code{SDAM} object here), multiple flip-angle acquisitions can be
@@ -368,50 +364,60 @@ maskzi <- mask
 maskzi[,,(! 1:Z %in% zi)] <- FALSE
 R1 <- R1.fast(flip, maskzi, fanglesB1, TR, verbose=TRUE)
 @ 
-<<figure6-png,echo=FALSE,results=hide>>=
+<<t1estimation+png,echo=FALSE,results=hide>>=
 png("t1_phantom.png", width=400, height=400)
 @ 
-<<figure6-code>>=
+<<t1estimation+figure>>=
 overlay(vibe, 1/R1$R10[,,1:nsli(vibe)], z=13, zlim.x=c(0,1024), 
         zlim.y=c(0,2.5), plot.type="single")
 @ 
-<<figure6-dev.off,echo=FALSE,results=hide>>=
+<<t1estimation+dev.off,echo=FALSE,results=hide>>=
 dev.off()
 @
 
 Figure~\ref{fig:sdam+t1-phantom}b displays the quantitative T1 map for
 a gel-based phantom using information from the estimated B1+ field.
-By defining regions of interest (ROIs) in
+The horizontal tubes embedded within the phantom cover a range of
+$\text{T1}\in[350,1543]\;\text{ms}$, where shorter T1 relaxation times
+are darker and longer relaxation times are brighter.  By defining
+regions of interest (ROIs) in FSLView we may construct a mask that
+separates voxels belonging to the 10~unique gels.
 
 <<FSLmask>>=
 fpmask <- file.path("nifti", "t1_phantom_mask.nii.gz")
 t1pmask <- readNIfTI(system.file(fpmask, package="dcemriS4"))
-pmask <- nifti(array(t1pmask[,,25], dim(t1pmask))) # repeat slice #25
+pmask <- nifti(array(t1pmask[,,25], dim(t1pmask))) # repeat slice 25
 @ 
-
-\begin{figure}[!htbp]
-\begin{center}
-<<figure7,fig=TRUE,echo=TRUE>>=
-T1 <- c(.484,.350,1.07,.648,.456,1.07,.660,1.543,1.543,.353)
+<<t1estimation+boxplots,echo=FALSE,results=hide>>=
+pdf(file="boxplots.pdf", width=6, height=6)
+T1 <- c(0.484,0.350,1.07,0.648,0.456,1.07,0.660,1.543,1.543,0.353)
 par(mfrow=c(1,1), mar=c(5,4,4,2)+.1)
 boxplot(split(1/drop(R1$R10), as.factor(drop(pmask)))[-1], 
         ylim=c(0,2.5), xlab="Region of Interest", ylab="T1 (seconds)")
 points(1:10, T1, col=rainbow(10), pch=16, cex=2)
+dev.off()
 @ 
-\end{center}
-\caption{Boxplots of the estimated T1 values for the gel-based
-  phantom, grouped by user-specified regions of interest.  True T1
-  values are plotted as colored circles for each distinct ROI.}
-\label{fig:t1-phantom-boxplot}
-\end{figure}
 
-We may compare the ``true'' T1 values for each ROI with those obtained
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[!htbp]
+  \begin{center}
+    \includegraphics*[width=0.65\textwidth]{boxplots.pdf}
+  \end{center}
+  \caption{Boxplots of the estimated T1 values for the gel-based
+    phantom, grouped by user-specified regions of interest.  True
+    T1~values are displayed as colored circles for each distinct ROI.}
+  \label{fig:t1-phantom-boxplot}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+We compare the ``true'' T1 values for each ROI with those obtained
 from acquiring multiple flip angles with the application of B1+
-mapping.  Figure~\ref{fig:t1-phantom-boxplot} compares T1 estimates in
-the 10 ROIs, defined by \code{pmask}, with the true T1 values (large
-circles).  The first seven ROIs correspond to the cylinders that run
-around and through the phantom, clockwise starting from approximately
-one o'clock.  The eighth and ninth ROIs are taken from the main
+mapping in Figure~\ref{fig:t1-phantom-boxplot}.  Boxplots summarize
+the estimated T1~relaxation times, across all voxels in the ROI
+defined by \code{pmask}, with the true T1 values (large circles).  The
+first seven ROIs correspond to the cylinders that run around and
+through the phantom, clockwise starting from approximately one
+o'clock.  The eighth and ninth ROIs are taken from the main
 compartment in the gel phantom; ROI~\#8 is drawn in the middle of the
 phantom while ROI~\#9 is drawn from the outside of the phantom.  The
 final ROI is taken from the central cylinder embedded in the phantom.
@@ -422,8 +428,8 @@ Whereas quantitative PET studies routinely perform arterial
 cannulation on the subject in order to characterize the arterial input
 function (AIF) directly, it has been common to use literature-based
 AIFs in the quantitative analysis of DCE-MRI.  Examples include
-\begin{equation}
-  C_p(t) = D \left( a_1 e^{-m_1t} + a_2 e^{-m_2t} \right),
+\begin{equation}\label{eqn:aif}
+  C_p(t) = D \left(a_1 e^{-m_1t} + a_2 e^{-m_2t}\right),
 \end{equation}
 where $D=0.1\,\text{mmol/kg}$, $a_1=3.99\,\text{kg/l}$,
 $a_2=4.78\,\text{kg/l}$, $m_1=0.144\,\text{min}^{-1}$ and
@@ -448,29 +454,39 @@ The \code{orton.exp.lm} function provides this capability using the
 so-called double-exponential parametric form \code{orton.exp}
 \eqref{eqn:orton}.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[!htbp]
+  \begin{center}
+    \includegraphics*[width=0.65\textwidth]{buckley_aif.pdf}
+  \end{center}
+  \caption{Simulated arterial input function (AIF) from
+    \cite{buc:uncertainty} and the best parametric fit using the
+    sums-of-exponentials model in \cite{ort-etal:efficient}.}
+  \label{fig:fitted-aif}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 <<buckley.aif>>=
 data("buckley")
 aifparams <- with(buckley, orton.exp.lm(time.min, input))
 fit.aif <- with(aifparams, aif.orton.exp(buckley$time.min, AB, muB, AG, muG))
 @
-\begin{figure}[!htbp]
-\begin{center}
-<<figure8,fig=TRUE,echo=TRUE>>=
+<<buckley.aif+figure,echo=FALSE,results=hide>>=
+pdf(file="buckley_aif.pdf", width=6, height=6)
 with(buckley, plot(time.min, input, type="l", lwd=2, xlab="Time (minutes)", 
                    ylab=""))
 with(buckley, lines(time.min, fit.aif, lwd=2, col=2))
 legend("topright", c("Simulated AIF", "Estimated AIF"), lwd=2, col=1:2, 
        bty="n")
+dev.off()
 @ 
-\end{center}
-\caption{Arterial input function (AIF) from \cite{buc:uncertainty} and
-  the best parametric fit, using the exponential model from
-  \cite{ort-etal:efficient}.}
-\label{fig:fitted-aif}
-\end{figure}
 
 Figure~\ref{fig:fitted-aif} shows both the true AIF and the best
-parametric description using a least-squares fitting criterion.
+parametric description using a least-squares fitting criterion.  It is
+apparent from the figure that the sums-of-exponentials model cannot
+match the underlying AIF from the simulated data.  This illustrates an
+inherent difficiency in paramtric models regardless of application --
+the fact that it may not be appropriate to describe the true process.
 
 \subsection{Kinetic Parameter Estimation}
 
@@ -483,10 +499,10 @@ agent concentration time curve at each voxel in the region of interest
 (ROI) is approximated using the convolution of an arterial input
 function (AIF) and the compartmental model; i.e.,
 \begin{eqnarray}
-  C_t(t) &=& \ktrans \left[ C_p(t) \otimes e^{-\kep t}
-    \right], \label{eqn:kety}\\
+  C_t(t) &=& \ktrans \left[ C_p(t) \otimes e^{-\kep t} \right], 
+  \label{eqn:kety}\\
   C_t(t) &=& \vp C_p(t) + \ktrans \left[ C_p(t) \otimes e^{-\kep t}
-    \right]. \label{eqn:extendedkety}
+    \right].  \label{eqn:extendedkety}
 \end{eqnarray}
 The $\ktrans$ parameter represents the volume transfer constant
 between the plasma and the extracellular extravascular space (EES) per
@@ -501,7 +517,7 @@ the current version of this software
 \item \code{dcemri.lm}: Non-linear regression using non-linear least
   squares (Levenberg-Marquardt optimization),
 \item \code{dcemri.map}: Bayesian \emph{maximum a posteriori} (MAP)
-  estimation using \code{optim}.
+  estimation using \code{optim},
 \item \code{dcemri.bayes}: Bayesian estimation using Markov chain
   Monte Carlo (MCMC) \citep{sch-etal:TMI},
 \item \code{dcemri.spline}: Non-parametric curve estimation using
@@ -510,33 +526,112 @@ the current version of this software
 
 \subsubsection{Non-linear Regression}
 
+Least-square estimates of the kinetic parameters $(\ktrans,\kep)$,
+also $\vp$ for the extended Kety model, are provided in
+\code{dcemri.lm}.  In each voxel a nonlinear regression model is
+applied to the contrast agent concentration time curves.  All
+convoluations between compartmental models and AIFs are evaluated
+analytically to increase computational efficiency.  For example,
+the convolution in \eqref{eqn:kety} with the literature-based AIF
+\eqref{eqn:aif} produces the a statistical model that is given by
+\begin{equation}\label{eqn:analytical-convolution}
+  C_t(t) = D \exp(\theta_1) \times \sum_{i=1}^2 \frac{a_i
+    \{\exp(-m_it) - \exp[-\exp(\theta_2)t]\}}{\exp(\theta_2)-m_i} +
+  \epsilon(t),
+\end{equation}
+where $\epsilon(t)$ is the noise error at time $t$.  \textbf{[What the
+    heck are $\theta_1$ and $\theta_2$?]} We assume the expected value
+of the error to be zero; i.e., $E(\epsilon)=0$.  Inference is
+performed by minimizing the sum of squares of the errors
+$\min\sum_t[\epsilon(t)]^2$.  The parameterization $\exp(\theta_1)$ is
+used instead of $\ktrans$, and $\exp(\theta_2)$ instead of $\kep$, to
+ensure positive values for $\ktrans$ and $\kep$.  The parameter $v_e$
+was computed using (\ref{eqn:vie}).
 
+Model parameters are estimated along with their standard errors using
+the Levenberg-Marquardt algorithm \citep{more78}.  Software
+implementation relied upon the \code{nls.lm} function of the
+\pkg{minpack.lm} package.  In the likelihood framework, parameter
+estimates are known to be asymptoticly normal \cite{jennrich69}.
 
 \subsubsection{Bayesian Maximum a Posteriori Estimation}
 
-Least-square estimates of the kinetic parameters $(\ktrans,\kep)$,
-also $\vp$ for the extended Kety model, are provided in
-\code{dcemri.lm} and \emph{maximum a posteriori} (MAP) estimates in
-\code{dcemri.map}.  The function \code{dcemri.bayes} provides the
-posterior median as the summary statistic for $(\ktrans,\kep,\vp)$,
-estimated via Markov chain Monte Carlo (MCMC).  All samples from the
-joint posterior distribution may be saved using the option
-\code{samples=TRUE}, allowing one to interrogate the posterior
-probability density function (PDF) of all parameter estimates.  We
-have found these useful in computing, for example, credible intervals.
-Using the estimated kinetic parameters, the functions
-\code{kineticModel} and \code{orton.exp.lm} may be used to compute the
-estimated contrast agent concentration time curves for the given
-parametric models.
+For the MAP estimation procedure hyperprior parameters must be
+specified for the prior distributions on the kinetic parameters.
+Following \citet{sch-etal:TMI}, we use Gaussian priors for
+$\log(\ktrans)$ and $\log(\kep)$, a Beta prior for $\vp$ and a Gamma
+prior on the variance of the observation errors.
+
+\textbf{[Volker, can you some details similar to the other
+    subsubsections?]}
 
 \subsubsection{Bayesian Markov Chain Monte Carlo}
 
-For the Bayesian parametric estimation procedures
-(\code{dcemri.bayes}, \code{dcemri.map}) hyperprior parameters must be
-specified for the prior distributions on the kinetic parameters.
-Following \citet{sch-etal:TMI}, we use Gaussian priors for
-$\log(\ktrans)$ and $\log(\kep)$, a Beta prior for $\vp$, and a Gamma
-prior on the variance of the observation errors.
+Such a model is described in three stages: the data model, the process
+model and the prior parameters.
+
+\begin{enumerate}
+  \item For the data model we assume a signal-plus-noise model, for
+    the concentration of contrast agent in a single voxel at time
+    point $t$ with additive Gaussian error variance $\sigma^2$, is
+    given by
+    \begin{equation}\label{datamodel}
+      C_t(t) \sim N\left(f(\ktrans,\kep,t),\sigma^2\right).
+    \end{equation}
+    This is the Bayesian analogue to the application of the
+    least-squares fitting method in the non-linear regression
+    approach.
+  \item For the process model we use the single-compartment model
+    described in \eqref{eqn:kety}.  Evaluating the convolution we get
+  \begin{equation}\label{processmodel}
+    f\left(\ktrans,\kep,t\right) = D \ktrans \times \sum_{i=1}^2
+    \frac{a_i [\exp(-m_it) - \exp(-\kep{t})]}{\kep-m_i}.
+  \end{equation}
+  The kinetic parameters $\ktrans$ and $\kep$ are transfer rates and
+  must remain positive.  In addition, reasonable values for both
+  parameters should not exceed values of around $20\,\text{min}^{-1}$
+  \citep{par-etal:mriw}.  Therefore we use Gaussian priors on their
+  logarithmic transforms
+  \begin{eqnarray}
+    \log(\ktrans) &\sim& N(0,1), \label{priorktrans}\\
+    \log(\kep) &\sim& N(0,1). \label{priorkep}
+  \end{eqnarray}
+  Thus, with $99.86\%$ probability \emph{a priori} neither kinetic
+  parameter will exceed $20\,\text{min}^{-1}$.
+\item For the prior parameter, the variance of the observational
+  error, we use a flat inverse Gamma prior
+  \begin{equation}\label{priorsigma}
+    \sigma^2 \sim IG(0.001,0.001),
+  \end{equation}
+  that reflects our lack of prior information.
+\end{enumerate}
+The three stages of the hierarchical model describe our \emph{a
+  priori} knowledge.  To combine this with the observed data and get
+\emph{a posteriori} knowledge, we make use of Bayes' theorem
+\begin{equation}\label{bayestheorem}
+  \pi(\mathbf{h}|\,C_t) = \frac{\pi(\mathbf{h}) ~
+    \ell(C_t\,|\,\mathbf{h})}{\int\pi(\mathbf{h}^*) ~
+    \ell(C_t\,|\,\mathbf{h}^*)},
+\end{equation}
+where $\mathbf{h}=(\ktrans,\kep,\sigma^2)$ denotes the vector of all
+parameters across all voxels, $\pi(\mathbf{h})$ the product of the
+prior PDFs and $\ell(C_t\,|\,\mathbf{h})$ denotes the (Gaussian)
+likelihood function of $C_t(t)$ from \eqref{datamodel}.  The function
+\code{dcemri.bayes} provides the posterior median as the summary
+statistic for $(\ktrans,\kep,\vp)$, along with the posterior standard
+deviation for all statistics, estimated via Markov chain Monte Carlo
+(MCMC) \citep{gil-ric-spi:MCMC}.  All samples from the joint posterior
+distribution may be saved using the option \code{samples=TRUE},
+allowing one to interrogate the posterior probability density function
+(PDF) of all parameter estimates.  To increase computational
+efficiency draws from the posterior distribution are implemented in
+\proglang{C++} and linked to \proglang{R}.  We have found that
+retaining all samples from the joint posterior to be useful when
+wanting to construct, for example, voxel-wise credible intervals on
+the kinetic parameters.  Using the estimated kinetic parameters, the
+functions \code{kineticModel} and \code{orton.exp.lm} may be used to
+compute the estimated contrast agent concentration time curves for the
+given parametric models.
 
 \subsubsection{Bayesian Penalized Splines}
 
@@ -549,6 +644,9 @@ curve; e.g., a single exponential in case of a \code{"weinmann"}
 model.  The function \code{dcemri.spline} also uses a Bayesian
 approach for estimation, where smoothing hyperpriors must be defined
 and posterior PDFs are computed for all necessary parameters.
+
+\textbf{[Volker, can you put the AATH model here and add some details
+    similar to the previous subsubsections?]}
 
 \subsubsection{Example using Simulated Data}
 
@@ -568,18 +666,8 @@ aifparams <- orton.exp.lm(time, aif)
 fit <- dcemri.lm(img, time, mask, model="orton.exp",
                  aif="user", user=aifparams)
 @ 
-
-The 13 unique simulated curves along with the fitted curves from the
-compartmental model are displayed in Figure~\ref{fig:fitted-kinetic}.
-There is decent agreement between the observed and fitted values,
-except for Series~6 which exhibits rapid changes in contrast agent
-concentration in the first minute of acquisition and, hence, cannot be
-explained by the specified parametric model.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{figure}[!htbp]
-\begin{center}
-<<figure9,fig=TRUE,echo=FALSE>>=
+<<buckley.kinetic+figure,echo=FALSE,results=hide>>=
+pdf(file="buckley_kinetic.pdf", width=8, height=8)
 par(mfrow=c(4,4), mar=c(5,4,4,2)/1.25, mex=0.8)
 for (x in 1:nrow(img)) {
   plot(time, img[x,1,1,], ylim=range(img), xlab="Time (minutes)",
@@ -588,12 +676,26 @@ for (x in 1:nrow(img)) {
   lines(time, model.orton.exp(time, aifparams[1:4], kinparams), 
         lwd=1.5, col=2)
 }
+par(mfrow=c(1,1), mar=c(5,4,4,2)+0.1, mex=1)
+dev.off()
 @ 
-\end{center}
-\caption{Simulated signal intensity curves from Buckley (2002), for
-  breast tissue, with the best parametric fit using an exponential
-  model for the AIF and the ``extended Kety'' model.}
-\label{fig:fitted-kinetic}
+
+The 13~unique simulated curves along with the fitted curves from the
+compartmental model are displayed in Figure~\ref{fig:fitted-kinetic}.
+There is decent agreement between the observed and fitted values,
+except for Series~6 which exhibits rapid changes in contrast agent
+concentration in the first minute of acquisition and, hence, cannot be
+explained by the specified parametric model.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[!htbp]
+  \begin{center}
+    \includegraphics*[width=0.75\textwidth]{buckley_kinetic.pdf}
+  \end{center}
+  \caption{Simulated signal intensity curves from Buckley (2002), for
+    breast tissue, with the best parametric fit using an exponential
+    model for the AIF and the ``extended Kety'' model.}
+  \label{fig:fitted-kinetic}
 \end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -677,7 +779,7 @@ region-of-interest (ROI) created in FSLView
 (\url{http://fsl.fmrib.ox.ac.uk/fsl/fslview/}) and saved in Analyze
 format.
 
-<<RIDER_Neuro_MRI+pre1,eval=TRUE,echo=TRUE>>=
+<<RiderNeuroMRI+pre1,eval=TRUE,echo=TRUE>>=
 perf <- paste("281949", "19040721", "perfusion", sep="_")
 dynamic <- readNIfTI(perf)
 mask <- readANALYZE(paste(perf, "mask", sep="_"))
@@ -691,7 +793,7 @@ for (fa in 1:length(fangles)) {
   flip[,,,fa] <- readNIfTI(fflip[fa])
 }
 @ 
-<<RIDER_Neuro_MRI+pre2,eval=FALSE,echo=TRUE>>=
+<<RiderNeuroMRI+pre2,eval=FALSE,echo=TRUE>>=
 ca <- CA.fast(dynamic, mask, dangle, flip, fangles, TR)
 writeNIfTI(ca$M0, paste(perf, "m0", sep="_"))
 writeNIfTI(ca$R10, paste(perf, "r10", sep="_"))
@@ -734,35 +836,35 @@ illustrated below.
 \end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-<<RIDER_Neuro_MRI+lm0,eval=TRUE,echo=TRUE>>=
+<<RiderNeuroMRI+lm0,eval=TRUE,echo=TRUE>>=
 acqtimes <- str2time(unique(sort(scan("rawtimes.txt", quiet=TRUE))))$time
 acqtimes <- (acqtimes - acqtimes[9]) / 60 # minutes
 conc <- readNIfTI(paste(perf, "gdconc", sep="_"))
 @ 
-<<RIDER_Neuro_MRI+lm1,eval=FALSE,echo=TRUE>>=
+<<RiderNeuroMRI+lm1,eval=FALSE,echo=TRUE>>=
 fit.lm <- dcemri.lm(conc, acqtimes, mask, model="extended", 
                     aif="fritz.hansen")
 writeNIfTI(fit.lm$ktrans, paste(perf, "ktrans", sep="_"))
 @ 
-<<RIDER_Neuro_MRI+lm2,eval=FALSE,echo=FALSE>>=
+<<RiderNeuroMRI+lm2,eval=FALSE,echo=FALSE>>=
 writeNIfTI(fit.lm$kep, paste(perf, "kep", sep="_"))
 writeNIfTI(fit.lm$vp, paste(perf, "vp", sep="_"))
 writeNIfTI(fit.lm$ve, paste(perf, "ve", sep="_"))
 writeNIfTI(fit.lm$sse, paste(perf, "sse", sep="_"))
 rm(fit.lm)
 @ 
-<<RIDER_Neuro_MRI+lm3,eval=TRUE,echo=FALSE>>=
+<<RiderNeuroMRI+lm3,eval=TRUE,echo=FALSE>>=
 png(file=paste(paste(perf, "ktrans", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
 @ 
-<<RIDER_Neuro_MRI+lm4,eval=TRUE,echo=FALSE>>=
+<<RiderNeuroMRI+lm4,eval=TRUE,echo=FALSE>>=
 fit.lm <- list(ktrans=readNIfTI(paste(perf, "ktrans", sep="_")))
 @ 
-<<RIDER_Neuro_MRI+lm5,eval=TRUE,echo=TRUE>>=
+<<RiderNeuroMRI+lm5,eval=TRUE,echo=TRUE>>=
 overlay(dynamic, ifelse(fit.lm$ktrans < 0.1, fit.lm$ktrans, NA),
         w=11, zlim.x=c(32,512), zlim.y=c(0,0.1))
 @ 
-<<RIDER_Neuro_MRI+lm6,eval=TRUE,echo=FALSE,results=hide>>=
+<<RiderNeuroMRI+lm6,eval=TRUE,echo=FALSE,results=hide>>=
 dev.off()
 fit.lm$kep <- readNIfTI(paste(perf, "kep", sep="_"))
 fit.lm$vp <- readNIfTI(paste(perf, "vp", sep="_"))
