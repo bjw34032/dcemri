@@ -71,8 +71,8 @@ real-world imaging data available in the public domain.
   Du Cane Road\\
   London W12 0HS\\
   United Kingdom\\
-  E-mail: \email{bjw34032@users.sourceforge.net}\\
-  URL: \url{http://www.dcemri.org/}\\
+  E-mail: \email{b.whitcher@imperial.ac.uk}\\
+  URL: \url{http://www2.imperial.ac.uk/~bwhitche}, \url{http://www.dcemri.org}\\
   
   Volker J. Schmid\\
   Bioimaging group\\
@@ -122,8 +122,8 @@ of the \pkg{dcemriS4} package is to provide the user with a collection
 of functions and subroutines that move experimental data through all
 steps of the data analysis pipeline, using standard data formats (such
 as ANALYZE or NIfTI) that may be visualized and manipulated in
-\proglang{R} and exported for accessibility across a wide variety of
-medical image analysis software packages.
+\proglang{R} \citep{R} and exported for accessibility across a wide
+variety of medical image analysis software packages.
 
 The S4 designation in \pkg{dcemriS4} means that S4 object classes are
 used throughout to ensure efficient and transparent manipulation of
@@ -356,17 +356,19 @@ classes \code{nifti} and \code{anlz}) and \code{orthographic}.
   
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{figure}[!htbp]
-  \begin{tabular}{cc}
-    \includegraphics*[scale=1]{sdam.png} &
-    \includegraphics*[scale=1]{t1_phantom.png}\\
-    \textbf{(a)} & \textbf{(b)}
-  \end{tabular}
+  \begin{center}
+    \begin{tabular}{cc}
+      \includegraphics*[width=0.4\textwidth]{sdam.png} &
+      \includegraphics*[width=0.4\textwidth]{t1_phantom.png}\\
+      \textbf{(a)} & \textbf{(b)}
+    \end{tabular}
+  \end{center}
   \caption{\textbf{(a)} Estimated B1+ field (with isotropic Gaussian
     smoothing) using the saturated double-angle method.  The colors
     correspond to a multiplicative factor relative to the true flip
     angle ($60^\circ$).  \textbf{(b)} Estimated T1 relaxation rates
-    for the phantom data acquisition.  The colors range from 0-2.5
-    seconds.}
+    for the phantom data acquisition.  The colormap covers the range
+    $[0,2.5]\;\text{s}$.}
   \label{fig:sdam+t1-phantom}
 \end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -546,7 +548,7 @@ minute, and $\kep$ is the rate constant between EES and blood plasma.
 The parameter $\vp$ describes the fraction of contrast agent in the
 plasma, while 
 \begin{equation}\label{eqn:vie}
-  v_e = \frac{\ktrans}{\kep}
+  \ve = \frac{\ktrans}{\kep}
 \end{equation}
 is the fraction of the contrast agent in the EES.
 
@@ -585,8 +587,8 @@ parametrization $(\theta_1,\theta_2)$ is used instead of
 $(\ktrans,\kep)$ to ensure positive values for both transfer rates.
 We assume the expected value of the noise term to be zero; i.e.,
 $E(\epsilon)=0$.  Inference is performed by minimizing the sum of
-squares of the observational errors $\min\sum_t[\epsilon(t)]^2$.  The
-parameter $v_e$ is calculated using \eqref{eqn:vie}.
+squares of the observational errors $\min\{\sum_t[\epsilon(t)]^2\}$.
+The parameter $\ve$ is calculated using \eqref{eqn:vie}.
 
 Model parameters are estimated, along with asymptotic standard errors,
 using the Levenberg-Marquardt algorithm \citep{more78} in
@@ -652,9 +654,9 @@ The three stages of the hierarchical model fully specify our \emph{a
   priori} knowledge.  To combine this with the observed data and
 produce \emph{a posteriori} knowledge, we apply Bayes' theorem
 \begin{equation}\label{bayestheorem}
-  \pi(\mathbf{h}|\,C_t) = \frac{\pi(\mathbf{h}) ~
-    \ell(C_t\,|\,\mathbf{h})}{\int\pi(\mathbf{h}^*) ~
-    \ell(C_t\,|\,\mathbf{h}^*)},
+  \pi(\mathbf{h}\,|\,C_t) = \frac{\pi(\mathbf{h}) ~
+    \ell(C_t\,|\,\mathbf{h})}{\int\pi(\mathbf{h}^{\ast}) ~
+    \ell(C_t\,|\,\mathbf{h}^{\ast})},
 \end{equation}
 where $\mathbf{h}=(\ktrans,\kep,\sigma^2)$ denotes the vector of all
 parameters across all voxel, $\pi(\mathbf{h})$ the product of the
@@ -756,9 +758,9 @@ homogeneity model (\code{"AATH"}) with response function
 \begin{equation}
   R(t)=F_p \cdot \left\{
   \begin{array}{ll}
-    E \exp[-(t-T_c)EF_p/v_e] & \text{ for } t\geq T_c,\\
-    0 & \text{ for } t<0,\\
-    1 & \text{ for } 0\leq t< T_c,
+    E \exp\left[-\left(t-T_c\right)EF_p/\ve\right] & \text{for} \quad t \geq T_c,\\
+    0 & \text{for} \quad t < 0,\\
+    1 & \text{for} \quad 0 \leq t < T_c,
   \end{array} \right.
 \end{equation}
 where $T_c$ is the transit time through the capillary, $E$ is the
@@ -766,24 +768,26 @@ extraction fraction and $F_p$ is the mean plasma flow. These parameters
 translate into parameters from the (extended) Kety model as follows
 \begin{eqnarray}
   \ktrans &=& EF_p,\\
-  \kep &=& EF_p/v_e,\\
+  \kep &=& EF_p/\ve,\\
   \vp &=& T_cF_p.
 \end{eqnarray}
-The response model is fitted to each sample of the estimated response
-curve, and median and standard error of the kinetic parameters are provided.
-Samples for kinetic parameters, for the maximum response $F_p$, the onset time $t_0$,
-for response functions, and fitted curves can be provided (\code{samples=TRUE}).
-This algorithm is computationally expensive, and parallel computing can be
-used utilizing the \code{multicore} package.
+The response model is applied to each sample of the estimated response
+curve, and median and standard error of the kinetic parameters are
+provided.  Samples from the posterior density for the kinetic
+parameters, the maximum response $F_p$, the onset time $t_0$, the
+response functions, and the fitted curves are also available
+(\code{samples=TRUE}).  This algorithm is computationally expensive,
+and parallel computing may be accessed using the \code{multicore}
+package (\code{multicore=TRUE}).
 
-\subsubsection{Estimating kinetic curves}
+\subsubsection{Estimating the Kinetic Curves}
 
 Using kinetic parameters estimated with one of the methods above, the
 functions \code{kineticModel} or \code{orton.exp.lm} may be used to
 compute the estimated contrast agent concentration time curves for the
-given parametric models. A list of arrays or NIfTI class elements of
-kinetic parameters can be given to \code{kineticModel} to gain voxel-wise
-estimations of kinetic curves.
+given parametric models.  A list of arrays or \code{nifti} class
+objects of kinetic parameters can be given to \code{kineticModel} to
+produce voxel-wise estimates of the compartmental model.
 
 %\subsubsection{Example using Simulated Data}
 
@@ -842,16 +846,16 @@ estimations of kinetic curves.
 No specific support is provided for hypothesis testing in
 \pkg{dcemriS4}.  We recommend one uses built-in functions in
 \proglang{R} to perform ANOVA (analysis of variance) or mixed-effects
-models based on statistical summaries of the kinetic parameters over
-the ROI on a per subject per visit basis.  An alternative to this
+models based on statistical summaries of the kinetic parameters over a
+given ROI on a per subject per visit basis.  An alternative to this
 traditional approach is to analyze an entire study using a Bayesian
 hierarchical model \citep{sch-etal:hierarchical}, currently under
 development in the software project \pkg{PILFER}
 (\url{http://pilfer.sourceforge.net}).  One may also question the
 rationale for hypothesis testing in only one kinetic parameter.
 Preliminary work has been performed in looking at the joint response
-to treatment of both $\ktrans$ and $\kep$ in DCE-MRI
-\citep{oco-etal:fPCA}.
+to treatment of both $\ktrans$ and $\kep$ in DCE-MRI using functional
+data analysis \citep{oco-etal:fPCA}.
 
 \section{Diffusion Weighted Imaging}
 
@@ -878,11 +882,12 @@ $(\gamma,G,\Delta,\delta)$ are selected prior to data acquisition and
 may be combined into a single parameter known as the $b$-value.  The
 functions \code{ADC.fast} and \code{adc.lm} perform parameter
 estimation using a similar interface to kinetic parameter estimation
-previously introduced for DCE-MRI.
+previously introduced for DCE-MRI with the Levenberg-Marquardt
+algorithm.
 
 The diffusion of water without restrictions is approximately
 $3.0{\times}10^{-3}\;\text{mm}^2/\text{s}$.  Once the ADC is estimated
-in the tumor of interest at baseline, treatment response may be
+in the tissue of interest at baseline, treatment response may be
 assessed at subsequent time points.  The most appropriate timings
 depend on both the type of tumor and treatment regime.  Observing an
 decrease in diffusivity, via a decrease in the ADC values
@@ -890,7 +895,7 @@ post-treatment, may be a result of cell swelling after initial
 chemotherapy or radiotherapy followed by an increase in diffusivity,
 via an increase in the ADC values, from cell necrosis and lysis.  A
 decrease in ADC values may be observed directly through tumor
-apoptosis after treatment.
+apoptosis after treatment.  \citep{che-etal:diffusion,koh-col:DW-MRI}
 
 \section{The RIDER Neuro MRI Data Repository}
 
@@ -898,9 +903,10 @@ The National Biomedical Imaging Archive (NBIA) is a searchable,
 national repository integrating \emph{in vivo} cancer images with
 clinical and genomic data.  The NBIA provides the scientific community
 with public access to DICOM images, image markup, annotations, and
-rich meta data (\url{http://cabig.nci.nih.gov/tools/NCIA}).  
-
-%\url{https://wiki.nci.nih.gov/display/CIP/QIBA+DCE-MRI}
+rich metadata\footnote{\url{http://cabig.nci.nih.gov/tools/NCIA}}.
+The DCE-MRI and DW-MRI data analyzed here were downloaded from the
+``RIDER~Neuro~MRI''
+collection\footnote{\url{http://wiki.nci.nih.gov/display/CIP/RIDER}}.
 
 \subsection{Dynamic Contrast-Enhanced MRI}
 
@@ -962,7 +968,7 @@ illustrated below.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{figure}[!htbp]
   \begin{center}
-    \includegraphics*[width=0.9\textwidth]{281949_19040721_perfusion_ktrans.png}
+    \includegraphics*[width=0.85\textwidth]{281949_19040721_perfusion_ktrans.png}
   \end{center}
   \caption{Statistical images of $\ktrans$ maps for the RIDER Neuro
     MRI data (slices $z=5:9$).  Two potential tumors are visible, in the
@@ -1118,7 +1124,7 @@ fit.map <- dcemri.map(conc, acqtimes, mask, model="extended",
                       multicore=TRUE)
 writeNIfTI(fit.map$ktrans, paste(perf, "ktrans", "map", sep="_"))
 @ 
-<<RiderNeuroMRI+map2,eval=FALSE,echo=FALSE,results=hide>>=
+<<RiderNeuroMRI+map2,echo=FALSE,results=hide>>=
 fit.map <- list(ktrans=readNIfTI(paste(perf, "ktrans", "map", sep="_")))
 png(file=paste(paste(perf, "ktrans", "map", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
@@ -1164,7 +1170,7 @@ different.  For example, by using a biological prior on the kinetic
 parameters the number of voxel where the MAP estimator does not
 converge is vastly reduced when compared with non-linear regression.
 
-<<RiderNeuroMRI+map3,eval=FALSE,echo=TRUE>>=
+<<RiderNeuroMRI+map3>>=
 sum.lm <- sum(is.na(fit.lm$ktrans[mask]))
 sum.map <- sum(is.na(fit.map$ktrans[mask]))
 100 * c("LM"=sum.lm, "MAP"=sum.map) / sum(mask > 0)
@@ -1350,6 +1356,17 @@ compartment in the standard Kety model.
 
 \subsubsection{Audit Trail}
 
+\begin{figure}[!htbp]
+\small
+<<AuditTrail,eval=TRUE,echo=TRUE>>=
+audit.trail(dynamic)
+@ 
+\normalsize
+\caption{XML-based ``audit trail'' for the dynamic acquisition of the
+  RIDER Neuro MRI data.}
+\label{fig:audit-trail}
+\end{figure}
+
 The \pkg{dcemriS4} package supports and enhances the
 \code{audit.trail} functionality of \pkg{oro.nifti}.  Hence, from any
 object that is stored in the \code{nifti} class we can trace back all
@@ -1364,40 +1381,28 @@ package being used, user~ID, date, etc.  Notice that some of these
 properties have changed over time, allowing one to accurately
 reproduce the data processing stream (if necessary).
 
-\begin{figure}[!htbp]
-\small
-<<AuditTrail,eval=TRUE,echo=TRUE>>=
-audit.trail(dynamic)
-@ 
-\normalsize
-\caption{XML-based ``audit trail'' for the dynamic acquisition of the
-  RIDER Neuro MRI data.}
-\label{fig:audit-trail}
-\end{figure}
-
 \subsection{Diffusion Weighted Imaging}
 
 The RIDER~Neuro~MRI data repository does not provide DWI acquisitions
-\emph{per se} but a diffusion tensor imaging (DTI) acquisition has
-been performed at each visit.\footnote{The analysis of DTI data is
-  beyond the scope of this article, but the interested reader is
-  pointed to the following references:
-  \citet{Horsfield2002,tof:book}.}  The methodology behind DWI and DTI
-are virtually identical, so we will ignore the extra information
-provide by a DTI acquisition and analyze the non-directional aspects
-of the diffusion process here.  There are 13 data volumes in the DWI
-acquisition: a single T2-weighted image without diffusion weighting
-($b=0$) and 12 volumes with different gradient encodings but the same
-diffusion weighting.  Unfortunately, the exact $b$-value is not known
-for these data so we will use $b=1000$ since it is a common value in
-clinical practice.
+\emph{per se} but a diffusion tensor imaging (DTI) acquisition was
+performed at each visit.\footnote{The analysis of DTI data is beyond
+  the scope of this article, but the interested reader is pointed to
+  the following references: \citet{Horsfield2002,tof:book}.}  The
+methodology behind DWI and DTI are virtually identical, so we will
+ignore the extra information provide by a DTI acquisition and analyze
+the non-directional aspects of the diffusion process here.  There are
+13 data volumes in the DWI acquisition: a single T2-weighted image
+without diffusion weighting ($b=0$) and 12 volumes with different
+gradient encodings but the same diffusion weighting.  Unfortunately,
+the exact $b$-value is not known for these data so we will use
+$b=1000$ since it is a common value in clinical practice.
 
 <<RIDERNeuroMRI+dwi1>>=
 tensor <- paste("281949", "19040721", "axtensor", sep="_")
-dwi <- readNIfTI(tensor)
+(dwi <- readNIfTI(tensor))
 tmask <- readANALYZE(paste(tensor, "mask", sep="_"))
 tmask <- ifelse(tmask > 0, TRUE, FALSE)
-b <- c(0, rep(1000,12)) # this is a guess!
+b <- c(0, rep(1000, ntim(dwi)-1)) # this is a guess!
 fit.adc <- ADC.fast(dwi, b, tmask)
 writeNIfTI(fit.adc$S0, paste(tensor, "S0", sep="_"))
 writeNIfTI(fit.adc$D, paste(tensor, "D", sep="_"))
@@ -1418,56 +1423,83 @@ dev.off()
       \includegraphics*[width=0.7\textwidth]{281949_19040721_axtensor_D.png}
   \end{center}
   \caption{Statistical images of the apparent diffusion coefficient
-    (ADC) for the RIDER~Neuro~MRI data.  The displayed values of the
-    ADC are $[0.0005,0.003]\,\text{mm$^2$/s}$.}
+    (ADC) values for the RIDER~Neuro~MRI data.  The range of displayed
+    values of the ADC is $[0.0005,0.003]\,\text{mm$^2$/s}$.}
   \label{fig:tensor}
 \end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\citep{yan-etal:integration}
+Given the larger voxel dimensions for the DTI acquisition
+($5\;\text{mm}$ slice thickness), four axial slices with a generous
+ROI were selected for ADC estimation and are displayed in
+Figure~\ref{fig:tensor}.  The range of physical units for the ADC
+values is $[0.0005,0.003]\,\text{mm$^2$/s}$, where high ADC values
+correspond to pure isotrpic diffusion of water molecules in the
+tissue.  Thus, bright areas in the ROI may be found, for example, in
+the ventricles or major blood vessels and to a lesser extent the
+tumor(s).  There appear to be areas of high diffusion in the core of
+each tumor when compared to either the rim of the tumor or ``normal''
+brain tissue (white or grey matter).
+
+The application of DWI to oncology is still a relatively immature
+field and caution should be used when interpreting any results because
+of the indirect nature of MRI data acquisition.  However, numerous
+authors have published on this topic and the interested reader is
+encouraged to look at
+\cite{koh-pad:DW-MRI,yan-etal:integration,pad-etal:neoplasia}.
 
 \section{Summary}
 
-Quantitative analysis of DCE-MRI and DWI data requires a series of
-processing steps, including pre-processing of MR signal, voxel-wise
-curve fitting, and post-processing, i.e., statistical analysis of
-kinetic parameters from a series of scans. The \pkg{dcemriS4} package
-provides a comprehensive set of functions for pre-processing and for
-modeling DCE-MRI and DWI data.
+Quantitative analysis of dynamic contrast-enhanced MRI (DCE-MRI) and
+diffusion-weighted imaging (DWI) data requires a series of processing
+steps, including pre-processing of the MR signal, voxel-wise curve
+fitting, and post-processing (e.g., statistical analysis of kinetic
+parameters from a series of scans).  The \pkg{dcemriS4} package
+provides a comprehensive set of functions for pre-processing and
+parametric models for quantifying DCE-MRI and DWI data.
 
 A (nearly) complete pipeline for the analysis of DCE-MRI and DWI data
-can be established using \proglang{R}.  Raw images from the MR scanner
-are typically provided in DICOM format and can be converted into NIfTI
-format using \pkg{oro.dicom} \citep{oro.dicom}.  Using \pkg{dcemriS4}
-dynamic $T_1$ acquisitions can be converted into voxel-wise contrast
-agent concentration time curves.  A variety of kinetic models and
-models for the arterial input function is provided.  Point estimates
-for kinetic parameters can be achieved in a fast and robust manner
-using either least-squares or maximum a posterior inference, and
-information on the uncertainty in the estimates can be gained from the
-Bayesian MCMC algorithm, e.g., by looking at standard errors, credible
-intervals or even the whole posterior distribution.
+has been established in \proglang{R}.  Acquisitions from the MR
+scanner, assumed to be provided in DICOM format, may be converted to
+the NIfTI format using the \pkg{oro.dicom} and \pkg{oro.nifti}
+packages.  Using \pkg{dcemriS4} dynamic T1-weighted acquisitions are
+converted into contrast agent concentration time curves on a
+voxel-by-voxel basis.  A variety of compartmental models for the
+tissue kinetics, and models for the arterial input function (AIF), are
+avaialble.  Point estimates for kinetic parameters are provided in a
+fast and robust manner using either least-squares or \emph{maximum a
+  posteriori} techniques, and information about the uncertainty in
+these parameter estimates may be obtained from the Bayesian MCMC
+(Markov Chain Monte Carlo) algorithm; e.g., by looking at standard
+errors, credible intervals or the entire posterior distribution.
 
-The \pkg{dcemriS4} package utilizes the \code{NIfTI} class defined in
-the \pkg{oro.nifti} package.  This allows to retain meta information
-stored in an image; e.g., patient ID or scan date, when performing an
-analysis.  In addition, each step in the analysis pipeline can be
-recorded using the audit trail option provided by \pkg{oro.nifti}.
-Hence, results can easily be reproduced and errors in the analysis can
-be found more rapid.
+The \pkg{dcemriS4} package utilizes the \code{nifti} class defined in
+the \pkg{oro.nifti} package.  This allows one to retain metadata
+information stored in the original DICOM data (e.g., patient~ID or the
+scan date) when performing an analysis.  In addition, each step in the
+data analysis pipeline may be recorded using the audit trail
+capability provided by \pkg{oro.nifti}.  Hence, results may be
+reproduced in a strightforward manner and errors in the analysis may
+be identified efficiently.
 
-To our knowledge, \pkg{dcemriS4} is the only freely available software
-package for analysis of DCE-MRI and DWI data \textbf{???}. It is
-available from the \proglang{R} projects CRAN page and from
-\url{http://www.dcemri.org} and is released under BSD license.
+% To our knowledge, \pkg{dcemriS4} is the only freely available software
+% package for analysis of DCE-MRI and DWI data \textbf{???}. 
+The \pkg{dcemriS4} package is availabe from CRAN
+(\url{http://CRAN.R-project.org}) and also from SourceForge
+(\url{http://sourceforge.net/projects/dcemri}) under a BSD license.
+The website \url{http://www.dcemri.org} has been established as a
+convenient front end to the software development project and news
+items are regularly provided on the blog
+\url{http://dcemri.blogspot.com}.
 
 \section*{Acknowledgments}
 
 The authors would like to thank the National Biomedical Imaging
-Archive, the National Cancer Institute, the National Institute of
-Health and all institutions that have contributed medical imaging data
-to the public domain.  VS is supported by the LMU innovative project
-BioMed-S: Analysis and Modelling of Complex Systems.
+Archive (NBIA), the National Cancer Institute (NCI), the National
+Institute of Health (NIH) and all institutions that have contributed
+medical imaging data to the public domain.  VS is supported by the LMU
+innovative project BioMed-S: Analysis and Modelling of Complex
+Systems.
 
 \bibliography{dcemri}
 
