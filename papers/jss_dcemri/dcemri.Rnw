@@ -337,7 +337,7 @@ sdam.image <- rowMeans(dam(sdam60, sdam120, 60), dims=3)
 mask <- (rowSums(sdam60, dims=3) > 500)
 @ 
 <<dam+png,echo=FALSE,results=hide>>=
-png("sdam.png", width=480, height=480)
+png("sdam.png", width=2*480, height=2*480)
 @ 
 <<dam+figure>>=
 # A smooth version of "sdam.image"
@@ -410,7 +410,7 @@ maskzi[,,(! 1:Z %in% zi)] <- FALSE
 R1 <- R1.fast(flip, maskzi, fanglesB1, TR, verbose=TRUE)
 @ 
 <<t1estimation+png,echo=FALSE,results=hide>>=
-png("t1_phantom.png", width=400, height=400)
+png("t1_phantom.png", width=2*480, height=2*480)
 @ 
 <<t1estimation+figure>>=
 overlay(vibe, 1/R1$R10[,,1:nsli(vibe)], z=13, zlim.x=c(0,1024), 
@@ -954,11 +954,12 @@ TR <- 4.43 / 1000 # taken from CSV file
 dangle <- 25      # taken from CSV file
 (fflip <- list.files(pattern="ax[0-9]"))
 (fangles <- as.numeric(sub(".*ax([0-9]+).*", "\\1", fflip)))
-flip <- array(NA, c(256,256,16, length(fangles)))
+flip <- array(NA, c(dim(mask), length(fangles)))
 for (fa in 1:length(fangles)) {
-  flip[,,,fa] <- readNIfTI(fflip[fa])}
+  flip[,,,fa] <- readNIfTI(fflip[fa])
+}
 @ 
-<<RiderNeuroMRI+pre2,eval=FALSE,echo=TRUE>>=
+<<RiderNeuroMRI+pre2,eval=FALSE>>=
 ca <- CA.fast(dynamic, mask, dangle, flip, fangles, TR)
 writeNIfTI(ca$M0, paste(perf, "m0", sep="_"))
 writeNIfTI(ca$R10, paste(perf, "r10", sep="_"))
@@ -1005,14 +1006,14 @@ DICOM data and saved in \code{rawtimes.txt}.
 \end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-<<RiderNeuroMRI+lm0,eval=TRUE,echo=TRUE>>=
+<<RiderNeuroMRI+lm0>>=
 acqtimes <- str2time(unique(sort(scan("rawtimes.txt", quiet=TRUE))))$time
 acqtimes <- (acqtimes - acqtimes[9]) / 60 # minutes
 conc <- readNIfTI(paste(perf, "gdconc", sep="_"))
 @ 
-<<RiderNeuroMRI+lm1,eval=FALSE,echo=TRUE>>=
+<<RiderNeuroMRI+lm1,eval=FALSE>>=
 fit.lm <- dcemri.lm(conc, acqtimes, mask, model="extended", 
-                    aif="fritz.hansen")
+                    aif="fritz.hansen", verbose=TRUE)
 writeNIfTI(fit.lm$ktrans, paste(perf, "ktrans", sep="_"))
 @ 
 <<RiderNeuroMRI+lm2,eval=FALSE,echo=FALSE>>=
@@ -1022,11 +1023,11 @@ writeNIfTI(fit.lm$ve, paste(perf, "ve", sep="_"))
 writeNIfTI(fit.lm$sse, paste(perf, "sse", sep="_"))
 rm(fit.lm)
 @ 
-<<RiderNeuroMRI+lm3,eval=TRUE,echo=FALSE>>=
+<<RiderNeuroMRI+lm3,echo=FALSE>>=
 png(file=paste(paste(perf, "ktrans", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
 @ 
-<<RiderNeuroMRI+lm4,eval=TRUE,echo=FALSE>>=
+<<RiderNeuroMRI+lm4,echo=FALSE>>=
 fit.lm <- list(ktrans=readNIfTI(paste(perf, "ktrans", sep="_")))
 @ 
 <<RiderNeuroMRI+lm5>>=
@@ -1056,7 +1057,7 @@ dev.off()
 png(file=paste(paste(perf, "vp", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
 overlay(as(dynamic[x,y,,], "nifti"), 
-        ifelse(fit.lm$vp[x,y,] < 0.3, fit.lm$vp[x,y,], NA),
+        ifelse(fit.lm$vp[x,y,] < 0.03, fit.lm$vp[x,y,], NA),
         z=7, w=11, zlim.x=c(32,512), zlim.y=c(0,0.03), plot.type="single")
 dev.off()
 png(file=paste(paste(perf, "ve", sep="_"), "png", sep="."), 
@@ -1224,7 +1225,7 @@ default \code{samples=FALSE} and, hence, we are restricted to
 posterior medians and standard deviations for all parameters in the
 compartmental model.
 
-<<RiderNeuroMRI+bayes0,eval=FALSE,echo=TRUE>>=
+<<RiderNeuroMRI+bayes0,eval=FALSE>>=
 fit.bayes <- dcemri.bayes(conc, acqtimes, mask, model="extended", 
                           aif="fritz.hansen", ab.ktrans=c(log(0.05),1), 
                           ab.kep=c(log(0.7),1), ab.vp=c(1,19),
@@ -1390,7 +1391,7 @@ standard Kety model.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{figure}[tbp]
 \small
-<<AuditTrail,eval=TRUE,echo=TRUE>>=
+<<AuditTrail>>=
 audit.trail(dynamic)
 @ 
 \normalsize
