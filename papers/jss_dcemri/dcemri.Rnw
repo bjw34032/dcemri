@@ -948,11 +948,11 @@ saved in ANALYZE format.
 
 <<RiderNeuroMRI+pre0>>=
 perf <- paste("281949", "19040721", "perfusion", sep="_")
-@ 
-<<RiderNeuroMRI+pre1,eval=FALSE>>=
-dynamic <- readNIfTI(perf)
 mask <- readANALYZE(paste(perf, "mask", sep="_"))
 mask <- ifelse(mask > 0, TRUE, FALSE)
+dynamic <- readNIfTI(perf)
+@ 
+<<RiderNeuroMRI+pre1,eval=FALSE>>=
 TR <- 4.43 / 1000 # taken from CSV file
 dangle <- 25      # taken from CSV file
 (fflip <- list.files(pattern="ax[0-9]"))
@@ -998,7 +998,7 @@ DICOM data and saved in \code{rawtimes.txt}.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{figure}[tbp]
   \begin{center}
-    \includegraphics*[width=0.85\textwidth]{281949_19040721_perfusion_ktrans.png}
+    \includegraphics*[width=0.9\textwidth]{281949_19040721_perfusion_ktrans.png}
   \end{center}
   \caption{Statistical images of $\ktrans$ overlayed on the dynamic
     acquisition for the RIDER~Neuro~MRI data.  Two potential tumors
@@ -1026,20 +1026,20 @@ writeNIfTI(fit.lm$ve, paste(perf, "ve", sep="_"))
 writeNIfTI(fit.lm$sse, paste(perf, "sse", sep="_"))
 rm(fit.lm)
 @ 
-<<RiderNeuroMRI+lm3,eval=FALSE,echo=FALSE>>=
-png(file=paste(paste(perf, "ktrans", sep="_"), "png", sep="."), 
-    width=2*480, height=2*480)
-@ 
-<<RiderNeuroMRI+lm4,echo=FALSE>>=
+<<RiderNeuroMRI+lm3,echo=FALSE>>=
 fit.lm <- list(ktrans=readNIfTI(paste(perf, "ktrans", sep="_")))
 x <- 41:220
 y <- 21:220
 @ 
-<<RiderNeuroMRI+lm5,eval=FALSE>>=
-overlay(dynamic, ifelse(fit.lm$ktrans < 0.1, fit.lm$ktrans, NA),
-        w=11, zlim.x=c(32,512), zlim.y=c(0,0.1))
+<<RiderNeuroMRI+lm4,echo=FALSE>>=
+png(file=paste(paste(perf, "ktrans", sep="_"), "png", sep="."), 
+    width=2*480, height=2*480)
 @ 
-<<RiderNeuroMRI+lm6,eval=FALSE,echo=FALSE,results=hide>>=
+<<RiderNeuroMRI+lm5>>=
+overlay(dynamic, ifelse(mask, fit.lm$ktrans, NA), w=11, zlim.x=c(32,512), 
+        zlim.y=c(0,0.1))
+@ 
+<<RiderNeuroMRI+lm6,echo=FALSE,results=hide>>=
 dev.off()
 fit.lm$kep <- readNIfTI(paste(perf, "kep", sep="_"))
 fit.lm$vp <- readNIfTI(paste(perf, "vp", sep="_"))
@@ -1048,31 +1048,28 @@ fit.lm$sse <- readNIfTI(paste(perf, "sse", sep="_"))
 png(file=paste(paste(perf, "ktrans7", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
 overlay(as(dynamic[x,y,,], "nifti"), 
-        ifelse(fit.lm$ktrans[x,y,] < 0.1, fit.lm$ktrans[x,y,], NA),
-        z=7, w=11, zlim.x=c(32,512), zlim.y=c(0,0.1), plot.type="single")
+        ifelse(mask[x,y,], fit.lm$ktrans[x,y,], NA), z=7, w=11, 
+        zlim.x=c(32,512), zlim.y=c(0,0.1), plot.type="single")
 dev.off()
 png(file=paste(paste(perf, "kep", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
 overlay(as(dynamic[x,y,,], "nifti"), 
-        ifelse(fit.lm$kep[x,y,] < 1.25, fit.lm$kep[x,y,], NA),
-        z=7, w=11, zlim.x=c(32,512), zlim.y=c(0,1.25), plot.type="single")
+        ifelse(mask[x,y,], fit.lm$kep[x,y,], NA), z=7, w=11, 
+        zlim.x=c(32,512), zlim.y=c(0,1.25), plot.type="single")
 dev.off()
 png(file=paste(paste(perf, "vp", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
-overlay(as(dynamic[x,y,,], "nifti"), 
-        ifelse(fit.lm$vp[x,y,] < 0.03, fit.lm$vp[x,y,], NA),
+overlay(as(dynamic[x,y,,], "nifti"), ifelse(mask[x,y,], fit.lm$vp[x,y,], NA),
         z=7, w=11, zlim.x=c(32,512), zlim.y=c(0,0.03), plot.type="single")
 dev.off()
 png(file=paste(paste(perf, "ve", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
-overlay(as(dynamic[x,y,,], "nifti"), 
-        ifelse(fit.lm$ve[x,y,] < 0.3, fit.lm$ve[x,y,], NA),
+overlay(as(dynamic[x,y,,], "nifti"), ifelse(mask[x,y,], fit.lm$ve[x,y,], NA),
         z=7, w=11, zlim.x=c(32,512), zlim.y=c(0,0.3), plot.type="single")
 dev.off()
 png(file=paste(paste(perf, "sse", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
-overlay(as(dynamic[x,y,,], "nifti"), 
-        ifelse(fit.lm$sse[x,y,] < 0.05, fit.lm$sse[x,y,], NA),
+overlay(as(dynamic[x,y,,], "nifti"), ifelse(mask[x,y,], fit.lm$sse[x,y,], NA),
         z=7, w=11, zlim.x=c(32,512), zlim.y=c(0,0.05), plot.type="single")
 dev.off()
 @ 
@@ -1154,12 +1151,18 @@ fit.map <- dcemri.map(conc, acqtimes, mask, model="extended",
                       multicore=TRUE)
 writeNIfTI(fit.map$ktrans, paste(perf, "ktrans", "map", sep="_"))
 @ 
-<<RiderNeuroMRI+map2,echo=FALSE,results=hide>>=
+<<RiderNeuroMRI+map2,eval=FALSE,echo=FALSE>>=
+writeNIfTI(fit.map$kep, paste(perf, "kep", "map", sep="_"))
+writeNIfTI(fit.map$ve, paste(perf, "ve", "map", sep="_"))
+writeNIfTI(fit.map$vp, paste(perf, "vp", "map", sep="_"))
+writeNIfTI(fit.map$sigma2, paste(perf, "sigma2", "map", sep="_"))
+@ 
+<<RiderNeuroMRI+map3,echo=FALSE,results=hide>>=
 fit.map <- list(ktrans=readNIfTI(paste(perf, "ktrans", "map", sep="_")))
 png(file=paste(paste(perf, "ktrans", "map", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
 overlay(as(dynamic[x,y,,], "nifti"), 
-        ifelse(fit.map$ktrans[x,y,] < 0.1, fit.map$ktrans[x,y,], NA),
+        ifelse(mask[x,y,], fit.map$ktrans[x,y,], NA),
         z=7, w=11, zlim.x=c(32,512), zlim.y=c(0,0.1), plot.type="single")
 dev.off()
 pdf(file=paste(paste(perf, "ktrans", "compare", sep="_"), "pdf", sep="."), 
@@ -1198,7 +1201,8 @@ regression (reproduced in Figure~\ref{fig:perfusion-map} to facilitate
 a side-by-side comparison).  The estimation is similar, but subtly
 different.  For example, by using a biological prior on the kinetic
 parameters the number of voxel where the MAP estimator does not
-converge is vastly reduced when compared with non-linear regression.
+converge is essentially eliminated when compared with non-linear
+regression.
 
 <<RiderNeuroMRI+map3>>=
 sum.lm <- sum(is.na(fit.lm$ktrans[mask]))
@@ -1209,7 +1213,7 @@ sum.map <- sum(is.na(fit.map$ktrans[mask]))
 Because we have avoided a computationally expensive procedure, the
 computing times for \code{dcemri.lm} and \code{dcemri.map} are roughly
 the same.  However, the MAP estimator does not make use of the
-complete joint posterior pdf.
+complete joint posterior~PDF.
 
 \subsubsection{Bayesian Estimation via Markov Chain Monte Carlo}
 
@@ -1228,39 +1232,41 @@ default \code{samples=FALSE} and, hence, we are restricted to
 posterior medians and standard deviations for all parameters in the
 compartmental model.
 
-<<RiderNeuroMRI+bayes0,eval=FALSE>>=
+<<RiderNeuroMRI+bayes1,eval=FALSE>>=
 fit.bayes <- dcemri.bayes(conc, acqtimes, mask, model="extended", 
                           aif="fritz.hansen", ab.ktrans=c(log(0.05),1), 
                           ab.kep=c(log(0.7),1), ab.vp=c(1,19),
                           multicore=TRUE)
 writeNIfTI(fit.bayes$ktrans, paste(perf, "ktrans", "bayes", sep="_"))
 @ 
-<<RiderNeuroMRI+bayes1,eval=FALSE,echo=FALSE>>=
+<<RiderNeuroMRI+bayes2,eval=FALSE,echo=FALSE>>=
 writeNIfTI(fit.bayes$ktranserror, paste(perf, "ktrans", "bayes", "sd", sep="_"))
 writeNIfTI(fit.bayes$kep, paste(perf, "kep", "bayes", sep="_"))
 writeNIfTI(fit.bayes$keperror, paste(perf, "kep","bayes", "sd", sep="_"))
+writeNIfTI(fit.bayes$ve, paste(perf, "ve", "bayes", sep="_"))
+writeNIfTI(fit.bayes$vp, paste(perf, "vp", "bayes", sep="_"))
+writeNIfTI(fit.bayes$vperror, paste(perf, "vp","bayes", "sd", sep="_"))
 rm(fit.bayes)
 @ 
-<<RiderNeuroMRI+bayes2,eval=TRUE,echo=FALSE,results=hide>>=
+<<RiderNeuroMRI+bayes3,eval=TRUE,echo=FALSE,results=hide>>=
 fit.bayes <- list(ktrans=readNIfTI(paste(perf, "ktrans","bayes", sep="_")))
 png(file=paste(paste(perf, "ktrans", "bayes", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
 overlay(as(dynamic[x,y,,], "nifti"), 
-        ifelse(fit.bayes$ktrans[x,y,] < 0.1, fit.bayes$ktrans[x,y,], NA), 
-        z=7, w=11, zlim.x=c(32,512), zlim.y=c(0,0.1), plot.type="single")
+        ifelse(mask[x,y,], fit.bayes$ktrans[x,y,], NA), z=7, w=11, 
+        zlim.x=c(32,512), zlim.y=c(0,0.1), plot.type="single")
 dev.off()
 fit.bayes$ktranserror <- readNIfTI(paste(perf, "ktrans","bayes","sd", sep="_"))
 png(file=paste(paste(perf, "ktrans", "bayes", "sd", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
-overlay(dynamic[x,y,,], 
-        ifelse(fit.bayes$ktranserror[x,y,] < 0.0075, fit.bayes$ktranserror[x,y,], NA),
-        z=7, w=11, zlim.x=c(32,512), zlim.y=c(0,0.0075), plot.type="single")
+overlay(as(dynamic[x,y,,], "nifti"), 
+        ifelse(mask[x,y,], fit.bayes$ktranserror[x,y,], NA), z=7, w=11, 
+        zlim.x=c(32,512), zlim.y=c(0,0.0075), plot.type="single")
 dev.off()
 png(file=paste(paste(perf, "ktrans", "bayes", "cv", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
 overlay(as(dynamic[x,y,,], "nifti"), 
-        ifelse(fit.bayes$ktranserror[x,y,] / fit.bayes$ktrans[x,y,] < 0.2, 
-               fit.bayes$ktranserror[x,y,] / fit.bayes$ktrans[x,y,], NA),
+        ifelse(mask[x,y,], (fit.bayes$ktranserror/fit.bayes$ktrans)[x,y,], NA),
         z=7, w=11, zlim.x=c(32,512), zlim.y=c(0,0.2), plot.type="single")
 dev.off()
 @
@@ -1333,15 +1339,15 @@ fit.spline <- list(ktrans=readNIfTI(paste(perf, "ktrans","spline", sep="_")))
 png(file=paste(paste(perf, "ktrans", "spline", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
 overlay(as(dynamic[x,y,,], "nifti"), 
-        ifelse(fit.spline$ktrans[x,y,] < 0.1, fit.spline$ktrans[x,y,], NA),
-        z=7, w=11, zlim.x=c(32,512), zlim.y=c(0,0.1), plot.type="single")
+        ifelse(mask[x,y,], fit.spline$ktrans[x,y,], NA), z=7, w=11, 
+        zlim.x=c(32,512), zlim.y=c(0,0.1), plot.type="single")
 dev.off()
 png(file=paste(paste(perf, "Fp", "spline", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
 fit.spline$Fp <- readNIfTI(paste(perf, "Fp","spline", sep="_"))
 overlay(as(dynamic[x,y,,], "nifti"), 
-        ifelse(fit.spline$Fp[x,y,] < 0.2, fit.spline$Fp[x,y,], NA),
-        z=7, w=11, zlim.x=c(32,512), zlim.y=c(0,0.2), plot.type="single")
+        ifelse(mask[x,y,], fit.spline$Fp[x,y,], NA), z=7, w=11, 
+        zlim.x=c(32,512), zlim.y=c(0,0.2), plot.type="single")
 dev.off()
 @
 
@@ -1349,7 +1355,7 @@ dev.off()
 \begin{figure}[tbp]
   \begin{center}
     \begin{tabular}{cc}
-      $F_p$ & $\ktrans$ \\
+      $F_p$ & $\ktrans$\\
       \includegraphics*[width=0.4\textwidth]{281949_19040721_perfusion_Fp_spline.png}&
       \includegraphics*[width=0.4\textwidth]{281949_19040721_perfusion_ktrans_spline.png}
     \end{tabular}
@@ -1360,8 +1366,8 @@ dev.off()
     function after deconvolution using an adaptive spline fitting
     procedure, while the parameter $\ktrans$ (right) is obtained from
     fitting a response model.  The units of $F_p$ are
-    $[0,0.2]\,\text{min}^{-1}$ and the units of $\ktrans$ are
-    $[0,0.1]\,\text{min}^{-1}$.}
+    $[0,0.2]\;\text{min}^{-1}$ and the units of $\ktrans$ are
+    $[0,0.1]\;\text{min}^{-1}$.}
   \label{fig:perfusion-spline}
 \end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1452,8 +1458,8 @@ fit.adc <- list(D=readNIfTI(paste(tensor, "D", sep="_")))
 png(file=paste(paste(tensor, "D", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
 overlay(as(dwi[,,17:20,], "nifti"),
-        ifelse(fit.adc$D[,,17:20] > 0, fit.adc$D[,,17:20], NA),
-        zlim.x=c(32,2048), zlim.y=c(0.0005,0.003))
+        ifelse(tmask[,,17:20], fit.adc$D[,,17:20], NA), zlim.x=c(32,2048), 
+        zlim.y=c(0.0005,0.003))
 dev.off()
 @ 
 
