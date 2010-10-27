@@ -5,7 +5,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \usepackage{amsmath}
-
 \newcommand{\ktrans}{K^\text{trans}}
 \newcommand{\iaugc}[1]{\text{IAUGC}_{#1}}
 \newcommand{\kep}{k_\text{ep}}
@@ -21,7 +20,7 @@
 %% for pretty printing and a nice hypersummary also set:
 \Plainauthor{Brandon Whitcher, Volker Schmid} %% comma-separated
 \Plaintitle{Quantitative Analysis of Dynamic Contrast-Enhanced and Diffusion-Weighted Magnetic Resonance Imaging for Oncology in R} %% without formatting
-\Shorttitle{\pkg{dcemriS4}: DCE-MRI and DW-MRI in \proglang{R}} %% a short title (if necessary)
+\Shorttitle{\pkg{dcemriS4}: Analysis of DCE-MRI and DW-MRI in \proglang{R}} %% a short title (if necessary)
 
 %% an abstract and keywords
 \Abstract{
@@ -1035,11 +1034,11 @@ y <- 21:220
 png(file=paste(paste(perf, "ktrans", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
 @ 
-<<RiderNeuroMRI+lm5>>=
+<<RiderNeuroMRI+lm5,eval=FALSE>>=
 overlay(dynamic, ifelse(mask, fit.lm$ktrans, NA), w=11, zlim.x=c(32,512), 
         zlim.y=c(0,0.1))
 @ 
-<<RiderNeuroMRI+lm6,echo=FALSE,results=hide>>=
+<<RiderNeuroMRI+lm6,eval=FALSE,echo=FALSE,results=hide>>=
 dev.off()
 fit.lm$kep <- readNIfTI(paste(perf, "kep", sep="_"))
 fit.lm$vp <- readNIfTI(paste(perf, "vp", sep="_"))
@@ -1157,8 +1156,9 @@ writeNIfTI(fit.map$ve, paste(perf, "ve", "map", sep="_"))
 writeNIfTI(fit.map$vp, paste(perf, "vp", "map", sep="_"))
 writeNIfTI(fit.map$sigma2, paste(perf, "sigma2", "map", sep="_"))
 @ 
-<<RiderNeuroMRI+map3,echo=FALSE,results=hide>>=
+<<RiderNeuroMRI+map3,echo=FALSE>>=
 fit.map <- list(ktrans=readNIfTI(paste(perf, "ktrans", "map", sep="_")))
+<<RiderNeuroMRI+map4,eval=FALSE,echo=FALSE,results=hide>>=
 png(file=paste(paste(perf, "ktrans", "map", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
 overlay(as(dynamic[x,y,,], "nifti"), 
@@ -1204,7 +1204,7 @@ parameters the number of voxel where the MAP estimator does not
 converge is essentially eliminated when compared with non-linear
 regression.
 
-<<RiderNeuroMRI+map3>>=
+<<RiderNeuroMRI+lm-versus-map>>=
 sum.lm <- sum(is.na(fit.lm$ktrans[mask]))
 sum.map <- sum(is.na(fit.map$ktrans[mask]))
 100 * c("LM"=sum.lm, "MAP"=sum.map) / sum(mask > 0)
@@ -1235,8 +1235,7 @@ compartmental model.
 <<RiderNeuroMRI+bayes1,eval=FALSE>>=
 fit.bayes <- dcemri.bayes(conc, acqtimes, mask, model="extended", 
                           aif="fritz.hansen", ab.ktrans=c(log(0.05),1), 
-                          ab.kep=c(log(0.7),1), ab.vp=c(1,19),
-                          multicore=TRUE)
+                          ab.kep=c(log(0.7),1), ab.vp=c(1,19)) #, multicore=TRUE)
 writeNIfTI(fit.bayes$ktrans, paste(perf, "ktrans", "bayes", sep="_"))
 @ 
 <<RiderNeuroMRI+bayes2,eval=FALSE,echo=FALSE>>=
@@ -1248,7 +1247,7 @@ writeNIfTI(fit.bayes$vp, paste(perf, "vp", "bayes", sep="_"))
 writeNIfTI(fit.bayes$vperror, paste(perf, "vp","bayes", "sd", sep="_"))
 rm(fit.bayes)
 @ 
-<<RiderNeuroMRI+bayes3,eval=TRUE,echo=FALSE,results=hide>>=
+<<RiderNeuroMRI+bayes3,eval=FALSE,echo=FALSE,results=hide>>=
 fit.bayes <- list(ktrans=readNIfTI(paste(perf, "ktrans","bayes", sep="_")))
 png(file=paste(paste(perf, "ktrans", "bayes", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
@@ -1395,35 +1394,6 @@ $\ktrans$ is slightly increased in top left area of the region of
 interest due to the negligence of the vascular compartment in the
 standard Kety model.
 
-\subsubsection{Audit Trail}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{figure}[tbp]
-\small
-<<AuditTrail>>=
-audit.trail(dynamic)
-@ 
-\normalsize
-\caption{XML-based ``audit trail'' for the dynamic acquisition of the
-  RIDER Neuro MRI data.}
-\label{fig:audit-trail}
-\end{figure}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-The \pkg{dcemriS4} package supports and enhances the
-\code{audit.trail} functionality of \pkg{oro.nifti}.  Hence, from any
-object that is stored in the \code{nifti} class we can trace back all
-the operations that have been performed on it.
-Figure~\ref{fig:audit-trail} displays the audit trail for the
-multi-dimensional array that holds the dynamic acquisition (in raw
-signal intensities).  The three main blocks of activity are
-\code{<created>}, \code{<saved>} and \code{<read>}.  In each block
-pertinent information has been recorded; such as the function call,
-version of \proglang{R} being used, version of the \pkg{oro.nifti}
-package being used, user~ID, date, etc.  Notice that some of these
-properties have changed over time, allowing one to accurately
-reproduce the data processing stream (if necessary).
-
 \subsection{Diffusion Weighted Imaging}
 
 The RIDER~Neuro~MRI data repository does not provide DWI acquisitions
@@ -1494,6 +1464,38 @@ authors have published on this topic and the interested reader is
 encouraged to look at
 \cite{koh-pad:DW-MRI,yan-etal:integration,pad-etal:neoplasia}.
 
+\subsubsection{Audit Trail}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[tbp]
+\small
+<<AuditTrail>>=
+audit.trail(dwi)
+@ 
+\normalsize
+\caption{XML-based ``audit trail'' for the diffusion-weighted
+  acquisition of the RIDER~Neuro~MRI data.}
+\label{fig:audit-trail}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The \pkg{dcemriS4} package supports and enhances the
+\code{audit.trail} functionality of \pkg{oro.nifti}.  Hence, from any
+object that is stored in the \code{nifti} class we can trace back all
+the operations that have been performed on it.
+Figure~\ref{fig:audit-trail} displays the audit trail for the
+multi-dimensional array that holds the diffusion-weighted acquisition
+(in raw signal intensities).  The main blocks of activity are
+\code{<created>}, \code{<saved>}, \code{<read>} and \code{<event>}.
+The first two tags occurred during the initial DICOM-to-NIfTI
+conversion process and the last three tags were performed when
+compiling this Sweave document.  In each block pertinent information
+has been recorded; such as the function call, version of \proglang{R}
+being used, version of the \pkg{oro.nifti} package being used,
+user~ID, date, etc.  Notice that some of these properties have changed
+over time, allowing one to accurately reproduce the data processing
+stream (if necessary).
+
 \section{Summary}
 
 Quantitative analysis of dynamic contrast-enhanced MRI (DCE-MRI) and
@@ -1548,10 +1550,6 @@ innovative project BioMed-S: Analysis and Modelling of Complex
 Systems.
 
 \bibliography{dcemri}
-
-<<end,eval=FALSE,echo=FALSE>>=
-options(prompt="R> ")
-@ 
 
 \end{document}
 
