@@ -41,13 +41,14 @@ setGeneric("dcemri.lm",
            function(conc,  ...) standardGeneric("dcemri.lm"))
 setMethod("dcemri.lm", signature(conc="array"), 
 	  function(conc,time,img.mask, model="extended", aif=NULL,
-                   nprint=0, user=NULL, multicore=FALSE, verbose=FALSE, ...)
+                   nprint=0, maxiter=50, user=NULL, multicore=FALSE,
+                   verbose=FALSE, ...)
           .dcemriWrapper("dcemri.lm", conc, time, img.mask, model, aif,
-                         nprint, user, multicore, verbose, ...))
+                         nprint, maxiter, user, multicore, verbose, ...))
 
 .dcemri.lm <- function(conc, time, img.mask, model="extended", aif=NULL,
-                       nprint=0, user=NULL, multicore=FALSE, verbose=FALSE,
-                       ...) {
+                       nprint=0, maxiter=50, user=NULL, multicore=FALSE,
+                       verbose=FALSE, ...) {
   ## dcemri.lm - a function for fitting 1-compartment PK models to
   ## DCE-MRI images
   ##
@@ -137,35 +138,37 @@ setMethod("dcemri.lm", signature(conc="array"),
   for (k in 1:nvoxels) {
     conc.list[[k]] <- conc.mat[k,]
   }
+  rm(conc.mat) ; gc()
   if (verbose) {
     cat("  Estimating the kinetic parameters...", fill=TRUE)
   }
   if (multicore && require("multicore")) {
     lm.list <- mclapply(conc.list, function(x) {
-      nls.lm(par=guess, fn=func, control=list(nprint=nprint),
+      nls.lm(par=guess, fn=func,
+             control=list(nprint=nprint, maxiter=maxiter),
              signal=x, time=time, p=p)
     })
   } else {
     lm.list <- lapply(conc.list, function(x) {
-      nls.lm(par=guess, fn=func, control=list(nprint=nprint),
+      nls.lm(par=guess, fn=func,
+             control=list(nprint=nprint, maxiter=maxiter),
              signal=x, time=time, p=p)
     })
   }
+  rm(conc.list) ; gc()
   ktrans <- kep <- list(par=rep(NA, nvoxels), error=rep(NA, nvoxels))
   sse <- rep(NA, nvoxels)
   for (k in 1:nvoxels) {
-    fit <- nls.lm(par=guess, fn=func, control=list(nprint=nprint),
-                  signal=conc.mat[k,], time=time, p=p)
-    if (fit$info > 0 && fit$info < 5) {
-      ktrans$par[k] <- exp(fit$par["th1"])
-      kep$par[k] <- exp(fit$par["th3"])
-      ktrans$error[k] <- sqrt(fit$hessian["th1","th1"])
-      kep$error[k] <- sqrt(fit$hessian["th3","th3"])
-      sse[k] <- fit$deviance
+    if (lm.list[[k]]$info > 0 && lm.list[[k]]$info < 5) {
+      ktrans$par[k] <- exp(lm.list[[k]]$par["th1"])
+      kep$par[k] <- exp(lm.list[[k]]$par["th3"])
+      ktrans$error[k] <- sqrt(lm.list[[k]]$hessian["th1","th1"])
+      kep$error[k] <- sqrt(lm.list[[k]]$hessian["th3","th3"])
+      sse[k] <- lm.list[[k]]$deviance
       if (model %in% c("extended", "orton.exp", "orton.cos",
                        "extended.empirical")) {
-        vp$par[k] <- exp(fit$par["th0"])
-        vp$error[k] <- sqrt(fit$hessian["th0","th0"])
+        vp$par[k] <- exp(lm.list[[k]]$par["th0"])
+        vp$error[k] <- sqrt(lm.list[[k]]$hessian["th0","th0"])
       }
     }
   }
