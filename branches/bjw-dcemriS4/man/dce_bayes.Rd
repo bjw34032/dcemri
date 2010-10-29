@@ -162,5 +162,5 @@ legend("bottomright", c("Bayesian Estimation (fritz-hansen)",
                         "Levenburg-Marquardt (weinmann/fritz.hansen)",
                         "Levenburg-Marquardt (orton.exp/user)"), pch=1:4)
 }
-\author{Volker Schmid <\email{volkerschmid@users.sourceforge.net}>}
+\author{Volker Schmid \email{volkerschmid@users.sourceforge.net}}
 \keyword{models}
