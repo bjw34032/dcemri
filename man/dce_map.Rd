@@ -106,23 +106,21 @@ time <- buckley$time.min[xi]
 
 ## MAP estimation with Fritz-Hansen default AIF
 fit.map <- dcemri.map(img, time, mask, aif="fritz.hansen")
-
 plot(breast$ktrans, fit.map$ktrans, xlim=c(0,1), ylim=c(0,1),
      xlab=expression(paste("True ", K^{trans})),
      ylab=expression(paste("Estimated ", K^{trans}, " (MAP)")))
 abline(0, 1, lwd=1.5, col=2)
-
-\dontrun{
+## Nonlinear regression with Fritz-Hansen default AIF
 fit.lm <- dcemri.lm(img, time, mask, aif="fritz.hansen")
-
 plot(breast$ktrans, fit.map$ktrans, xlim=c(0,1), ylim=c(0,1),
      xlab=expression(paste("True ", K^{trans})),
      ylab=expression(paste("Estimated ", K^{trans})))
 points(breast$ktrans, fit.lm$ktrans, pch=3)
-abline(0, 1, lwd=1.5, col="red")
-legend("bottomright", c("MAP Estimation (fritz-hansen)",
-                        "Levenburg-Marquardt (fritz.hansen)", pch=c(1,3)))
-}
+abline(0, 1, lwd=1.5, col=2)
+legend("bottomright", c("MAP Estimation (fritz.hansen)",
+                        "Levenburg-Marquardt (fritz.hansen)"),
+       pch=c(1,3))
+cbind(breast$ktrans, fit.lm$ktrans[,,1], fit.map$ktrans[,,1])
 }
 \author{Volker Schmid <\email{volkerschmid@users.sourceforge.net}>}
 \keyword{models}
