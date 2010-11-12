@@ -1015,7 +1015,8 @@ conc <- readNIfTI(paste(perf, "gdconc", sep="_"))
 @ 
 <<RiderNeuroMRI+lm1,eval=FALSE>>=
 fit.lm <- dcemri.lm(conc, acqtimes, mask, model="extended", 
-                    aif="fritz.hansen", verbose=TRUE)
+                    aif="fritz.hansen", maxiter=100, 
+                    multicore=TRUE, verbose=TRUE)
 writeNIfTI(fit.lm$ktrans, paste(perf, "ktrans", sep="_"))
 @ 
 <<RiderNeuroMRI+lm2,eval=FALSE,echo=FALSE>>=
