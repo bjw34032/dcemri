@@ -41,13 +41,13 @@ setGeneric("dcemri.lm",
            function(conc,  ...) standardGeneric("dcemri.lm"))
 setMethod("dcemri.lm", signature(conc="array"), 
 	  function(conc,time,img.mask, model="extended", aif=NULL,
-                   nprint=0, maxiter=50, user=NULL, multicore=FALSE,
+                   control=nls.lm.control(), user=NULL, multicore=FALSE,
                    verbose=FALSE, ...)
           .dcemriWrapper("dcemri.lm", conc, time, img.mask, model, aif,
-                         nprint, maxiter, user, multicore, verbose, ...))
+                         control, user, multicore, verbose, ...))
 
 .dcemri.lm <- function(conc, time, img.mask, model="extended", aif=NULL,
-                       nprint=0, maxiter=50, user=NULL, multicore=FALSE,
+                       control=nls.lm.control(), user=NULL, multicore=FALSE,
                        verbose=FALSE, ...) {
   ## dcemri.lm - a function for fitting 1-compartment PK models to
   ## DCE-MRI images
@@ -144,15 +144,11 @@ setMethod("dcemri.lm", signature(conc="array"),
   }
   if (multicore && require("multicore")) {
     lm.list <- mclapply(conc.list, function(x) {
-      nls.lm(par=guess, fn=func,
-             control=list(nprint=nprint, maxiter=maxiter),
-             signal=x, time=time, p=p)
+      nls.lm(par=guess, fn=func, control=control, signal=x, time=time, p=p)
     })
   } else {
     lm.list <- lapply(conc.list, function(x) {
-      nls.lm(par=guess, fn=func,
-             control=list(nprint=nprint, maxiter=maxiter),
-             signal=x, time=time, p=p)
+      nls.lm(par=guess, fn=func, control=control, signal=x, time=time, p=p)
     })
   }
   rm(conc.list) ; gc()

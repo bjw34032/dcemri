@@ -59,8 +59,8 @@ compartmentalModel <- function(type) {
          function(time, theta, p) {
            ## Extended Tofts & Kermode model including the concentration of
            ## contrast agent in the blood plasma (vp)
-           Cp <- function(tt, p) {
-             p$D * (p$a1 * exp(-p$m1 * tt) + p$a2 * exp(-p$m2 * tt))
+           Cp <- function(t, p) {
+             p$D * (p$a1 * exp(-p$m1 * t) + p$a2 * exp(-p$m2 * t))
            }
            th0 <- theta[1]
            th1 <- theta[2]
@@ -91,9 +91,9 @@ compartmentalModel <- function(type) {
          orton.exp =
          function(time, theta, p) {
            ## Extended model using the exponential AIF from Matthew Orton (ICR)
-           Cp <- function(tt, p) {
-             p$AB * tt * exp(-p$muB * tt) + p$AG *
-               (exp(-p$muG * tt) - exp(-p$muB * tt))
+           Cp <- function(t, p) {
+             p$AB * t * exp(-p$muB * t) + p$AG *
+               (exp(-p$muG * t) - exp(-p$muB * t))
            }
            vp <- exp(theta[1])
            ktrans <- exp(theta[2])
