@@ -14,7 +14,7 @@
 }
 \usage{
 \S4method{dcemri.lm}{array}(conc, time, img.mask, model="extended", aif=NULL,
-          nprint=0, maxiter=50, user=NULL, multicore=FALSE, verbose=FALSE,
+          control=nls.lm.control(), user=NULL, multicore=FALSE, verbose=FALSE,
           ...)
 }
 \arguments{
@@ -66,14 +66,8 @@
     allowed, and \code{empirical}, where a vector of values that fully
     characterize the empirical AIF.
   }
-  \item{nprint}{is an integer, that enables controlled printing of
-    iterates if it is positive.  In this case, estimates of \code{par}
-    are printed at the beginning of the first iteration and every
-    \code{nprint} iterations thereafter and immediately prior to return.
-    If \code{nprint} is not positive, no tracing information on the
-    progress of the optimization is produced.}
-  \item{maxiter}{is a positive integer.  Termination occurs when the
-    number of iterations reaches \sQuote{maxiter}.}
+  \item{control}{is a list of parameters used by \code{nls.lm.control}
+    that are set by default, but may be customized by the user.}
   \item{user}{is a list with the following parameters required: D, AB,
     muB, AG, muG.}
   \item{multicore}{is a logical variable (default = \code{FALSE}) that
