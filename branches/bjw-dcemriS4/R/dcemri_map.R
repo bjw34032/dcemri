@@ -113,15 +113,12 @@ setMethod("dcemri.map", signature(conc="array"),
   ident <- function(x) {
     return(x)
   }
-  extraterm <- function(t, aif) {
-    aif$a1 * (exp(-aif$m1*t)) + aif$a2 * (exp(-aif$m2*t))
-  }
-  convterm <- function(kep, t, aif) {
-    aif$a1 * (exp(-aif$m1*t) - exp(-kep*t)) / (kep-aif$m1) + aif$a2 * (exp(-aif$m2*t) - exp(-kep*t)) / (kep-aif$m2)
-  }
 
+  
   switch(model,
-         weinmann = {
+         weinmann =,
+         kety.orton.exp = ,
+         kety.orton.cos = {
            parameter <- c("ktrans", "kep", "sigma2")
            transform <- c(exp, exp, inverse)
            hyper <- c(ab.ktrans, ab.kep, ab.tauepsilon)
@@ -135,35 +132,31 @@ setMethod("dcemri.map", signature(conc="array"),
                    log(dnorm(theta, hyper[3], hyper[4])) +
                    log(dgamma(tauepsilon, hyper[5], rate=hyper[6])) +
                    sum(log(dnorm(conc, conc.hat, sqrt(1/tauepsilon)))))
-             ##conc.hat <- ifelse(time > 0,
-             ##                   exp(gamma) * convterm(exp(theta), time, aif),
-             ##                   0)
              p <- ifelse(is.na(p), 1e-6, p)
              return(-p)
+
            }
-	 },		
-         extended = {
-           parameter <- c("ktrans", "kep", "vp", "sigma2")
-           transform <- c(exp, exp, ident, inverse)
+         },		
+         extended = ,
+         orton.exp = ,
+         orton.cos = {
+          parameter <- c("ktrans", "kep", "vp", "sigma2")
+           transform <- c(exp, exp, exp, inverse)
            hyper <- c(ab.ktrans, ab.kep, ab.vp, ab.tauepsilon)
            start <- c(hyper[1], hyper[3],
-                      hyper[5] / (hyper[5] + hyper[6]),
+                      log(hyper[5] / (hyper[5] + hyper[6])),
                       hyper[7] * hyper[8])
            posterior <- function(par, conc, time, hyper, aif) {
              gamma <- par[1]
              theta <- par[2]
-             vp <- par[3]
+             theta0 <- par[3]
              tauepsilon <- par[4]
              T <- length(time)
              p <- log(dnorm(gamma, hyper[1], hyper[2]))
              p <- p + log(dnorm(theta, hyper[3], hyper[4]))
              p <- p + log(dgamma(tauepsilon, hyper[7], rate=hyper[8]))
-             p <- p + log(dbeta(vp, hyper[5], hyper[6]))
-             conc.hat <- func.model(time, par[c(3,1:2)], aif)
-               ##ifelse(time > 0,
-                         ##       (vp * extraterm(time, aif) + exp(gamma) *
-                         ##        convterm(exp(theta), time, aif)),
-                         ##       0)
+             p <- p + log(dbeta(exp(theta0), hyper[5], hyper[6]))
+             conc.hat <- func.model(time, c(par[3],par[1:2]), aif)
              p <- p + sum(log(dnorm(conc, conc.hat, sqrt(1/tauepsilon))))
              if (is.na(p)) {
                p <- -1e-6
@@ -171,124 +164,6 @@ setMethod("dcemri.map", signature(conc="array"),
              return(-p)
            }
 	 },		
-         extended.crap = {
-           parameter <- c("ktrans", "kep", "vp", "sigma2")
-           ##transform <- c(exp, exp, ident, inverse)
-           transform <- c(exp, exp, exp, inverse)
-           hyper <- c(ab.ktrans, ab.kep, ab.vp, ab.tauepsilon)
-           start <- c(hyper[1], hyper[3],
-                      hyper[5] / (hyper[5] + hyper[6]),
-                      hyper[7] * hyper[8])
-           posterior <- function(par, conc, time, hyper, aif) {
-             ##conc.hat <- ifelse(time > 0,
-             ##                   (vp * extraterm(time, aif) + exp(gamma) *
-             ##                    convterm(exp(theta), time, aif)),
-             ##                   0)
-             conc.hat <- func.model(time, par[c(3,1,2)], aif)
-             p <- (log(dnorm(par[1], hyper[1], hyper[2])) +
-                   log(dnorm(par[2], hyper[3], hyper[4])) +
-                   log(dgamma(par[4], hyper[7], rate=hyper[8])) +
-                   log(dbeta(par[3], hyper[5], hyper[6])) +
-                   sum(log(dnorm(conc, conc.hat, sqrt(1/par[4])))))
-             p <- ifelse(is.na(p), 1e-6, p)
-             return(-p)
-           }
-	 },		
-         orton.exp = {
-           parameter <- c("ktrans", "kep", "vp", "sigma2")
-           transform <- c(exp, exp, ident, inverse)
-           hyper <- c(ab.ktrans, ab.kep, ab.vp, ab.tauepsilon)
-           start <- c(exp(hyper[1]), exp(hyper[3]),
-                      hyper[5] / (hyper[5] + hyper[6]),
-                      hyper[7] * hyper[8])
-           posterior <- function(par, conc, time, hyper, aif) {
-             gamma <- par[1]
-             theta <- par[2]
-             vp <- par[3]
-             tauepsilon <- par[4]
-             p <- log(dnorm(gamma, hyper[1], hyper[2]))
-             p <- p + log(dnorm(theta, hyper[3], hyper[4]))
-             p <- p + log(dgamma(tauepsilon, hyper[7], rate=hyper[8]))
-             p <- p + log(dbeta(vp, hyper[5], hyper[6]))
-             ##conc.hat <- model.orton.exp(time, gamma, theta, vp, AB=aif[1],
-             ##                            muB=aif[2], AG=aif[3], muG=aif[4])
-             conc.hat <- func.model(time, c(vp, gamma, theta), aif)
-             p <- p + sum(log(dnorm(conc, conc.hat, sqrt(1/tauepsilon))))
-             if (is.na(p)) {
-               p <- 1e-6
-             }
-             return(-p)
-           }
-	 },		
-         kety.orton.exp = {
-           parameter <- c("ktrans", "kep", "sigma2")
-           transform <- c(exp, exp, inverse)
-           hyper <- c(ab.ktrans, ab.kep, ab.tauepsilon)
-           start <- c(exp(hyper[1]), exp(hyper[3]), hyper[5] * hyper[6])
-           posterior <- function(par, conc, time, hyper, aif) {
-             gamma <- par[1]
-             theta <- par[2]
-             tauepsilon <- par[3]
-             p <- log(dnorm(gamma, hyper[1], hyper[2]))
-             p <- p + log(dnorm(theta, hyper[3], hyper[4]))
-             p <- p + log(dgamma(tauepsilon, hyper[5], rate=hyper[6]))
-             ##conc.hat <- model.kety.orton.exp(time, gamma, theta, AB=aif[1],
-             ##                                 muB=aif[2], AG=aif[3], muG=aif[4])
-             conc.hat <- func.model(time, c(gamma, theta), aif)
-             p <- p + sum(log(dnorm(conc, conc.hat, sqrt(1/tauepsilon))))
-             if (is.na(p)) {
-               p <- 1e-6
-             }
-             return(-p)
-           }
-	 },		
-        orton.cos = {
-           parameter <- c("ktrans", "kep", "vp", "sigma2")
-           transform <- c(exp, exp, exp, inverse)
-           hyper <- c(ab.ktrans, ab.kep, ab.vp, ab.tauepsilon)
-           start <- c(exp(hyper[1]), exp(hyper[3]),
-                      hyper[5] / (hyper[5] + hyper[6]),
-                      hyper[7] * hyper[8])
-           posterior <- function(par, conc, time, hyper, aif) {
-             gamma <- par[1]
-             theta <- par[2]
-             vp <- par[3]
-             tauepsilon <- par[4]
-             p <- log(dnorm(gamma, hyper[1], hyper[2]))
-             p <- p + log(dnorm(theta, hyper[3], hyper[4]))
-             p <- p + log(dgamma(tauepsilon, hyper[7], rate=hyper[8]))
-             p <- p + log(dbeta(vp,hyper[5], hyper[6]))
-             ##conc.hat <- model.orton.cos(time, gamma, theta, vp, aB=aif[1],
-             ##                            muB=aif[2], aG=aif[3], muG=aif[4])
-             conc.hat <- func.model(time, c(vp, gamma, theta), aif)
-             p <- p + sum(log(dnorm(conc, conc.hat, sqrt(1/tauepsilon))))
-             if (is.na(p))
-               p <- -1e-6
-             return(-p)
-           }
-         },
-        kety.orton.cos = {
-           parameter <- c("ktrans", "kep", "sigma2")
-           transform <- c(exp, exp, inverse)
-           hyper <- c(ab.ktrans, ab.kep, ab.tauepsilon)
-           start <- c(exp(hyper[1]), exp(hyper[3]), hyper[5] * hyper[6])
-           posterior <- function(par, conc, time, hyper, aif) {
-             gamma <- par[1]
-             theta <- par[2]
-             tauepsilon <- par[3]
-             p <- log(dnorm(gamma, hyper[1], hyper[2]))
-             p <- p + log(dnorm(theta, hyper[3], hyper[4]))
-             p <- p + log(dgamma(tauepsilon, hyper[5], rate=hyper[6]))
-             ##conc.hat <- model.kety.orton.cos(time, gamma, theta, aB=aif[1],
-             ##                            muB=aif[2], aG=aif[3], muG=aif[4])
-             conc.hat <- func.model(time, c(gamma, theta), aif)
-             p <- p + sum(log(dnorm(conc, conc.hat, sqrt(1/tauepsilon))))
-             if (is.na(p)) {
-               p <- -1e-6
-             }
-             return(-p)
-           }
-	 },	
          stop("Model is not supported."))
 
   if (verbose) {
@@ -334,30 +209,23 @@ setMethod("dcemri.map", signature(conc="array"),
   }
   A <- array(NA, c(I,J,K))
   A[img.mask] <- ktrans$par
-  ##ktrans.out <- list(par=A)
+
   returnable <- list(ktrans=A)
   A <- array(NA, c(I,J,K))
   A[img.mask] <- kep$par
-  ##kep.out <- list(par=A)
+
   returnable[["kep"]] <- A
   if (model %in% c("extended", "orton.exp", "orton.cos")) {
     A <- array(NA, c(I,J,K))
     A[img.mask] <- vp$par
-    ##vp.out <- list(par=A)
     returnable[["vp"]] <- A
   }
   A <- array(NA, c(I,J,K))
   A[img.mask] <- sigma2
-  ##sigma2.out <- A
+  
   returnable[["sigma2"]] <- A
   returnable[["time"]] <- time
   returnable[["ve"]] <- returnable$ktrans / returnable$kep
-  ##returnable <- list(ktrans=ktrans.out$par, kep=kep.out$par,
-  ##                   ve=ktrans.out$par/kep.out$par, sigma2=sigma2.out,
-  ##                   time=time)
-  ##if (model %in% c("extended", "orton.exp", "orton.cos")) {
-  ##  returnable[["vp"]] <- vp.out$par
-  ##} 
+
   return(returnable)
 }
-
