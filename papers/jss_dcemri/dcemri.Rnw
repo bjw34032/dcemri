@@ -1008,18 +1008,18 @@ DICOM data and saved in \code{rawtimes.txt}.
 \end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-<<RiderNeuroMRI+lm0,eval=FALSE>>=
+<<RiderNeuroMRI+lm0,eval=TRUE>>=
 acqtimes <- str2time(unique(sort(scan("rawtimes.txt", quiet=TRUE))))$time
 acqtimes <- (acqtimes - acqtimes[9]) / 60 # minutes
 conc <- readNIfTI(paste(perf, "gdconc", sep="_"))
 @ 
-<<RiderNeuroMRI+lm1,eval=FALSE>>=
+<<RiderNeuroMRI+lm1,eval=TRUE>>=
 fit.lm <- dcemri.lm(conc, acqtimes, mask, model="extended", 
-                    aif="fritz.hansen", maxiter=100, 
+                    aif="fritz.hansen", control=nls.lm.control(maxiter=100), 
                     multicore=TRUE, verbose=TRUE)
 writeNIfTI(fit.lm$ktrans, paste(perf, "ktrans", sep="_"))
 @ 
-<<RiderNeuroMRI+lm2,eval=FALSE,echo=FALSE>>=
+<<RiderNeuroMRI+lm2,eval=TRUE,echo=FALSE>>=
 writeNIfTI(fit.lm$kep, paste(perf, "kep", sep="_"))
 writeNIfTI(fit.lm$vp, paste(perf, "vp", sep="_"))
 writeNIfTI(fit.lm$ve, paste(perf, "ve", sep="_"))

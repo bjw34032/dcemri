@@ -114,7 +114,7 @@ setMethod("dcemri.lm", signature(conc="array"),
          extended.empirical = ,
          orton.exp = ,
          orton.cos = {
-           guess <- c("th0"=-1, "th1"=-1, "th3"=-1)
+           guess <- c("th0"=-3, "th1"=-1, "th3"=-1)
            vp <- list(par=rep(NA, nvoxels), error=rep(NA, nvoxels))
          },
          stop("Model/AIF combination is not supported."))

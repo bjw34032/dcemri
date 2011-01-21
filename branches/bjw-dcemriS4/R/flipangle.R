@@ -120,6 +120,7 @@ setMethod("R1.fast", signature(flip="array"),
   if (verbose) {
     cat("  Calculating R10 and M0...", fill=TRUE)
   }
+  ## multicore?!?
   for (k in 1:nvoxels) {
     fit <- E10.lm(flip.mat[k,], fangles.mat[k,],
                   guess=c(1, mean(flip.mat[k,])))
@@ -180,9 +181,9 @@ setMethod("CA.fast", signature(dynamic="array"),
              1:3, R1est$M0, "/") / sin(theta)
   B <- (1 - exp(-TR * R1est$R10)) / (1 - cos(theta) * exp(-TR * R1est$R10))
   AB <- sweep(A, 1:3, B, "+")
-  rm(A,B)
+  rm(A,B) ; gc()
   R1t <- -(1/TR) * log((1 - AB) / (1 - cos(theta) * AB))
-  rm(AB)
+  rm(AB) ; gc()
   conc <- sweep(R1t, 1:3, R1est$R10, "-") / r1
 
   list(M0 = R1est$M0, R10 = R1est$R10, R1t = R1t, conc = conc)
