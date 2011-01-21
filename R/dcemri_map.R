@@ -128,6 +128,9 @@ setMethod("dcemri.map", signature(conc="array"),
              theta <- par[2]
              tauepsilon <- par[3]
              conc.hat <- func.model(time, c(gamma, theta), aif)
+             ##conc.hat <- ifelse(time > 0,
+             ##                   exp(gamma) * convterm(exp(theta), time, aif),
+             ##                   0)
              p <- (log(dnorm(gamma, hyper[1], hyper[2])) +
                    log(dnorm(theta, hyper[3], hyper[4])) +
                    log(dgamma(tauepsilon, hyper[5], rate=hyper[6])) +
@@ -146,6 +149,7 @@ setMethod("dcemri.map", signature(conc="array"),
            start <- c(hyper[1], hyper[3],
                       log(hyper[5] / (hyper[5] + hyper[6])),
                       hyper[7] * hyper[8])
+           print(start)
            posterior <- function(par, conc, time, hyper, aif) {
              gamma <- par[1]
              theta <- par[2]

@@ -85,6 +85,7 @@ setMethod("T2.fast", signature(cpmg="array"),
   if (verbose) {
     cat("  Calculating T2 and rho...", fill=TRUE)
   }
+  ## multicore?!?
   for (k in 1:nvoxels) {
     fit <- T2.lm(cpmg.mat[k,], TE, guess=c(0.75*cpmg.mat[k,1], 0.05))
     if (fit$info < 4) {
