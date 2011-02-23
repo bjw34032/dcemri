@@ -1,0 +1,281 @@
+\documentclass[11pt]{article}
+\usepackage{a4wide}
+\usepackage[usenames]{color}
+\usepackage[authoryear,round]{natbib}
+\bibliographystyle{plainnat}
+\pagestyle{plain}
+
+\begin{document}
+
+% Title
+
+\begin{center}
+{\Large \textbf{Quantitative Analysis of Dynamic Contrast-Enhanced and Diffusion-Weighted Magnetic Resonance Imaging for Oncology in \textsf{R}}}
+
+\bigskip
+
+March~1, 2011
+
+\end{center}
+
+\section*{Reviewer \#1}
+
+We would like to thank the reviewer for all his/her comments and
+suggestions.
+
+\subsection*{Minor Remarks}
+
+\begin{enumerate}
+
+\item A colour scale would aid interpretation of the various
+  quantitative figures.
+
+  \textbf{TO DO!}
+
+\item The authors are not entirely consistent about the use (or not)
+  of a subscript in relaxation time variables such as T1; e.g. at the
+  bottom of page 2, ``T1'' is written both with and without a
+  subscript.
+
+  \textbf{TO DO!}
+
+\item A little more explanation of the final aim of the processing
+  (i.e.  maps of estimated kinetic parameters, etc.), and an
+  indication of the reasons that they are important in oncology, would
+  be helpful in the overview at the beginning of \S2, to make it
+  clearer to the reader where the manuscript is going.  It is also not
+  entirely clear how the steps laid out there link to one another, and
+  it would be useful to make this a bit more explicit.
+
+\item Some terms seem not be defined before first use.  It's not clear
+  to me exactly what m\_0 and R\_10 each represent on page 3;
+  ``transverse relaxation time'' is used on page 3 but without
+  explanation of the meaning of ``transverse'' (likewise
+  ``longitudinal''); again on page 3, it is not necessarily obvious
+  which of S(t) and S(0) is pre-contrast, and which post-contrast; B1
+  is used several times in \S2.3 but not defined; in \S3, pulse
+  duration and separation are discussed but without any explanation of
+  what these pulses are. I realise that many/most readers may know
+  about these terms, but defining them, or avoiding their use entirely
+  if they aren't really needed, would make the paper more accessible.
+
+\item The URL for ITK is given as ikg.org on page 4. This should be
+  corrected.
+
+  Fixed.
+
+\item After equation (7), the paragraph begins, ``A long repetition
+  time (TR $<=$ 5T1) ...''. Should this sign not be ``$>=$''?
+
+  Fixed.
+
+\item The discussion of anisotropic diffusion in \S3 seems odd, since
+  equation (29) includes only a scalar diffusivity term, and therefore
+  can represent only isotropic diffusion. Also in this section, the
+  prescription to ignore measurements with b $<=$ 100 s/mm2 is a bit
+  too general: the suitability of particular data will depend on the
+  application. ``The diffusion of water ...'' (beginning of the third
+  paragraph) should be ``The diffusivity of water ...''. Note also
+  that diffusivity is temperature-dependent, so ``at room
+  temperature'' or similar should be added.
+
+  \textbf{TO DO!}
+
+\item In the Bayesian estimation procedure, is there a particular
+  reason for using the median rather than the mean of the posterior
+  distribution as the summary statistic?
+
+  \textbf{TO DO!}
+
+\item In \S4.2, the authors state that ``... high ADC values correspond
+  to pure isotrpic diffusion of water molecules in the tissue''.  This
+  is misleading: isotropy and apparent/mean diffusivity are distinct
+  characteristics.
+
+  \textbf{TO DO!}
+
+\item It's not clear to me what the authors mean by ``... the indirect
+  nature of MRI data acquisition''.  Perhaps this could be clarified.
+
+  \textbf{TO DO!}
+
+\end{enumerate}
+
+\section*{Reviewer \#2}
+
+We would like to thank the reviewer for all his/her comments and
+suggestions.
+
+\subsection*{Comments}
+
+\begin{enumerate}
+
+\item P.1 - Why is it called dcemriS4 if it also does diffusion
+  weighted image processing? DTI?
+
+  \textbf{TO DO!}
+
+\item P.2 – Many, many ``?'' question marks throughout the pdf
+  file.. missing references, etc..
+
+  This was a problem with the \texttt{Sweave} procedure used by the
+  associate editor.  All citations/references are valid in the
+  manuscript.
+
+\item P.2 – ``DWI quantifies the deviation of diffusion from
+  isotropy'' This statement is not true..  DWI using equivalent
+  strength gradients in the three orthogonal directions at varying
+  strengths to measure the isotropic free diffusion path length in
+  tissue. While technically the DWIx, DWIy, DWIz components could be
+  examined individually, it is the trace of these that provides an
+  isotropic path length mediated by cellular restrictions to the
+  random Brownian motion.  i.e. The apparent diffusion coefficient
+  (ADC) maps generated from a DWI acquisition contains no information
+  about the degree or direction of anisotropy but will provide
+  essential information on regions of infarct as well as boundaries
+  and differentiation of cystic from malignant lesions.
+
+  \textbf{TO DO!}
+
+\item p.2 - ``Deviations from isotropy (anisotropic diffusion) in
+  tissue is then used to infer biological information; e.g.,detection,
+  disease progression, treatment response.''  Should be ``are then
+  used to infer''... really only applies to white matter disease, i.e.
+  degeneration or destruction of the fiber tracts..
+
+  Changed.
+
+\item p.2 – ``Typically, several structural sequences are performed
+  (both T1- and T2-weighted) after the patient has been positioned in
+  the scanner.'' - Not needed..
+
+  \textbf{TO DO!}
+
+\item p.4 – ``For computational reasons, we follow the method of ?'' –
+  Which method and why?
+
+  \textbf{TO DO!}
+
+\item Also, will you confirm what relaxation values you will be using
+  for various Gadolinium chelates at differing field strengths.. in
+  blood or plasma?
+
+\item P.5 – Should the actual command line R-code actually be included
+  in the text or an appendix?
+
+  We believe strongly that the \textsf{R} code should be interwoven
+  with the text and not placed at the end of the manuscript in an
+  appendix.
+
+\item P.6 – ``By defining regions of interest (ROIs) in FSLView we may
+  construct a mask that separates voxel belonging to the 10 unique
+  gels.'' – should be ``separates voxels''
+
+  Fixed.
+
+\item P.7 – Need to reference Weinmann’s original paper on AIF's.
+
+  I believe it is cited.
+
+\item P.8 - Figure 3 - Why not just use a linear increase during bolus
+  injection ($t<\tau$) (assuming that a power injector is used at a
+  fixed rate) and then a single/bi-exponential afterwards?  This is
+  done routinely in PET.  Should also show an actual AIF from a human
+  subject and representative fit..
+
+  
+
+\item P.11 – ``To increase computational efficiency draws from the
+  posterior distribution are implemented in C and linked to R.'' –
+  What draws from the posterior distribution??
+
+\item P.13 – ``Contrast is generated when the diffusion of molecules
+  in tissue prefer a specific direction'' – Please see comment \#3 as
+  DWI/ADC maps do not contain directional information.  Contrast may
+  be obtained in the core infarct of an ischemic stroke in regions of
+  isotropic diffusion.
+
+\item P.13 – Might also mention higher diffusion b-values
+  (i.e. $>1000$ s/mm2) to examine slow/fast components of diffusion
+  related to intra/extracellular diffusion.
+
+\item P.13 – Was even a paper out a few years back touching on
+  diffusion in DCE analysis.  Pellerin M, Yankeelov TE, Lepage
+  M. Incorporating contrast agent diffusion into the analysis of
+  DCE-MRI data. Magn Reson Med. 2007 Dec;58(6):1124-34.
+
+\item P.13 – ``Observing an increase in diffusivity..'' – Need to be
+  cautious here as tumors may show increased ADC due to initial edemic
+  response to therapy followed by decreased ADC as tumors begin to
+  become necrotic or apototic. Additionally, tumor regression would be
+  indicated by a reduction in ADC.. Lastly, ADC values in different
+  tumor types do not all respond the same as well as variation in Tx
+  (XRT, Chemo, etc.).
+
+\item P.14 – ``we utilize a binary mask'' – How was this mask created
+  and what threshold was decided upon to create the mask??
+
+\item P.14 – ``from an appropriate voxel or collection of voxel'' –
+  should be ``voxels''.
+
+  Changed.
+
+\item P.14 – Although selecting a literature based AIF may be
+  appropriate for some neurological lesions, a population average
+  closer to the feeding vessel of the tumor may be better served for
+  other tumor types outside the brain.
+
+\item P.15 – a reference to ``fritz.hansen'' is made in the
+  code.. does this refer to a subject/colleague name?
+
+\item P.15 – ``ve is high at the tumor rim'' - Is the maximum value of
+  this parameter constrained? i.e. can there be $>$ 100\% for the
+  extravascular extracellular space?
+
+\item P.15 – Likewise is.. ve + vp $<$1 used as a constraint?
+
+\item P.15 – ``The SSE over the given ROI covers a variety of tissue
+  types'' – Has this program been tested or applied to non-cerebellar
+  tumor types (i.e, breast, colorectal, prostate.)
+
+\item P.21 – ``The methodology behind DWI and DTI are virtually
+  identical.. so we will ignore the extra information provide''
+  –should be ``provided''.  I understand the statement, but a few
+  sentences about defining the maximum eigenvector of the diffusion
+  ellipsoid with an figure might be informative for the
+  reader.. although possibly beyond the scope of this article. It
+  might show the orthogonal diameters on the ellipsoid used to
+  calculated the DWI. (Might also mention that all major vendors
+  compute the fractional anisotropy (FA) maps online.)
+
+\item Also, in my experience, the ADC map created from the DTI data
+  set may differ slightly from that acquired with a 3-Trace DWI
+  sequence.
+
+\item P.22 – ``range of physical units for the ADC values is [0.0005,
+  0.003]'' – Interestingly, I have also seen values greater than this
+  due to CSF flow phenomenon.
+
+\item P.22 – ``isotrpic diffusion'' – should be ``isotropic''
+
+  Changed.
+
+\item In this reviewers opinion, the diffusion component of this
+  package might not be included..  Calculation of apparent diffusion
+  coefficient maps are now created online at the time of acquisition
+  on most major MRI vendors.  In addition, the creation of the maps is
+  the result of a straight linear regression which is must less
+  involved than the DCE-MRI analysis presented in this work.
+
+\item P.26 – Are there capabilities available for incorporation of a
+  user-defined AIF taken from the DCE-MRI data set??
+
+\end{enumerate}
+
+%--------------------------------------------------------------------%
+
+\bibliography{dcemri}
+
+%--------------------------------------------------------------------%
+
+\end{document}
