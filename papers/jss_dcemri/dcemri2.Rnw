@@ -31,7 +31,7 @@ The package \pkg{dcemriS4} provides a complete set of data analysis
 tools for quantitative assessment of dynamic contrast-enhanced MRI and
 diffusion-weighted MRI.  Image processing is provided for the ANALYZE
 and NIfTI data formats as input with all parameter estimates being
-output in the NIfTI format.  Estimation of T1 relaxation from multiple
+output in the NIfTI format.  Estimation of $T_1$ relaxation from multiple
 flip-angle acquisitions, using either constant or spatially-varying
 flip angles, is performed via nonlinear regression.  Both
 literature-based and data-driven arterial input functions are
@@ -169,14 +169,14 @@ e.g., detection, disease progression, treatment response.
 \section{Dynamic Contrast-Enhanced Magnetic Resonance Imaging}
 
 The acquisition protocol for a DCE-MRI scan involves several steps.
-Typically, several structural sequences are performed (both T1- and
-T2-weighted) after the patient has been positioned in the scanner.
+Typically, several structural sequences are performed (both $T_1$- and
+$T_2$-weighted) after the patient has been positioned in the scanner.
 Conversion of signal intensity to contrast agent concentration
-involves the preliminary step of estimating the T1 relaxation value of
+involves the preliminary step of estimating the $T_1$ relaxation value of
 the tissue; e.g., using multiple flip-angles or inversion recovery.
 For higher field strengths one may also consider characterizing the
 inhomogeneity of the magnetic field in the scanner.  The dynamic set
-of T1-weighted images are started approximately
+of $T_1$-weighted images are started approximately
 $30-60\;\text{seconds}$ before a bolus injection of a low molecular
 weight contrast agent -- a gadolinium chelate -- and continue for
 $8-12\;\text{min}$ in oncology studies.  The length of the dynamic
@@ -185,13 +185,13 @@ integrity of the blood brain barrier.  Temporal sampling rates depend
 on multiple factors: type of cancer, anatomy, spatial resolution,
 spatial coverage, field strength of the scanner, breathing method,
 etc. and must be carefully considered on a study-by-study basis.
-% Using a T1-weighted sequences, after injection a dynamic series of
+% Using a $T_1$-weighted sequences, after injection a dynamic series of
 % images is aquired.
-DCE-MRI relies on the reduction in T1 relaxation time caused by the
+DCE-MRI relies on the reduction in $T_1$ relaxation time caused by the
 contrast agent.  The quantitative analysis of DCE-MRI data in
 \pkg{dcemriS4} consists of the following steps
 \begin{enumerate}
-  \item Pre-processing of the T1 signal (e.g., correction of the B1
+  \item Pre-processing of the $T_1$ signal (e.g., correction of the B1
     field, motion correction, co-registration) is introduced in
     Sections~\ref{sec:motion} and~\ref{sec:b1},
   \item Estimation of voxel-wise contrast agent concentration time
@@ -206,10 +206,10 @@ contrast agent.  The quantitative analysis of DCE-MRI data in
     is discussed in Section~\ref{sec:statistics}.
 \end{enumerate}
 
-\subsection{T1 Relaxation Rate and Contrast Agent Concentration}
+\subsection{$T_1$ Relaxation Rate and Contrast Agent Concentration}
 \label{sec:t1}
 
-Estimation of the tissue T1 relaxation rate is the first step in
+Estimation of the tissue $T_1$ relaxation rate is the first step in
 converting signal intensity, obtained in the dynamic acquisition of
 the DCE-MRI protocol, to contrast agent concentration.  The subsequent
 steps provided here focus on pharmacokinetic modeling and assume one
@@ -230,7 +230,7 @@ $\TR\approx4$~ms is common for clinical acquisitions in practice.  The
 Levenberg-Marquardt algorithm, provided in \pkg{minpack.lm}
 \citep{minpack.lm}, is applied to estimate the parameters; see the
 discussion by \cite{ahe-etal:levenburg-marquardt}.  It is worthwhile
-to consult known T1 values $(T_{10}=1/R_{10})$ for different tissue
+to consult known $T_1$ values $(T_{10}=1/R_{10})$ for different tissue
 types to ensure the parameter estimates obtained are sensible.
 
 Estimation of the post-injection longitudinal relaxation rate $R_1(t)$
@@ -304,13 +304,13 @@ satisfies
 \end{equation}
 where $r$ represents spatial position and $\alpha_1(r)$ and
 $\alpha_2(r)$ are flip angles that vary with the spatially varying B1+
-field.  If the effects of T1 and T2 relaxation can be neglected,
+field.  If the effects of $T_1$ and $T_2$ relaxation can be neglected,
 then the actual flip angles as a function of spatial position satisfy
 \begin{equation}
   \alpha(r) = \text{arccos}\left(\left|\frac{I_2(r)}{2I_1(r)}\right|\right)
 \end{equation}
 A long repetition time ($\text{TR}\geq{5T_1}$) is typically used with
-double-angle methods so that there is no T1 dependence in either $I_1$
+double-angle methods so that there is no $T_1$ dependence in either $I_1$
 or $I_2$; i.e., $f_1(T_1,\text{TR})=f_2(T_1,\text{TR})=1$.  Instead,
 the proposed method includes a magnetization-reset sequence after each
 data acquisition with the goal of putting the spin population in the
@@ -319,7 +319,7 @@ for the preceding acquisition.
 
 \subsubsection{Example using Phantom Data}
 
-Using data acquired from a T1 phantom at two flip angles,
+Using data acquired from a $T_1$ phantom at two flip angles,
 $\alpha_1=60^\circ$ and $\alpha_2=120^\circ$, we compute the
 multiplicative factor relative to the low flip angle using the
 saturated double-angle method \citep{cun-pau-nay:saturated}.  Note,
@@ -364,7 +364,7 @@ dev.off()
   \caption{\textbf{(a)} Estimated B1+ field (with isotropic Gaussian
     smoothing) using the saturated double-angle method.  The colors
     correspond to a multiplicative factor relative to the true flip
-    angle ($60^\circ$).  \textbf{(b)} Estimated T1 relaxation rates
+    angle ($60^\circ$).  \textbf{(b)} Estimated $T_1$ relaxation rates
     for the phantom data acquisition.  The colormap covers the range
     $[0,2.5]\;\text{sec}$.}
   \label{fig:sdam+t1-phantom}
@@ -376,7 +376,7 @@ this field to modify flip angles associated with additional
 acquisitions; e.g., in the \pkg{AnalyzeFMRI} package
 \citep{AnalyzeFMRI}.  Figure~\ref{fig:sdam+t1-phantom}a is the
 estimated B1+ field (with isotropic Gaussian smoothing) for a
-gel-based phantom containing a variety of T1 relaxation times.  The
+gel-based phantom containing a variety of $T_1$ relaxation times.  The
 center of the phantom exhibits a flip angle $>60^\circ$ while the flip
 angle rapidly becomes $<60^\circ$ when moving away from the center in
 either the $x$, $y$ or $z$ dimensions.  The function \code{overlay} is
@@ -386,7 +386,7 @@ classes \code{nifti} and \code{anlz}) and \code{orthographic}.
   
 Assuming the smoothed version of the B1+ field has been computed (in
 the \code{SDAM} object here), multiple flip-angle acquisitions can be
-used to estimate the T1 relaxation rate from the subject (or phantom).
+used to estimate the $T_1$ relaxation rate from the subject (or phantom).
 The multiplicative factor, derived from the saturated double-angle
 method, is used to produce a spatially-varying flip-angle map and
 input into the function \code{R1.fast}.
@@ -421,10 +421,10 @@ overlay(vibe, 1/R1$R10[,,1:nsli(vibe)], z=13, zlim.x=c(0,1024),
 dev.off()
 @
 
-Figure~\ref{fig:sdam+t1-phantom}b displays the quantitative T1 map for
+Figure~\ref{fig:sdam+t1-phantom}b displays the quantitative $T_1$ map for
 a gel-based phantom using information from the estimated B1+ field.
 The horizontal tubes embedded within the phantom cover a range of
-$\text{T1}\in[350,1543]\;\text{ms}$, where shorter T1 relaxation times
+$T_1\in[350,1543]\;\text{ms}$, where shorter $T_1$ relaxation times
 are darker and longer relaxation times are brighter.  By defining
 regions of interest (ROIs) in FSLView we may construct a mask that
 separates voxels belonging to the 10~unique gels.
@@ -434,9 +434,9 @@ separates voxels belonging to the 10~unique gels.
   \begin{center}
     \includegraphics*[width=0.55\textwidth]{boxplots.pdf}
   \end{center}
-  \caption{Boxplots of the estimated T1 values for the gel-based
+  \caption{Boxplots of the estimated $T_1$ values for the gel-based
     phantom, grouped by user-specified regions of interest.  True
-    T1~values are displayed as colored circles for each distinct ROI.}
+    $T_1$~values are displayed as colored circles for each distinct ROI.}
   \label{fig:t1-phantom-boxplot}
 \end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -457,11 +457,11 @@ points(1:10, T1, col=rainbow(10), pch=16, cex=2)
 dev.off()
 @ 
 
-We compare the ``true'' T1 values for each ROI with those obtained
+We compare the ``true'' $T_1$ values for each ROI with those obtained
 from acquiring multiple flip angles with the application of B1+
 mapping in Figure~\ref{fig:t1-phantom-boxplot}.  Boxplots summarize
-the estimated T1~relaxation times, across all voxel in the ROI
-defined by \code{pmask}, with the true T1 values (large circles).  The
+the estimated $T_1$~relaxation times, across all voxel in the ROI
+defined by \code{pmask}, with the true $T_1$ values (large circles).  The
 first seven ROIs correspond to the cylinders that run around and
 through the phantom, clockwise starting from approximately one
 o'clock.  The eighth and ninth ROIs are taken from the main
@@ -693,7 +693,7 @@ only.  Two functions are provided to exploit the posterior PDF:
   distribution may be saved using the option \code{samples=TRUE},
   allowing one to interrogate the posterior probability density
   function (PDF) of all parameter estimates.  To increase
-  computational efficiency draws from the posterior distribution are
+  computational efficiency sampling from the posterior distribution is
   implemented in \proglang{C} and linked to \proglang{R}.  We have
   found retaining all samples from the joint posterior to be useful
   when wanting to construct, for example, voxel-wise credible
@@ -1407,7 +1407,7 @@ performed at each visit.\footnote{The analysis of DTI data is beyond
 methodology behind DWI and DTI are virtually identical, so we will
 ignore the extra information provide by a DTI acquisition and analyze
 the non-directional aspects of the diffusion process here.  There are
-13 data volumes in the DWI acquisition: a single T2-weighted image
+13 data volumes in the DWI acquisition: a single $T_2$-weighted image
 without diffusion weighting ($b=0$) and 12 volumes with different
 gradient encodings but the same diffusion weighting.  The $b$-value
 for this acquisition is $b=1000\;\text{sec/mm}^2$ (Barboriak,
@@ -1513,7 +1513,7 @@ A (nearly) complete pipeline for the analysis of DCE-MRI and DWI data
 has been established in \proglang{R}.  Acquisitions from the MR
 scanner, assumed to be provided in DICOM format, may be converted to
 the NIfTI format using the \pkg{oro.dicom} and \pkg{oro.nifti}
-packages.  Using \pkg{dcemriS4} dynamic T1-weighted acquisitions are
+packages.  Using \pkg{dcemriS4} dynamic $T_1$-weighted acquisitions are
 converted into contrast agent concentration time curves on a
 voxel-by-voxel basis.  A variety of compartmental models for the
 tissue kinetics, and models for the arterial input function (AIF), are

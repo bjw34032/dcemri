@@ -37,7 +37,7 @@ suggestions.
   bottom of page 2, ``T1'' is written both with and without a
   subscript.
 
-  \textbf{TO DO!}
+Fixed.
 
 \item A little more explanation of the final aim of the processing
   (i.e.  maps of estimated kinetic parameters, etc.), and an
@@ -85,7 +85,12 @@ suggestions.
   reason for using the median rather than the mean of the posterior
   distribution as the summary statistic?
 
-  \textbf{TO DO!}
+  The median is a more robust summary statistic and is frequently used
+  as point estimator in Bayesian statistic. The posterior median is prefered,
+  as it typically closer to the posterior mode -- which is the Bayesian
+  analogon to the Maximum Likelihood point estimator -- than the posterior
+  mean, see Carlin, Louis: Bayesian Methods for Data Analysis. Boca 
+  Raton:Chapman \& Hall, 2009.
 
 \item In \S4.2, the authors state that ``... high ADC values correspond
   to pure isotrpic diffusion of water molecules in the tissue''.  This
@@ -160,6 +165,8 @@ suggestions.
   for various Gadolinium chelates at differing field strengths.. in
   blood or plasma?
 
+  \textbf{TO DO!}
+
 \item P.5 – Should the actual command line R-code actually be included
   in the text or an appendix?
 
@@ -183,11 +190,16 @@ suggestions.
   done routinely in PET.  Should also show an actual AIF from a human
   subject and representative fit..
 
-  
+  \textbf{TO DO!}  
 
 \item P.11 – ``To increase computational efficiency draws from the
   posterior distribution are implemented in C and linked to R.'' –
   What draws from the posterior distribution??
+
+  As stated in the same paragraph, samples from the posterior PDF 
+  are drawn. We replaced the sentence with ``To increase
+  computational efficiency sampling from the posterior distribution is
+  implemented in \proglang{C} and linked to \proglang{R}.''.
 
 \item P.13 – ``Contrast is generated when the diffusion of molecules
   in tissue prefer a specific direction'' – Please see comment \#3 as
@@ -195,14 +207,20 @@ suggestions.
   be obtained in the core infarct of an ischemic stroke in regions of
   isotropic diffusion.
 
+  \textbf{TO DO!}  
+
 \item P.13 – Might also mention higher diffusion b-values
   (i.e. $>1000$ s/mm2) to examine slow/fast components of diffusion
   related to intra/extracellular diffusion.
+
+  \textbf{TO DO!}  
 
 \item P.13 – Was even a paper out a few years back touching on
   diffusion in DCE analysis.  Pellerin M, Yankeelov TE, Lepage
   M. Incorporating contrast agent diffusion into the analysis of
   DCE-MRI data. Magn Reson Med. 2007 Dec;58(6):1124-34.
+
+  \textbf{TO DO!}  
 
 \item P.13 – ``Observing an increase in diffusivity..'' – Need to be
   cautious here as tumors may show increased ADC due to initial edemic
@@ -212,8 +230,12 @@ suggestions.
   tumor types do not all respond the same as well as variation in Tx
   (XRT, Chemo, etc.).
 
+  \textbf{TO DO!}  
+
 \item P.14 – ``we utilize a binary mask'' – How was this mask created
   and what threshold was decided upon to create the mask??
+
+  \textbf{TO DO!}  
 
 \item P.14 – ``from an appropriate voxel or collection of voxel'' –
   should be ``voxels''.
@@ -225,18 +247,29 @@ suggestions.
   closer to the feeding vessel of the tumor may be better served for
   other tumor types outside the brain.
 
+  \textbf{TO DO!}  
+
 \item P.15 – a reference to ``fritz.hansen'' is made in the
   code.. does this refer to a subject/colleague name?
+
+  The name of this options is in reference to Fritz-Hansen et al. (1996), 
+  who proposed values for the bio-exponential AIF. 
 
 \item P.15 – ``ve is high at the tumor rim'' - Is the maximum value of
   this parameter constrained? i.e. can there be $>$ 100\% for the
   extravascular extracellular space?
 
+  \textbf{TO DO!}  
+
 \item P.15 – Likewise is.. ve + vp $<$1 used as a constraint?
+
+  \textbf{TO DO!}  
 
 \item P.15 – ``The SSE over the given ROI covers a variety of tissue
   types'' – Has this program been tested or applied to non-cerebellar
   tumor types (i.e, breast, colorectal, prostate.)
+
+  \textbf{TO DO!}  
 
 \item P.21 – ``The methodology behind DWI and DTI are virtually
   identical.. so we will ignore the extra information provide''
@@ -248,13 +281,19 @@ suggestions.
   calculated the DWI. (Might also mention that all major vendors
   compute the fractional anisotropy (FA) maps online.)
 
+  \textbf{TO DO!}  
+
 \item Also, in my experience, the ADC map created from the DTI data
   set may differ slightly from that acquired with a 3-Trace DWI
   sequence.
 
+  \textbf{TO DO!}  
+
 \item P.22 – ``range of physical units for the ADC values is [0.0005,
   0.003]'' – Interestingly, I have also seen values greater than this
   due to CSF flow phenomenon.
+
+  \textbf{TO DO!}  
 
 \item P.22 – ``isotrpic diffusion'' – should be ``isotropic''
 
@@ -267,8 +306,12 @@ suggestions.
   the result of a straight linear regression which is must less
   involved than the DCE-MRI analysis presented in this work.
 
+  \textbf{TO DO!}  
+
 \item P.26 – Are there capabilities available for incorporation of a
   user-defined AIF taken from the DCE-MRI data set??
+
+  \textbf{TO DO!}  
 
 \end{enumerate}
 
