@@ -225,10 +225,10 @@ suggestions.
   posterior distribution are implemented in C and linked to R.'' –
   What draws from the posterior distribution??
 
-  As stated in the same paragraph, samples from the posterior PDF 
-  are drawn. We replaced the sentence with ``To increase
-  computational efficiency sampling from the posterior distribution is
-  implemented in \textsf{C} and linked to \textsf{R}.''.
+  As stated in the same paragraph, samples from the posterior PDF are
+  drawn.  We replaced the sentence with ``To increase computational
+  efficiency sampling from the posterior distribution is implemented
+  in \textsf{C} and linked to \textsf{R}.''.
 
 \item P.13 – ``Contrast is generated when the diffusion of molecules
   in tissue prefer a specific direction'' – Please see comment \#3 as
@@ -242,14 +242,20 @@ suggestions.
   (i.e. $>1000$ s/mm2) to examine slow/fast components of diffusion
   related to intra/extracellular diffusion.
 
-  \textbf{TO DO!}  
+  Do you have a reference for this?  As it stands we are taking
+  guidance from \citet{pad-etal:neoplasia}.  We would be happy to add
+  more information regarding $b$-values with appropriate references.
 
 \item P.13 – Was even a paper out a few years back touching on
   diffusion in DCE analysis.  Pellerin M, Yankeelov TE, Lepage
   M. Incorporating contrast agent diffusion into the analysis of
   DCE-MRI data. Magn Reson Med. 2007 Dec;58(6):1124-34.
 
-  \textbf{TO DO!}  
+  Thank-you for this reference.  We were not aware of this paper.  It
+  would be difficult to include it at this point in time, since the
+  manuscript is limited to covering the current capabilities of the
+  \textbf{dcemriS4} package.  This diffusion-perfusion model would be
+  an interesting addition to its functionality.
 
 \item P.13 – ``Observing an increase in diffusivity..'' – Need to be
   cautious here as tumors may show increased ADC due to initial edemic
@@ -264,7 +270,10 @@ suggestions.
 \item P.14 – ``we utilize a binary mask'' – How was this mask created
   and what threshold was decided upon to create the mask??
 
-  \textbf{TO DO!}  
+  The binary mask was created using FSLView, the popular viewing
+  software packaged with FSL.  A non-expert (BW) placed a square of
+  fixed dimension over several slices that appeared to contain a
+  tumor.  No threshold was used to create the binary mask.
 
 \item P.14 – ``from an appropriate voxel or collection of voxel'' –
   should be ``voxels''.
@@ -276,29 +285,41 @@ suggestions.
   closer to the feeding vessel of the tumor may be better served for
   other tumor types outside the brain.
 
-  \textbf{TO DO!}  
+  We agree completely.  The literature-based AIF is used for
+  illustrative purposes only.  We do not advocate using such an AIF in
+  practice.
 
 \item P.15 – a reference to ``fritz.hansen'' is made in the
   code.. does this refer to a subject/colleague name?
 
   The name of this option refers to \citet{fri-etal:measurement}, who
-  proposed values for the bio-exponential AIF.
+  proposed values for the bio-exponential AIF.  This work has been
+  cited in the AIF section.
 
 \item P.15 – ``ve is high at the tumor rim'' - Is the maximum value of
   this parameter constrained? i.e. can there be $>$ 100\% for the
   extravascular extracellular space?
 
-  \textbf{TO DO!}  
+  The volume of EES is not constrained during estimation.  We have
+  discussed this with reviewers when submitting similar analyses to
+  journals in the past.  Our position is that the mathematical models
+  used in describing the contrast agent concentration over time are
+  overly simplistic and imposing such a rigid constraint does not
+  benefit the user since it is difficult to believe that the model
+  captures the true biological state of perfusion in tissue.
 
 \item P.15 – Likewise is.. ve + vp $<$1 used as a constraint?
 
-  \textbf{TO DO!}  
+  No, a hard constraint on either of the volume parameters is not
+  implemented during estimation.  For more information, please see our
+  answer to the previous item.
 
 \item P.15 – ``The SSE over the given ROI covers a variety of tissue
   types'' – Has this program been tested or applied to non-cerebellar
   tumor types (i.e, breast, colorectal, prostate.)
 
-  \textbf{TO DO!}  
+  Yes, we have applied these algorithms to breast, head-and-neck and
+  prostate tumors.
 
 \item P.21 – ``The methodology behind DWI and DTI are virtually
   identical.. so we will ignore the extra information provide''
@@ -310,19 +331,23 @@ suggestions.
   calculated the DWI. (Might also mention that all major vendors
   compute the fractional anisotropy (FA) maps online.)
 
-  \textbf{TO DO!}  
+  Fixed.  We appreciate the comments from the reviewer, but we do not
+  think that a discussion of diffusion tensor imaging (DTI) is
+  appropriate in this manuscript.  We only mention DTI since the
+  RIDER~NEURO~MRI acquisition contains such a sequence, and we happen
+  to use it for illustrative purposes in DWI.
 
 \item Also, in my experience, the ADC map created from the DTI data
   set may differ slightly from that acquired with a 3-Trace DWI
   sequence.
 
-  \textbf{TO DO!}  
+  Thank-you, we have added a sentence that states this fact.
 
 \item P.22 – ``range of physical units for the ADC values is [0.0005,
   0.003]'' – Interestingly, I have also seen values greater than this
   due to CSF flow phenomenon.
 
-  \textbf{TO DO!}  
+  Thank-you for your comment.
 
 \item P.22 – ``isotrpic diffusion'' – should be ``isotropic''
 

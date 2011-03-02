@@ -129,11 +129,13 @@ as ANALYZE or NIfTI) that may be visualized and manipulated in
 \proglang{R} \citep{R} and exported for accessibility across a wide
 variety of medical image analysis software packages.
 
-The \proglang{S}4 designation in \pkg{dcemriS4} means that \proglang{S}4 object classes are
-used throughout to ensure efficient and transparent manipulation of
-ANALYZE or NIfTI data structures.  Data input and output rely upon the
-\pkg{oro.nifti} package \citep{oro.nifti}.
-%, where both ANALYZE and NIfTI data are represented in \proglang{S}4 classes.  
+The \proglang{S}4 designation in \pkg{dcemriS4} means that
+\proglang{S}4 object classes are used throughout to ensure efficient
+and transparent manipulation of ANALYZE or NIfTI data structures.
+Data input and output rely upon the \pkg{oro.nifti} package
+\citep{oro.nifti}.
+% , where both ANALYZE and NIfTI data are represented in \proglang{S}4
+% classes.
 Parameter estimates in \pkg{dcemriS4} inherit attributes from the
 incoming ANALYZE/NIfTI objects in order to preserve anatomical and
 physiological information for appropriate visualization in
@@ -1413,20 +1415,25 @@ standard Kety model.
 
 The RIDER~Neuro~MRI data repository does not provide DWI acquisitions
 \emph{per se} but a diffusion tensor imaging (DTI) acquisition was
-performed at each visit.\footnote{The analysis of DTI data is beyond
-  the scope of this article, but the interested reader is pointed to
-  the following references: \citet{Horsfield2002,tof:book}.}  The
-methodology behind DWI and DTI are virtually identical, so we will
-ignore the extra information provide by a DTI acquisition and analyze
-the non-directional aspects of the diffusion process here.  There are
-13 data volumes in the DWI acquisition: a single T2-weighted image
-without diffusion weighting ($b=0$) and 12 volumes with different
-gradient encodings but the same diffusion weighting.  The $b$-value
-for this acquisition is $b=1000\;\text{sec/mm}^2$ (Barboriak,
-\emph{personal communication}), a common value in clinical practice.
-As previously noted this acquisition protocol has not been optimized
-for ADC estimation, and will include both perfusion and diffusion
-effects, but is adequate for the purpose of illustration.
+performed at each visit.  \textcolor{BrickRed}{The analysis of DTI
+  data is beyond the scope of this article, but the interested reader
+  is pointed to the following references:
+  \citet{Horsfield2002,tof:book}.}  The methodology behind DWI and DTI
+are virtually identical, so we will ignore the extra information
+provided by a DTI acquisition and analyze the non-directional aspects
+of the diffusion process here.  \textcolor{BrickRed}{We acknowledge
+  the fact that the ADC values derived from this DTI acquisition may
+  differ slightly from those estimated using a more common DWI
+  sequence.}
+
+There are 13 data volumes in the DWI acquisition: a single T2-weighted
+image without diffusion weighting ($b=0$) and 12 volumes with
+different gradient encodings but the same diffusion weighting.  The
+$b$-value for this acquisition is $b=1000\;\text{sec/mm}^2$
+(Barboriak, \emph{personal communication}), a common value in clinical
+practice.  As previously noted this acquisition protocol has not been
+optimized for ADC estimation, and will include both perfusion and
+diffusion effects, but is adequate for the purpose of illustration.
 
 <<RIDERNeuroMRI+dwi1>>=
 tensor <- paste("281949", "19040721", "axtensor", sep="_")
