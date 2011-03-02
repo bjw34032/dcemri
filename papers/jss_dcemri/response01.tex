@@ -18,6 +18,31 @@ March~1, 2011
 
 \end{center}
 
+\section*{Associate Editor}
+
+\subsection*{General Comments}
+
+\begin{itemize}
+
+\item Generating the pdf document from Sweave includes information on
+  different machines (where the creation has been done).  Thus the
+  audit.trail in Fig.10 should be edit slightly in the final version
+  (working directory).
+
+  \textbf{TO DO!}
+
+\end{itemize}
+
+\subsection*{Specific Comments}
+
+\begin{itemize}
+
+\item Can the grey scale contrast be enhanced in the images?
+
+  \textbf{TO DO!}
+
+\end{itemize}
+
 \section*{Reviewer \#1}
 
 We would like to thank the reviewer for all his/her comments and
@@ -37,7 +62,8 @@ suggestions.
   bottom of page 2, ``T1'' is written both with and without a
   subscript.
 
-Fixed.
+  We have adopted the notation ``T1'' and ``T2'' throughout the
+  manuscript.
 
 \item A little more explanation of the final aim of the processing
   (i.e.  maps of estimated kinetic parameters, etc.), and an
@@ -46,6 +72,8 @@ Fixed.
   clearer to the reader where the manuscript is going.  It is also not
   entirely clear how the steps laid out there link to one another, and
   it would be useful to make this a bit more explicit.
+
+  \textbf{TO DO!}
 
 \item Some terms seem not be defined before first use.  It's not clear
   to me exactly what m\_0 and R\_10 each represent on page 3;
@@ -58,6 +86,8 @@ Fixed.
   what these pulses are. I realise that many/most readers may know
   about these terms, but defining them, or avoiding their use entirely
   if they aren't really needed, would make the paper more accessible.
+
+  \textbf{TO DO!}
 
 \item The URL for ITK is given as ikg.org on page 4. This should be
   corrected.
@@ -86,11 +116,10 @@ Fixed.
   distribution as the summary statistic?
 
   The median is a more robust summary statistic and is frequently used
-  as point estimator in Bayesian statistic. The posterior median is prefered,
-  as it typically closer to the posterior mode -- which is the Bayesian
-  analogon to the Maximum Likelihood point estimator -- than the posterior
-  mean, see Carlin, Louis: Bayesian Methods for Data Analysis. Boca 
-  Raton:Chapman \& Hall, 2009.
+  as the point estimator in Bayesian inference.  The posterior median
+  is prefered since it is typically closer to the posterior mode (the
+  Bayesian analog to the maximum-likelihood estimator of location)
+  than the posterior mean \citep{car-lou:Bayesian}.
 
 \item In \S4.2, the authors state that ``... high ADC values correspond
   to pure isotrpic diffusion of water molecules in the tissue''.  This
@@ -124,8 +153,8 @@ suggestions.
   file.. missing references, etc..
 
   This was a problem with the \texttt{Sweave} procedure used by the
-  associate editor.  All citations/references are valid in the
-  manuscript.
+  associate editor.  All citations/references have been checked and
+  are valid in the manuscript.
 
 \item P.2 – ``DWI quantifies the deviation of diffusion from
   isotropy'' This statement is not true..  DWI using equivalent
@@ -154,7 +183,7 @@ suggestions.
   (both T1- and T2-weighted) after the patient has been positioned in
   the scanner.'' - Not needed..
 
-  \textbf{TO DO!}
+  Removed.
 
 \item p.4 – ``For computational reasons, we follow the method of ?'' –
   Which method and why?
@@ -199,7 +228,7 @@ suggestions.
   As stated in the same paragraph, samples from the posterior PDF 
   are drawn. We replaced the sentence with ``To increase
   computational efficiency sampling from the posterior distribution is
-  implemented in \proglang{C} and linked to \proglang{R}.''.
+  implemented in \textsf{C} and linked to \textsf{R}.''.
 
 \item P.13 – ``Contrast is generated when the diffusion of molecules
   in tissue prefer a specific direction'' – Please see comment \#3 as
@@ -252,8 +281,8 @@ suggestions.
 \item P.15 – a reference to ``fritz.hansen'' is made in the
   code.. does this refer to a subject/colleague name?
 
-  The name of this options is in reference to Fritz-Hansen et al. (1996), 
-  who proposed values for the bio-exponential AIF. 
+  The name of this option refers to \citet{fri-etal:measurement}, who
+  proposed values for the bio-exponential AIF.
 
 \item P.15 – ``ve is high at the tumor rim'' - Is the maximum value of
   this parameter constrained? i.e. can there be $>$ 100\% for the
@@ -311,7 +340,9 @@ suggestions.
 \item P.26 – Are there capabilities available for incorporation of a
   user-defined AIF taken from the DCE-MRI data set??
 
-  \textbf{TO DO!}  
+  Yes, it is possible to supply a user-defined AIF.  We have added a
+  few sentences in the RIDER~Neuro~MRI example that highlights this
+  feature.
 
 \end{enumerate}
 
