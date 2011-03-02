@@ -147,7 +147,10 @@ suggestions.
 \item P.1 - Why is it called dcemriS4 if it also does diffusion
   weighted image processing? DTI?
 
-  \textbf{TO DO!}
+  The \textbf{dcemriS4} package originally only contained
+  mathematical models for DCE-MRI, but since DWI has become quite
+  popular in oncology additional functionality has been included to
+  allow ADC estimation.  
 
 \item P.2 – Many, many ``?'' question marks throughout the pdf
   file.. missing references, etc..
@@ -188,13 +191,21 @@ suggestions.
 \item p.4 – ``For computational reasons, we follow the method of ?'' –
   Which method and why?
 
-  \textbf{TO DO!}
+  This was a problem with the \texttt{Sweave} procedure used by the
+  associate editor.  All citations/references have been checked and
+  are valid in the manuscript.
 
 \item Also, will you confirm what relaxation values you will be using
   for various Gadolinium chelates at differing field strengths.. in
   blood or plasma?
 
-  \textbf{TO DO!}
+  This is a good point.  We supply a fairly generic value for $r_1$ by
+  default, but we leave it up to the user to check which value is
+  appropriate for their gadolinium chelate and field strength.  I am
+  aware of a document by Dr. Val Runge, presented at the 2009 ISMRM I
+  think, that provides a nice table of gadolinium chelates and their
+  properties.  However, I do not know how to reference such a
+  unpublished document.
 
 \item P.5 – Should the actual command line R-code actually be included
   in the text or an appendix?
@@ -219,7 +230,13 @@ suggestions.
   done routinely in PET.  Should also show an actual AIF from a human
   subject and representative fit..
 
-  \textbf{TO DO!}  
+  We have thought about using a PET-like alternative to the parametric
+  models for the AIF from the DCE-MRI literature.  One advantage of
+  our current set of parametric models is that they have analytical
+  solutions, when convolved with the compartmental model, and thus
+  offer computational efficiency.  This could be done for the
+  linear-plus-single/double-exponential model, but we have not
+  investigated it.
 
 \item P.11 – ``To increase computational efficiency draws from the
   posterior distribution are implemented in C and linked to R.'' –
