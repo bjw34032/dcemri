@@ -214,42 +214,47 @@ contrast agent.  The quantitative analysis of DCE-MRI data in
 \subsection{T1 Relaxation Rate and Contrast Agent Concentration}
 \label{sec:t1}
 
-Estimation of the tissue T1 relaxation rate is the first step in
+Estimation of the longitudinal relaxation time T1 is the first step in
 converting signal intensity, obtained in the dynamic acquisition of
-the DCE-MRI protocol, to contrast agent concentration.  The subsequent
-steps provided here focus on pharmacokinetic modeling and assume one
-has converted the raw scanner data to contrast agent concentration.
-Please see \cite{col-pad:ieee} for a discussion on this point.
-
-Multiple flip-angle acquisitions are commonly used to estimate the
-intrinsic relaxation rate maps $\{m_0,R_{10}\}$ of the tissue, the
-stated non-linear equation
+the DCE-MRI protocol, to contrast agent concentration
+\citep{buc-par:measuring}.  \textcolor{BrickRed}{Note, the
+  longitudinal (or spin-lattice) relaxation time T1 is the decay
+  constant of the recovery of the $z$ component of the nuclear spin
+  magnetization towards its thermal equilibrium value
+  \citep{bux:introduction}.}  Multiple flip-angle acquisitions are
+commonly used to estimate the intrinsic relaxation rate maps
+$\{m_0,R_{10}\}$ of the tissue, where $m_0$ is \textbf{???} and
+$R_{10}$ is the pre-injection longitudinal relaxation rate.  The
+non-linear equation
 \begin{equation}
   S(\theta) = \frac{m_0 \sin(\theta) (1 - E_{10})} {1 - \cos(\theta)
     E_{10}},\label{eqn:signal}
 \end{equation}
 where $E_{10}=\exp(-\TR{\cdot}R_{10})$, relates the observed signal
 intensity $S(\cdot)$ with the parameters of interest when varying the
-flip angle $\theta$.  Note, the transverse relaxation time of
-$\TR\approx4$~ms is common for clinical acquisitions in practice.  The
-Levenberg-Marquardt algorithm, provided in \pkg{minpack.lm}
-\citep{minpack.lm}, is applied to estimate the parameters; see the
-discussion by \cite{ahe-etal:levenburg-marquardt}.  It is worthwhile
-to consult known T1 values $(T_{10}=1/R_{10})$ for different tissue
-types to ensure the parameter estimates obtained are sensible.
+flip angle $\theta$ \textcolor{BrickRed}{before injection of the
+  contrast agent.}  Note, a repetition time of
+$\TR\approx4\;\text{ms}$ is common practice for pulse sequences in
+clinical applications.  The Levenberg-Marquardt algorithm, provided in
+\pkg{minpack.lm} \citep{minpack.lm}, is applied to estimate the
+parameters; see the discussion by \cite{ahe-etal:levenburg-marquardt}.
+It is worthwhile to consult known T1 values $(T_{10}=1/R_{10})$ for
+different tissue types \textcolor{BrickRed}{(e.g., muscle, grey
+  matter, white matter)} to ensure the parameter estimates obtained
+are sensible.
 
 Estimation of the post-injection longitudinal relaxation rate $R_1(t)$
-using the signal intensity from pre- and post-contrast acquisitions is
-performed via
+using the time-varying signal intensity $S(t)$ from pre- and
+post-contrast acquisitions is performed via
 \begin{eqnarray}
   A(t) & = & \frac{S(t) - S(0)}{m_0\sin(\theta)}\\
   B & = & \frac{1 - E_{10}}{1 - \cos(\theta) E_{10}}\\
   R_1(t) & = & -\frac{1}{\TR} \cdot \ln\left\{\frac{1 - [A(t)+B]}{1
     - \cos(\theta)[A(t) + B]}\right\},
 \end{eqnarray}
-where $\theta\in[10^\circ,30^\circ]$ is common for clinical
-acquisitions and depends on both the field strength of the magnet and
-the anatomy of interest.
+where the flip angle $\theta\in[10^\circ,30^\circ]$ is common for the
+dynamic acquisitions, but will depend on both the field strength of
+the magnet and the anatomical region of interest.
 
 The function \code{R1.fast} (embedded within \code{CA.fast})
 rearranges the multi-dimensional structure of the multiple flip-angle
@@ -282,19 +287,21 @@ sophisticated image registration methodology in \proglang{R} is being
 developed in the \pkg{RNiftyReg} package \citep{RNiftyReg}.  Access to
 the image registration routines from the Insight Toolkit (ITK,
 \url{http://www.itk.org}) is highly desirable and currently under
-negotiation.
+investigation.
 
 \subsection{B1 Mapping Via the Saturated Double-Angle Method}
 \label{sec:b1}
 
 For \emph{in vivo} MRI at high field ($\geq{3}\text{Tesla}$) it is
 essential to consider the homogeneity of the active B1 field (B1+).
-The B1+ field is the transverse, circularly polarized component of B1
-that is rotating in the same sense as the magnetization.  When
-exciting large collections of spins, non-uniformity in B1+ results in
-nonuniform treatment of spins.  This leads to a spatially varying
-signal and contrast, and to difficulty in image interpretation and
-quantification \citep{cun-pau-nay:saturated}.
+\textcolor{BrickRed}{The B1 field is the magnetic field created by the
+  radio frequency coil passing an alternating current at the Larmor
+  frequency.}  The B1+ field is the transverse, circularly polarized
+component of B1 that is rotating in the same sense as the
+magnetization.  When exciting large collections of spins,
+non-uniformity in B1+ results in nonuniform treatment of spins.  This
+leads to a spatially varying signal and contrast, and to difficulty in
+image interpretation and quantification \citep{cun-pau-nay:saturated}.
 
 The proposed method uses an adaptation of the double angle method
 (DAM).  Such methods allow calculation of a flip-angle map, which is
@@ -547,6 +554,12 @@ true process.
 
 \subsection{Kinetic Parameter Estimation}
 \label{sec:kinetic}
+
+\textcolor{BrickRed}{The focus in this section is fully quantitative
+  pharmacokinetic modeling of tissue perfusion and assumes the raw
+  scanner data has been converted to contrast agent concentration.
+  Please see \cite{col-pad:ieee} and \cite{buc-par:measuring} for
+  discussions on this point.}
 
 The standard Kety model \citep{ket:blood-tissue}, a single-compartment
 model, and the extended Kety model, the standard Kety model with an
@@ -916,17 +929,18 @@ estimating the ADC value, one should exclude any acquisitions with
 $b\leq100\;\text{s/mm}^2$ to minimize the influence of perfusion
 effects.
 
-The diffusion of water without restrictions is approximately
-$3.0{\times}10^{-3}\;\text{mm}^2/\text{s}$.  Once the ADC is estimated
-in the tissue of interest at baseline, treatment response may be
-assessed at subsequent time points.  The most appropriate timings
-depend on both the type of tumor and treatment regime.  Observing an
-decrease in diffusivity, via a decrease in the ADC values
-post-treatment, may be a result of cell swelling after initial
-chemotherapy or radiotherapy followed by an increase in diffusivity,
-via an increase in the ADC values, from cell necrosis and lysis.  A
-decrease in ADC values may be observed directly through tumor
-apoptosis after treatment \citep{koh-pad:DW-MRI,pad-etal:neoplasia}.
+The \textcolor{BrickRed}{diffusivity} of water without restrictions is
+approximately $3.0{\times}10^{-3}\;\text{mm}^2/\text{s}$.  Once the
+ADC is estimated in the tissue of interest at baseline, treatment
+response may be assessed at subsequent time points.  The most
+appropriate timings depend on both the type of tumor and treatment
+regime.  Observing an decrease in diffusivity, via a decrease in the
+ADC values post-treatment, may be a result of cell swelling after
+initial chemotherapy or radiotherapy followed by an increase in
+diffusivity, via an increase in the ADC values, from cell necrosis and
+lysis.  A decrease in ADC values may be observed directly through
+tumor apoptosis after treatment
+\citep{koh-pad:DW-MRI,pad-etal:neoplasia}.
 
 \section{The RIDER Neuro MRI Data Repository}
 
@@ -1481,9 +1495,11 @@ brain tissue (white or grey matter).
 
 The application of DWI to oncology is still a relatively immature
 field and caution should be used when interpreting any results because
-of the indirect nature of MRI data acquisition.  However, numerous
-authors have published on this topic and the interested reader is
-encouraged to look at
+of the indirect nature of MRI data acquisition;
+\textcolor{BrickRed}{the pharmcodynamic effects of treatment are being
+  measured not directly in tissue, but via the diffusivity of water
+  molecules in the tissue}.  However, numerous authors have published
+on this topic and the interested reader is encouraged to look at
 \cite{koh-pad:DW-MRI,yan-etal:integration,pad-etal:neoplasia}.
 
 \subsubsection{Audit Trail}
