@@ -162,13 +162,14 @@ and application of DCE-MRI.
 
 Diffusion weighted imaging (DWI) is under rapid development as an
 oncology imaging biomarker \citep{che-etal:diffusion,koh-pad:DW-MRI}.
-Using the endogenous contrast of water diffusion in tissue, DWI
-quantifies the deviation of diffusion from isotropy; i.e., assuming
-completely unrestricted motion of water (isotropic diffusion) how
-restricted is the motion of water in a given voxel of tissue?
-Deviations from isotropy (anisotropic diffusion) in tissue
-\textcolor{BrickRed}{are} then used to infer biological information;
-e.g., detection, disease progression, treatment response.
+DWI allows one to quantify the diffusion behavior of water by
+estimating the apparent diffusion coefficient (ADC)
+\citep{whe-etal:D}.  Assuming completely unrestricted motion of water
+how restricted is the motion of water given the barriers of biological
+tissue?  \textcolor{BrickRed}{The reduction in the ability of water to
+  diffuse in tissue has been are} used to infer biological
+information; e.g., tumor detection, disease progression, treatment
+response.
 
 \section{Dynamic Contrast-Enhanced Magnetic Resonance Imaging}
 
@@ -894,9 +895,9 @@ using functional data analysis \citep{oco-etal:fPCA}.
 \section{Diffusion Weighted Imaging}
 
 Diffusion weighted imaging (DWI), also known as diffusion-weighted MRI
-(DW-MRI), is a technique that measures the Brownian motion of water
-molecules to estimate the diffusion characteristics of tissue \emph{in
-  vivo} \citep{mos-etal:diffusion,bux:introduction}.  Contrast is
+(DW-MRI), is a technique \textcolor{BrickRed}{that provides a unique
+  insight into tissue structure through MRI diffusion measurements}
+\emph{in vivo} \citep{mos-etal:diffusion,whe-etal:D}.  Contrast is
 generated when the diffusion of molecules in tissue prefer a specific
 direction in three-dimensional space (anisotropic diffusion) relative
 to any particular direction (isotropic diffusion).  
@@ -907,12 +908,12 @@ Using the Stejskal--Tanner equation
   S_0 \exp\left(-bD\right),
 \end{equation}
 one may solve for the unknown diffusion to obtain the \emph{apparent
-  diffusion coefficient} (ADC) $D$.  For completeness, $S_0$ is the
-(unknown) signal intensity without the diffusion weighting, $S$ is the
-observed signal with the gradient applied, $\gamma$ is the
-gyromagnetic ratio, $G$ is the strength of the gradient pulse,
-$\delta$ is the duration of the gradient pulse and $\Delta$ is the
-time between the two pulses.  The micro-parameters
+  diffusion coefficient} (ADC) $D$ \citep{whe-etal:D}.  For
+completeness, $S_0$ is the (unknown) signal intensity without the
+diffusion weighting, $S$ is the observed signal with the gradient
+applied, $\gamma$ is the gyromagnetic ratio, $G$ is the strength of
+the gradient pulse, $\delta$ is the duration of the gradient pulse and
+$\Delta$ is the time between the two pulses.  The micro-parameters
 $(\gamma,G,\Delta,\delta)$ are selected prior to data acquisition and
 may be combined into a single parameter
 $b=\gamma^2G^2\delta^2(\Delta-\delta/3)$, known as the $b$-value.  The
@@ -924,23 +925,23 @@ algorithm.
 Acquisition protocols typically involve obtaining a volume without
 diffusion weighting ($b=0\;\text{s/mm}^2$), at low diffusion weighting
 ($b\geq100\;\text{s/mm}^2$) and higher diffusion weighting
-($b\geq500\;\text{s/mm}^2$) \citep{pad-etal:neoplasia}.  When
-estimating the ADC value, one should exclude any acquisitions with
-$b\leq100\;\text{s/mm}^2$ to minimize the influence of perfusion
-effects.
+($b\geq500\;\text{s/mm}^2$).  When estimating the ADC value, one
+should exclude any acquisitions with $b\leq100\;\text{s/mm}^2$ to
+minimize the influence of perfusion effects
+\citep{pad-etal:neoplasia}.
 
-The \textcolor{BrickRed}{diffusivity} of water without restrictions is
-approximately $3.0{\times}10^{-3}\;\text{mm}^2/\text{s}$.  Once the
-ADC is estimated in the tissue of interest at baseline, treatment
-response may be assessed at subsequent time points.  The most
-appropriate timings depend on both the type of tumor and treatment
-regime.  Observing an decrease in diffusivity, via a decrease in the
-ADC values post-treatment, may be a result of cell swelling after
-initial chemotherapy or radiotherapy followed by an increase in
-diffusivity, via an increase in the ADC values, from cell necrosis and
-lysis.  A decrease in ADC values may be observed directly through
-tumor apoptosis after treatment
-\citep{koh-pad:DW-MRI,pad-etal:neoplasia}.
+The \textcolor{BrickRed}{diffusivity} of water \textcolor{BrickRed}{at
+  room temperature} without restrictions is approximately
+$3.0{\times}10^{-3}\;\text{mm}^2/\text{s}$.  Once the ADC is estimated
+in the tissue of interest at baseline, treatment response may be
+assessed at subsequent time points.  The most appropriate timings
+depend on both the type of tumor and treatment regime.  Observing an
+decrease in diffusivity, via a decrease in the ADC values
+post-treatment, may be a result of cell swelling after initial
+chemotherapy or radiotherapy followed by an increase in diffusivity,
+via an increase in the ADC values, from cell necrosis and lysis.  A
+decrease in ADC values may be observed directly through tumor
+apoptosis after treatment \citep{koh-pad:DW-MRI,pad-etal:neoplasia}.
 
 \section{The RIDER Neuro MRI Data Repository}
 
@@ -1486,12 +1487,12 @@ Given the larger voxel dimensions for the DTI acquisition
 ROI were selected for ADC estimation and are displayed in
 Figure~\ref{fig:tensor}.  The range of physical units for the ADC
 values is $[0.0005,0.003]\,\text{mm$^2$/s}$, where high ADC values
-correspond to pure isotropic diffusion of water molecules in the
-tissue.  Thus, bright areas in the ROI may be found, for example, in
-the ventricles or major blood vessels and to a lesser extent the
-tumor(s).  There appear to be areas of high diffusion in the core of
-each tumor when compared to either the rim of the tumor or ``normal''
-brain tissue (white or grey matter).
+correspond \textcolor{BrickRed}{to the high mobility of water
+  molecules in tissue}.  Thus, bright areas in the ROI may be found,
+for example, in the ventricles or major blood vessels and to a lesser
+extent the tumor(s).  There appear to be areas of high diffusion in
+the core of each tumor when compared to either the rim of the tumor or
+``normal'' brain tissue (white or grey matter).
 
 The application of DWI to oncology is still a relatively immature
 field and caution should be used when interpreting any results because
@@ -1552,7 +1553,7 @@ packages.  Using \pkg{dcemriS4} dynamic T1-weighted acquisitions are
 converted into contrast agent concentration time curves on a
 voxel-by-voxel basis.  A variety of compartmental models for the
 tissue kinetics, and models for the arterial input function (AIF), are
-avaialble.  Point estimates for kinetic parameters are provided in a
+available.  Point estimates for kinetic parameters are provided in a
 fast and robust manner using either least-squares or \emph{maximum a
   posteriori} techniques, and information about the uncertainty in
 these parameter estimates may be obtained from the Bayesian MCMC
@@ -1565,12 +1566,12 @@ information stored in the original DICOM data (e.g., patient~ID or the
 scan date) when performing an analysis.  In addition, each step in the
 data analysis pipeline may be recorded using the audit trail
 capability provided by \pkg{oro.nifti}.  Hence, results may be
-reproduced in a strightforward manner and errors in the analysis may
+reproduced in a straightforward manner and errors in the analysis may
 be identified efficiently.
 
 % To our knowledge, \pkg{dcemriS4} is the only freely available software
 % package for analysis of DCE-MRI and DWI data \textbf{???}. 
-The \pkg{dcemriS4} package is availabe from CRAN
+The \pkg{dcemriS4} package is available from CRAN
 (\url{http://CRAN.R-project.org}) and also from SourceForge
 (\url{http://sourceforge.net/projects/dcemri}) under a BSD license.
 The website \url{http://www.dcemri.org} has been established as a
