@@ -98,7 +98,6 @@ domain.
 
 <<preliminaries,echo=FALSE,results=hide>>=
 library("oro.dicom")
-library("XML")
 library("oro.nifti")
 library("dcemriS4")
 library("bitops")
@@ -361,6 +360,7 @@ fsmooth <- system.file(file.path("nifti", "SDAM_smooth.nii.gz"),
 SDAM <- readNIfTI(fsmooth)
 overlay(sdam120, ifelse(mask, SDAM, NA), z=13, zlim.x=range(sdam120), 
         zlim.y=c(0.5,1.5), plot.type="single")
+par(cex=4,col="white")
 @ 
 <<dam+dev.off,echo=FALSE,results=hide>>=
 dev.off()
@@ -372,7 +372,7 @@ dev.off()
     \begin{tabular}{cc}
       \includegraphics*[width=0.4\textwidth]{sdam.png} &
       \includegraphics*[width=0.4\textwidth]{t1_phantom.png}\\
-      \textbf{(a)} & \textbf{(b)}
+      \textbf{(a)} & \textbf{(b)} 
     \end{tabular}
   \end{center}
   \caption{\textbf{(a)} Estimated B1+ field (with isotropic Gaussian
@@ -1062,7 +1062,7 @@ fit.lm <- list(ktrans=readNIfTI(paste(perf, "ktrans", sep="_")))
 x <- 41:220
 y <- 21:220
 @ 
-<<RiderNeuroMRI+lm4,echo=FALSE>>=
+<<RiderNeuroMRI+lm4,echo=FALSE,eval=FALSE>>=
 png(file=paste(paste(perf, "ktrans", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
 @ 
@@ -1279,7 +1279,7 @@ writeNIfTI(fit.bayes$vp, paste(perf, "vp", "bayes", sep="_"))
 writeNIfTI(fit.bayes$vperror, paste(perf, "vp","bayes", "sd", sep="_"))
 rm(fit.bayes)
 @ 
-<<RiderNeuroMRI+bayes3,eval=FALSE,echo=FALSE,results=hide>>=
+<<RiderNeuroMRI+bayes3,eval=TRUE,echo=FALSE,results=hide>>=
 fit.bayes <- list(ktrans=readNIfTI(paste(perf, "ktrans","bayes", sep="_")))
 png(file=paste(paste(perf, "ktrans", "bayes", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
@@ -1365,7 +1365,7 @@ fit.spline <- dcemri.spline(conc[,,,-(1:8)], acqtimes[-(1:8)], mask.spline,
 writeNIfTI(fit.spline$ktrans, paste(perf, "ktrans","spline", sep="_"))
 writeNIfTI(fit.spline$Fp, paste(perf, "Fp","spline", sep="_"))
 @ 
-<<RiderNeuroMRI+spline2,eval=FALSE,echo=FALSE,results=hide>>=
+<<RiderNeuroMRI+spline2,eval=TRUE,echo=FALSE,results=hide>>=
 fit.spline <- list(ktrans=readNIfTI(paste(perf, "ktrans","spline", sep="_")))
 png(file=paste(paste(perf, "ktrans", "spline", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
