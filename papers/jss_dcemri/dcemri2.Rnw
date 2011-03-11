@@ -115,18 +115,19 @@ options(width=75)
 \section{Introduction}
 %% Note: If there is markup in \(sub)section, then it has to be escape as above.
 
-Quantitative analysis of perfusion imaging using dynamic
-contrast-enhanced MRI (DCE-MRI) is achieved through a series of
-processing steps, starting with the raw data acquired from the MRI
-scanner, and involves a combination of physics, mathematics,
-engineering and statistics to produce a set of statistical images
-based on parameter estimates from a compartmental model.  The purpose
-of the \pkg{dcemriS4} package is to provide the user with a collection
-of functions and subroutines that move experimental data through all
-steps of the data analysis pipeline, using standard data formats (such
-as ANALYZE or NIfTI) that may be visualized and manipulated in
-\proglang{R} \citep{R} and exported for accessibility across a wide
-variety of medical image analysis software packages.
+Quantitative analysis of tissue perfusion using dynamic
+contrast-enhanced magnetic resonance imaging (DCE-MRI) is achieved
+through a series of processing steps, starting with the raw data
+acquired from the MRI scanner, and involves a combination of physics,
+mathematics, engineering and statistics to produce a set of
+statistical images based on parameter estimates from a compartmental
+model.  The purpose of the \pkg{dcemriS4} package is to provide the
+user with a collection of functions and subroutines that move
+experimental data through all steps of this data analysis pipeline,
+using standard data formats (such as ANALYZE or NIfTI) that may be
+visualized and manipulated in \proglang{R} \citep{R} or exported for
+accessibility across a wide variety of medical image analysis software
+packages.
 
 The \proglang{S}4 designation in \pkg{dcemriS4} means that
 \proglang{S}4 object classes are used throughout to ensure efficient
@@ -150,26 +151,29 @@ basic parallel computing by incorporating the \pkg{multicore} package
 variable \code{multicore=TRUE} in the most computationally expensive
 functions.
 
-While initial application of DCE-MRI was in the characterization of
-blood-brain barrier (BBB) integrity
-\citep{tof-ker:measurement,lar-etal:quantitation,lar-tof:measurement},
-we will instead focus on the application of DCE-MRI for the
-quantitative analysis of tumor perfusion in oncology.  The interested
-reader will find several chapters in \citet{jac-buc-par:dce-mri} and
-\citet{tof:book} pertaining to the scientific background, methodology
-and application of DCE-MRI.
-
-Diffusion weighted imaging (DWI) is under rapid development as an
-oncology imaging biomarker \citep{che-etal:diffusion,koh-pad:DW-MRI}.
-DWI allows one to quantify the diffusion behavior of water by
-estimating the apparent diffusion coefficient (ADC)
-\citep{whe-etal:D}.  Assuming completely unrestricted motion of water
-how restricted is the motion of water given the barriers of biological
-tissue?  \textcolor{BrickRed}{The reduction in the ability of water to
-  diffuse in tissue has been} used to infer biological information;
-e.g., tumor detection, disease progression and treatment response.
-
 \section{Dynamic contrast-enhanced magnetic resonance imaging}
+
+\textcolor{BrickRed}{While initial application of DCE-MRI was in the
+  characterization of blood-brain barrier (BBB) integrity
+  \citep{tof-ker:measurement,lar-etal:quantitation,lar-tof:measurement},
+  we will instead focus on the application of DCE-MRI to the
+  quantitative analysis of tumor perfusion in oncology.  Angiogenesis,
+  the creation of new capillaries from existing blood vessels, and
+  vasculogenesis, the \textit{de novo} generation blood vessels, are
+  key biological processes that supply nutrients to tissue
+  \citep{col-pad:ieee}.  New drug therapies, such as antiangiogenic or
+  vaccine therapies, are expected to be cytostatic (i.e., inhibiting
+  or suppressing cellular growth) and may not produce changes in tumor
+  size as measured by traditional structural imaging techniques
+  \citep{cho-dwy-kno:functional}.  Thus, the ability to study
+  malignant vasculature through non-invasive MRI methods is
+  advantageous.  We will cover a DCE-MRI data analysis pipeline using
+  \pkg{dcemriS4} that is fully quantitative and produces
+  biologically-relevant parmameter estimates from a compartmental
+  model.  The interested reader will find several chapters in
+  \citet{jac-buc-par:dce-mri} and \citet{par-pad:DCE-MRI} pertaining
+  to the scientific background, methodology and application of
+  DCE-MRI.}
 
 The acquisition protocol for a DCE-MRI scan involves several steps.
 % Typically, several structural sequences are performed (both T1-
@@ -920,15 +924,24 @@ data analysis \citep{oco-etal:fPCA}.
 
 \section{Diffusion weighted imaging}
 
-Diffusion weighted imaging (DWI), also known as diffusion-weighted MRI
-(DW-MRI), is a technique \textcolor{BrickRed}{that provides a unique
+\textcolor{BrickRed}{Diffusion weighted imaging (DWI) is under rapid
+  development as an oncology imaging biomarker
+  \citep{che-etal:diffusion,koh-pad:DW-MRI}.  DWI allows one to
+  quantify the diffusion behavior of water by estimating the apparent
+  diffusion coefficient (ADC) \citep{whe-etal:D}.  Assuming completely
+  unrestricted motion of water how restricted is the motion of water
+  given the barriers of biological tissue?  The reduction in the
+  ability of water to diffuse in tissue has been used to infer
+  biological information in oncology; e.g., in tumor detection,
+  disease progression and the evaluation of treatment response.}
+
+DWI is an MR technique \textcolor{BrickRed}{that provides a unique
   insight into tissue structure through MRI diffusion measurements}
 \emph{in vivo} \citep{mos-etal:diffusion,whe-etal:D}.  Contrast is
 generated when the diffusion of molecules in tissue prefer a specific
 direction in three-dimensional space (anisotropic diffusion) relative
-to any particular direction (isotropic diffusion).  
-
-Using the Stejskal--Tanner equation
+to any particular direction (isotropic diffusion).  Using the
+Stejskal--Tanner equation
 \begin{equation}
   S = S_0 \exp\left(-\gamma^2G^2\delta^2(\Delta-\delta/3)D\right) =
   S_0 \exp\left(-bD\right),
