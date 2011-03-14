@@ -823,7 +823,8 @@ the response function is given by
 \begin{equation}
   R(t) = F_p \cdot \left\{
   \begin{array}{ll}
-    E \exp\left[-\left(t-T_c\right)EF_p/\ve\right] & \text{for} \quad t \geq T_c,\\
+    E \exp\left[-\left(t-T_c\right)EF_p/\ve\right] & 
+    \text{for} \quad t \geq T_c,\\
     0 & \text{for} \quad t < 0,\\
     1 & \text{for} \quad 0 \leq t < T_c,
   \end{array} \right.
