@@ -159,7 +159,7 @@ functions.
   we will instead focus on the application of DCE-MRI to the
   quantitative analysis of tumor perfusion in oncology.  Angiogenesis,
   the creation of new capillaries from existing blood vessels, and
-  vasculogenesis, the \textit{de novo} generation blood vessels, are
+  vasculogenesis, the \textit{de novo} generation of blood vessels, are
   key biological processes that supply nutrients to tissue
   \citep{col-pad:ieee}.  New drug therapies, such as antiangiogenic or
   vaccine therapies, are expected to be cytostatic (i.e., inhibiting
@@ -971,7 +971,7 @@ minimize the influence of perfusion effects
 
 The \textcolor{BrickRed}{diffusivity} of water \textcolor{BrickRed}{at
   room temperature} without restrictions is approximately
-$3.0{\times}10^{-3}\;\text{mm}^2/\text{s}$.  Once the ADC is estimated
+$3.0{\times}10^{-3}$ $\text{mm}^2/\text{s}$.  Once the ADC is estimated
 in the tissue of interest at baseline, treatment response may be
 assessed at subsequent time points.  The most appropriate timings
 depend on both the type of tumor and treatment regime.  Observing an
