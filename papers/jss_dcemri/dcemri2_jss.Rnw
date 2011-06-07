@@ -18,7 +18,7 @@
 
 %% almost as usual
 \author{Brandon Whitcher\\GlaxoSmithKline \And 
-        Volker J. Schmid\\Ludwig-Maximilians Universit\"at M\"unchen}
+        Volker J.~Schmid\\Ludwig-Maximilians Universit\"at M\"unchen}
 \title{Quantitative Analysis of Dynamic Contrast-Enhanced and Diffusion-Weighted Magnetic Resonance Imaging for Oncology in \proglang{R}}
 
 %% for pretty printing and a nice hypersummary also set:
@@ -78,7 +78,7 @@ imaging data available in the public domain.
   E-mail: \email{b.whitcher@imperial.ac.uk}\\
   URL: \url{http://www2.imperial.ac.uk/~bwhitche}, \url{http://www.dcemri.org}\\
   
-  Volker J. Schmid\\
+  Volker J.~Schmid\\
   Bioimaging group\\
   Department of Statistics\\
   Ludwig-Maximilians Universit\"at M\"unchen\\
@@ -169,7 +169,7 @@ functions.
   malignant vasculature through non-invasive MRI methods is
   advantageous.  We will cover a DCE-MRI data analysis pipeline using
   \pkg{dcemriS4} that is fully quantitative and produces
-  biologically-relevant parmameter estimates from a compartmental
+  biologically-relevant parameter estimates from a compartmental
   model.  The interested reader will find several chapters in
   \citet{jac-buc-par:dce-mri} and \citet{par-pad:DCE-MRI} pertaining
   to the scientific background, methodology and application of
@@ -195,7 +195,7 @@ spatial resolution, spatial coverage, field strength of the scanner,
 breathing method, etc. and must be carefully considered on a
 study-by-study basis.
 % Using a T1-weighted sequences, after injection a dynamic series of
-% images is aquired.
+% images is acquired.
 DCE-MRI relies on the reduction in T1 relaxation time, corresponding
 to positive signal enhancement, caused by the presence of the contrast
 agent.  The quantitative analysis of DCE-MRI data in \pkg{dcemriS4}
