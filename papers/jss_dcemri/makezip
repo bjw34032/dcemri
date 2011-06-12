@@ -3,5 +3,6 @@
 zip dcemriS4_v2 dcemri2_jss.Rnw dcemri.bib *.png buckley_aif.pdf \
     *compare.pdf boxplots.pdf rawtimes.txt *tensor*.nii.gz *mask* \
     *ktrans.nii.gz *ktrans_map.nii.gz *kep.nii.gz *vp.nii.gz *ve.nii.gz \
-    *sse.nii.gz *ktrans_bayes*.nii.gz *spline*.nii.gz jsslogo.jpg
+    *sse.nii.gz *ktrans_bayes*.nii.gz *spline*.nii.gz jsslogo.jpg \
+    response01.pdf
 
