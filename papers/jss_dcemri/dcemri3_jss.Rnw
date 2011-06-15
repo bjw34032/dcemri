@@ -5,7 +5,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \usepackage{amsmath}
-\definecolor{BrickRed}{rgb}{1,0,0}
+%\definecolor{BrickRed}{rgb}{1,0,0}
 
 \newcommand{\ktrans}{K^\text{trans}}
 \newcommand{\iaugc}[1]{\text{IAUGC}_{#1}}
@@ -17,8 +17,8 @@
 \newcommand{\bh}{\mathbf{h}}
 
 %% almost as usual
-\author{Brandon Whitcher\\GlaxoSmithKline \And 
-        Volker J.~Schmid\\Ludwig-Maximilians Universit\"at M\"unchen}
+\author{Brandon Whitcher\\Mango~Solutions \And 
+        Volker J. Schmid\\Ludwig-Maximilians Universit\"at M\"unchen}
 \title{Quantitative Analysis of Dynamic Contrast-Enhanced and Diffusion-Weighted Magnetic Resonance Imaging for Oncology in \proglang{R}}
 
 %% for pretty printing and a nice hypersummary also set:
@@ -70,12 +70,12 @@ imaging data available in the public domain.
 %% in the following format:
 \Address{
   Brandon Whitcher\\
-  GlaxoSmithKline Clinical Imaging Centre\\
-  Hammersmith Hospital\\
-  Du Cane Road\\
-  London W12 0HS\\
+  Mango Solutions\\
+  Unit 2 Greenways Business Park\\
+  Bellinger Close\\
+  Chippenham SN15 1BN\\
   United Kingdom\\
-  E-mail: \email{b.whitcher@imperial.ac.uk}\\
+  E-mail: \email{bwhitcher@mango-solutions.com}\\
   URL: \url{http://www2.imperial.ac.uk/~bwhitche}, \url{http://www.dcemri.org}\\
   
   Volker J.~Schmid\\
@@ -133,7 +133,7 @@ The \proglang{S}4 designation in \pkg{dcemriS4} means that
 \proglang{S}4 object classes are used throughout to ensure efficient
 and transparent manipulation of ANALYZE or NIfTI data structures.
 Data input and output rely upon the \pkg{oro.nifti} package
-\citep{oro.nifti}.
+\citep{oro.nifti,neuroimageing_with_R}.
 % , where both ANALYZE and NIfTI data are represented in \proglang{S}4
 % classes.
 Parameter estimates in \pkg{dcemriS4} inherit attributes from the
@@ -153,27 +153,26 @@ functions.
 
 \section{Dynamic contrast-enhanced magnetic resonance imaging}
 
-\textcolor{BrickRed}{While initial application of DCE-MRI was in the
-  characterization of blood-brain barrier (BBB) integrity
-  \citep{tof-ker:measurement,lar-etal:quantitation,lar-tof:measurement},
-  we will instead focus on the application of DCE-MRI to the
-  quantitative analysis of tumor perfusion in oncology.  Angiogenesis,
-  the creation of new capillaries from existing blood vessels, and
-  vasculogenesis, the \textit{de novo} generation of blood vessels, are
-  key biological processes that supply nutrients to tissue
-  \citep{col-pad:ieee}.  New drug therapies, such as antiangiogenic or
-  vaccine therapies, are expected to be cytostatic (i.e., inhibiting
-  or suppressing cellular growth) and may not produce changes in tumor
-  size as measured by traditional structural imaging techniques
-  \citep{cho-dwy-kno:functional}.  Thus, the ability to study
-  malignant vasculature through non-invasive MRI methods is
-  advantageous.  We will cover a DCE-MRI data analysis pipeline using
-  \pkg{dcemriS4} that is fully quantitative and produces
-  biologically-relevant parameter estimates from a compartmental
-  model.  The interested reader will find several chapters in
-  \citet{jac-buc-par:dce-mri} and \citet{par-pad:DCE-MRI} pertaining
-  to the scientific background, methodology and application of
-  DCE-MRI.}
+While initial application of DCE-MRI was in the characterization of
+blood-brain barrier (BBB) integrity
+\citep{tof-ker:measurement,lar-etal:quantitation,lar-tof:measurement},
+we will instead focus on the application of DCE-MRI to the
+quantitative analysis of tumor perfusion in oncology.  Angiogenesis,
+the creation of new capillaries from existing blood vessels, and
+vasculogenesis, the \textit{de novo} generation of blood vessels, are
+key biological processes that supply nutrients to tissue
+\citep{col-pad:ieee}.  New drug therapies, such as antiangiogenic or
+vaccine therapies, are expected to be cytostatic (i.e., inhibiting or
+suppressing cellular growth) and may not produce changes in tumor size
+as measured by traditional structural imaging techniques
+\citep{cho-dwy-kno:functional}.  Thus, the ability to study malignant
+vasculature through non-invasive MRI methods is advantageous.  We will
+cover a DCE-MRI data analysis pipeline using \pkg{dcemriS4} that is
+fully quantitative and produces biologically-relevant parmameter
+estimates from a compartmental model.  The interested reader will find
+several chapters in \citet{jac-buc-par:dce-mri} and
+\citet{par-pad:DCE-MRI} pertaining to the scientific background,
+methodology and application of DCE-MRI.
 
 The acquisition protocol for a DCE-MRI scan involves several steps.
 % Typically, several structural sequences are performed (both T1-
@@ -201,8 +200,8 @@ to positive signal enhancement, caused by the presence of the contrast
 agent.  The quantitative analysis of DCE-MRI data in \pkg{dcemriS4}
 consists of the following steps
 \begin{enumerate}
-  \item Pre-processing of the T1 signal (e.g., correction of the B1
-    field, motion correction, co-registration) is introduced in
+  \item Pre-processing of the T1 signal (e.g., motion correction,
+    co-registration, correction of the B1 field) is introduced in
     Sections~\ref{sec:motion} and~\ref{sec:b1},
   \item Estimation of voxel-wise contrast agent concentration time
     curves is introduced in Section~\ref{sec:t1},
@@ -237,14 +236,14 @@ investigation.
 
 For \emph{in vivo} MRI at high field ($\geq{3}\text{Tesla}$) it is
 essential to consider the homogeneity of the active B1 field (B1+).
-\textcolor{BrickRed}{The B1 field is the magnetic field created by the
-  radio frequency coil passing an alternating current at the Larmor
-  frequency.}  The B1+ field is the transverse, circularly polarized
-component of B1 that is rotating in the same sense as the
-magnetization.  When exciting large collections of spins,
-non-uniformity in B1+ results in nonuniform treatment of spins.  This
-leads to a spatially varying signal and contrast, and to difficulty in
-image interpretation and quantification \citep{cun-pau-nay:saturated}.
+The B1 field is the magnetic field created by the radio frequency coil
+passing an alternating current at the Larmor frequency.  The B1+ field
+is the transverse, circularly polarized component of B1 that is
+rotating in the same sense as the magnetization.  When exciting large
+collections of spins, non-uniformity in B1+ results in nonuniform
+treatment of spins.  This leads to a spatially varying signal and
+contrast, and to difficulty in image interpretation and quantification
+\citep{cun-pau-nay:saturated}.
 
 The proposed method uses an adaptation of the double angle method
 (DAM).  Such methods allow calculation of a flip-angle map, which is
@@ -303,7 +302,7 @@ fsmooth <- system.file(file.path("nifti", "SDAM_smooth.nii.gz"),
 SDAM <- readNIfTI(fsmooth)
 overlay(sdam120, ifelse(mask, SDAM, NA), z=13, zlim.x=range(sdam120), 
         zlim.y=c(0.5,1.5), plot.type="single")
-# par(cex=4,col="white")
+par(cex=4,col="white")
 @ 
 <<dam+dev.off,echo=FALSE,results=hide>>=
 dev.off()
@@ -331,15 +330,16 @@ dev.off()
 Three-dimensional isotropic smoothing should be applied before using
 this field to modify flip angles associated with additional
 acquisitions; e.g., in the \pkg{AnalyzeFMRI} package
-\citep{AnalyzeFMRI}.  Figure~\ref{fig:sdam+t1-phantom}a is the
-estimated B1+ field (with isotropic Gaussian smoothing) for a
-gel-based phantom containing a variety of T1 relaxation times.  The
-center of the phantom exhibits a flip angle $>60^\circ$ while the flip
-angle rapidly becomes $<60^\circ$ when moving away from the center in
-either the $x$, $y$ or $z$ dimensions.  The function \code{overlay} is
-part of the \pkg{oro.nifti} package, additional functions for the
-visualization of ANALYZE/NIfTI data are \code{image} (overloaded for
-classes \code{nifti} and \code{anlz}) and \code{orthographic}.
+\citep{AnalyzeFMRI,neuroimageing_with_R}.
+Figure~\ref{fig:sdam+t1-phantom}a is the estimated B1+ field (with
+isotropic Gaussian smoothing) for a gel-based phantom containing a
+variety of T1 relaxation times.  The center of the phantom exhibits a
+flip angle $>60^\circ$ while the flip angle rapidly becomes
+$<60^\circ$ when moving away from the center in either the $x$, $y$ or
+$z$ dimensions.  The function \code{overlay} is part of the
+\pkg{oro.nifti} package, additional functions for the visualization of
+ANALYZE/NIfTI data are \code{image} (overloaded for classes
+\code{nifti} and \code{anlz}) and \code{orthographic}.
   
 Assuming the smoothed version of the B1+ field has been computed (in
 the \code{SDAM} object here), multiple flip-angle acquisitions can be
@@ -432,31 +432,29 @@ the central cylinder embedded in the phantom.
 Estimation of the longitudinal relaxation time T1 is the first step in
 converting signal intensity, obtained in the dynamic acquisition of
 the DCE-MRI protocol, to contrast agent concentration
-\citep{buc-par:measuring}.  \textcolor{BrickRed}{Note, the
-  longitudinal (or spin-lattice) relaxation time T1 is the decay
-  constant of the recovery of the $z$ component of the nuclear spin
-  magnetization towards its thermal equilibrium value
-  \citep{bux:introduction}.}  Multiple flip-angle acquisitions are
-commonly used to estimate the intrinsic relaxation rate maps
-$\{m_0,R_{10}\}$ of the tissue, where $m_0$ is the equilibrium signal
-intensity and $R_{10}$ is the pre-injection longitudinal relaxation
-rate.  The non-linear equation
+\citep{buc-par:measuring}.  Note, the longitudinal (or spin-lattice)
+relaxation time T1 is the decay constant of the recovery of the $z$
+component of the nuclear spin magnetization towards its thermal
+equilibrium value \citep{bux:introduction}.  Multiple flip-angle
+acquisitions are commonly used to estimate the intrinsic relaxation
+rate maps $\{m_0,R_{10}\}$ of the tissue, where $m_0$ is the
+equilibrium signal intensity and $R_{10}$ is the pre-injection
+longitudinal relaxation rate.  The non-linear equation
 \begin{equation}
   S(\theta) = \frac{m_0 \sin(\theta) (1 - E_{10})} {1 - \cos(\theta)
     E_{10}},\label{eqn:signal}
 \end{equation}
 where $E_{10}=\exp(-\TR{\cdot}R_{10})$, relates the observed signal
 intensity $S(\cdot)$ with the parameters of interest when varying the
-flip angle $\theta$ \textcolor{BrickRed}{before injection of the
-  contrast agent.}  Note, a repetition time of
-$\TR\approx4\;\text{ms}$ is common practice for pulse sequences in
-clinical applications.  The Levenberg-Marquardt algorithm, provided in
-\pkg{minpack.lm} \citep{minpack.lm}, is applied to estimate the
-parameters; see the discussion by \cite{ahe-etal:levenburg-marquardt}.
-It is worthwhile to consult known T1 values $(T_{10}=1/R_{10})$ for
-different tissue types \textcolor{BrickRed}{(e.g., muscle, grey
-  matter, white matter)} to ensure the parameter estimates obtained
-are sensible.
+flip angle $\theta$ prior to the injection of the contrast agent.
+Note, a repetition time of $\TR\approx4\;\text{ms}$ is common practice
+for pulse sequences in clinical applications.  The Levenberg-Marquardt
+algorithm, provided in \pkg{minpack.lm} \citep{minpack.lm}, is applied
+to estimate the parameters; see the discussion by
+\cite{ahe-etal:levenburg-marquardt}.  It is worthwhile to consult
+known T1 values $(T_{10}=1/R_{10})$ for different tissue types (e.g.,
+muscle, grey matter, white matter) to ensure the parameter estimates
+obtained are sensible.
 
 Estimation of the post-injection longitudinal relaxation rate $R_1(t)$
 using the time-varying signal intensity $S(t)$ from pre- and
@@ -565,11 +563,11 @@ true process.
 \subsection{Kinetic parameter estimation}
 \label{sec:kinetic}
 
-\textcolor{BrickRed}{The focus in this section is fully quantitative
-  pharmacokinetic modeling of tissue perfusion and assumes the raw
-  scanner data has been converted to contrast agent concentration.
-  Please see \cite{col-pad:ieee} and \cite{buc-par:measuring} for
-  discussions on this point.}
+The focus in this section is fully quantitative pharmacokinetic
+modeling of tissue perfusion and assumes the raw scanner data has been
+converted to contrast agent concentration.  Please see
+\cite{col-pad:ieee} and \cite{buc-par:measuring} for discussions on
+this point.
 
 The standard Kety model \citep{ket:blood-tissue}, a single-compartment
 model, and the extended Kety model, the standard Kety model with an
@@ -915,34 +913,38 @@ No specific support is provided for hypothesis testing in
 models based on statistical summaries of the kinetic parameters over a
 given ROI on a per subject per visit basis.  An alternative to this
 traditional approach is to analyze an entire study using a Bayesian
-hierarchical model \citep{sch-etal:hierarchical}, currently under
-development in the software project \pkg{PILFER}
-(\url{http://pilfer.sourceforge.net}).  One may also question the
-rationale for hypothesis testing in only one kinetic parameter.
-Preliminary work has been performed in looking at the joint response
-to treatment of both $\ktrans$ and $\kep$ in DCE-MRI using functional
-data analysis \citep{oco-etal:fPCA}.
+hierarchical model \citep{sch-etal:hierarchical}, where an
+implementatino is under development in the software project
+\pkg{PILFER} (\url{http://pilfer.sourceforge.net}).  One may also
+question the rationale for hypothesis testing in only one kinetic
+parameter.  Preliminary work has been performed in looking at the
+joint response to treatment of both $\ktrans$ and $\kep$ in DCE-MRI
+using functional data analysis \citep{oco-etal:fPCA}.
 
 \section{Diffusion weighted imaging}
 
-\textcolor{BrickRed}{Diffusion weighted imaging (DWI) is under rapid
-  development as an oncology imaging bio\-marker
-  \citep{che-etal:diffusion,koh-pad:DW-MRI}.  DWI allows one to
-  quantify the diffusion behavior of water by estimating the apparent
-  diffusion coefficient (ADC) \citep{whe-etal:D}.  Assuming completely
-  unrestricted motion of water how restricted is the motion of water
-  given the barriers of biological tissue?  The reduction in the
-  ability of water to diffuse in tissue has been used to infer
-  biological information in oncology; e.g., in tumor detection,
-  disease progression and the evaluation of treatment response.}
+Diffusion weighted imaging (DWI) is an imaging biomarker that is
+rapidly becoming popular and widely applied in oncology
+\citep{che-etal:diffusion,koh-pad:DW-MRI}.  DWI allows one to quantify
+the diffusion behavior of water by estimating the apparent diffusion
+coefficient (ADC) \citep{whe-etal:D}.  That is, assuming completely
+unrestricted motion of water, how is the motion of water impeded by
+the biological structure of tissue?  The reduction in the ability of
+water to diffuse in tissue has been used to infer
+biologically-relevant information in oncology; e.g., in tumor
+detection, disease progression and the evaluation of treatment
+response.
 
-DWI is an MR technique \textcolor{BrickRed}{that provides a unique
-  insight into tissue structure through MRI diffusion measurements}
-\emph{in vivo} \citep{mos-etal:diffusion,whe-etal:D}.  Contrast is
-generated when the diffusion of molecules in tissue prefer a specific
-direction in three-dimensional space (anisotropic diffusion) relative
-to any particular direction (isotropic diffusion).  Using the
-Stejskal--Tanner equation
+DWI is an MR technique that provides a unique insight into tissue
+structure through MRI diffusion measurements \emph{in vivo}
+\citep{mos-etal:diffusion,whe-etal:D}.  These diffusion measurements
+reflect the effective displacement of water molecules allowed to
+migrate for a given time \citep{leb-del-lev:temperature}.
+% Contrast is generated when the diffusion of molecules in tissue
+% prefer a specific direction in three-dimensional space (anisotropic
+% diffusion) relative to any particular direction (isotropic
+% diffusion).
+Using the Stejskal--Tanner equation
 \begin{equation}
   S = S_0 \exp\left(-\gamma^2G^2\delta^2(\Delta-\delta/3)D\right) =
   S_0 \exp\left(-bD\right),
@@ -970,18 +972,18 @@ should exclude any acquisitions with $b\leq100\;\text{s/mm}^2$ to
 minimize the influence of perfusion effects
 \citep{pad-etal:neoplasia}.
 
-The \textcolor{BrickRed}{diffusivity} of water \textcolor{BrickRed}{at
-  room temperature} without restrictions is approximately
-$3.0{\times}10^{-3}$ $\text{mm}^2/\text{s}$.  Once the ADC is estimated
-in the tissue of interest at baseline, treatment response may be
-assessed at subsequent time points.  The most appropriate timings
-depend on both the type of tumor and treatment regime.  Observing an
-decrease in diffusivity, via a decrease in the ADC values
-post-treatment, may be a result of cell swelling after initial
-chemotherapy or radiotherapy followed by an increase in diffusivity,
-via an increase in the ADC values, from cell necrosis and lysis.  A
-decrease in ADC values may be observed directly through tumor
-apoptosis after treatment \citep{koh-pad:DW-MRI,pad-etal:neoplasia}.
+The diffusivity of water at room temperature without restrictions is
+approximately $3.0{\times}10^{-3}$ $\text{mm}^2/\text{s}$.  Once the
+ADC is estimated in the tissue of interest at baseline, treatment
+response may be assessed at subsequent time points.  The most
+appropriate timings depend on both the type of tumor and treatment
+regime.  Observing an decrease in diffusivity, via a decrease in the
+ADC values post-treatment, may be a result of cell swelling after
+initial chemotherapy or radiotherapy followed by an increase in
+diffusivity, via an increase in the ADC values, from cell necrosis and
+lysis.  A decrease in ADC values may be observed directly through
+tumor apoptosis after treatment
+\citep{koh-pad:DW-MRI,pad-etal:neoplasia}.
 
 \section{The RIDER Neuro MRI data repository}
 
@@ -1009,7 +1011,7 @@ limited region-of-interest (ROI) created in FSLView
 (\url{http://fsl.fmrib.ox.ac.uk/fsl/fslview/}) and saved in ANALYZE
 format.
 
-<<RiderNeuroMRI+pre0,eval=FALSE>>=
+<<RiderNeuroMRI+pre0>>=
 perf <- paste("281949", "19040721", "perfusion", sep="_")
 mask <- readANALYZE(paste(perf, "mask", sep="_"))
 mask <- ifelse(mask > 0, TRUE, FALSE)
@@ -1057,13 +1059,13 @@ series are read in from a pre-existing text file, converted from
 seconds to minutes (using \code{str2time} from \pkg{oro.dicom}) and
 offset by the bolus injection time (at the ninth acquisition).  This
 information was obtained from the original DICOM data and saved in
-\code{rawtimes.txt}.  \textcolor{BrickRed}{The literature-based AIF
-  \code{fritz.hansen} is used here for illustrative purposes.
-  Alternatives include estimating values for a parametric AIF (e.g.,
-  \code{aif="orton.exp"}) from the data and supplying them via the
-  \code{user} option in \code{dcemri.lm}, or providing an empirical
-  AIF (\code{aif="empirical"}) and passing the vector of AIF values
- via the \code{user} option.}
+\code{rawtimes.txt}.  The literature-based AIF \code{fritz.hansen} is
+used here for illustrative purposes.  Alternatives include estimating
+values for a parametric AIF (e.g., \code{aif="orton.exp"}) from the
+data and supplying them via the \code{user} option in
+\code{dcemri.lm}, or providing an empirical AIF
+(\code{aif="empirical"}) and passing the vector of AIF values via the
+\code{user} option.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{figure}[tbp]
@@ -1079,7 +1081,7 @@ information was obtained from the original DICOM data and saved in
 \end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-<<RiderNeuroMRI+lm0,eval=FALSE>>=
+<<RiderNeuroMRI+lm0>>=
 acqtimes <- str2time(unique(sort(scan("rawtimes.txt", quiet=TRUE))))$time
 acqtimes <- (acqtimes - acqtimes[9]) / 60 # minutes
 conc <- readNIfTI(paste(perf, "gdconc", sep="_"))
@@ -1098,30 +1100,24 @@ writeNIfTI(fit.lm$sse, paste(perf, "sse", sep="_"))
 rm(fit.lm)
 @ 
 <<RiderNeuroMRI+lm3,echo=FALSE>>=
-perf <- paste("281949", "19040721", "perfusion", sep="_")
-mask <- readANALYZE(paste(perf, "mask", sep="_"))
-mask <- ifelse(mask > 0, TRUE, FALSE)
 fit.lm <- list(ktrans=readNIfTI(paste(perf, "ktrans", sep="_")))
 x <- 41:220
 y <- 21:220
 @ 
-<<RiderNeuroMRI+lm4,eval=FALSE,echo=FALSE>>=
+<<RiderNeuroMRI+lm4,echo=FALSE>>=
 png(file=paste(paste(perf, "ktrans", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
 @ 
-<<RiderNeuroMRI+lm5,eval=FALSE>>=
+<<RiderNeuroMRI+lm5>>=
 overlay(dynamic, ifelse(mask, fit.lm$ktrans, NA), w=11, zlim.x=c(32,256), 
         zlim.y=c(0,0.1))
 @ 
-<<RiderNeuroMRI+lm6,eval=FALSE,echo=FALSE,results=hide>>=
+<<RiderNeuroMRI+lm6,echo=FALSE,results=hide>>=
 dev.off()
-@  
-<<RiderNeuroMRI+lm7,echo=FALSE,results=hide>>=
 fit.lm$kep <- readNIfTI(paste(perf, "kep", sep="_"))
 fit.lm$vp <- readNIfTI(paste(perf, "vp", sep="_"))
 fit.lm$ve <- readNIfTI(paste(perf, "ve", sep="_"))
 fit.lm$sse <- readNIfTI(paste(perf, "sse", sep="_"))
-<<RiderNeuroMRI+lm8,eval=FALSE,echo=FALSE,results=hide>>=
 zrx <- c(32,256)
 png(file=paste(paste(perf, "ktrans7", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
@@ -1238,7 +1234,7 @@ writeNIfTI(fit.map$sigma2, paste(perf, "sigma2", "map", sep="_"))
 <<RiderNeuroMRI+map3,echo=FALSE>>=
 fit.map <- list(ktrans=readNIfTI(paste(perf, "ktrans", "map", sep="_")))
 @ 
-<<RiderNeuroMRI+map4,eval=FALSE,echo=FALSE,results=hide>>=
+<<RiderNeuroMRI+map4,echo=FALSE,results=hide>>=
 png(file=paste(paste(perf, "ktrans", "map", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
 overlay(as(dynamic[x,y,,], "nifti"), 
@@ -1327,7 +1323,7 @@ writeNIfTI(fit.bayes$vp, paste(perf, "vp", "bayes", sep="_"))
 writeNIfTI(fit.bayes$vperror, paste(perf, "vp","bayes", "sd", sep="_"))
 rm(fit.bayes)
 @ 
-<<RiderNeuroMRI+bayes3,eval=FALSE,echo=FALSE,results=hide>>=
+<<RiderNeuroMRI+bayes3,echo=FALSE,results=hide>>=
 fit.bayes <- list(ktrans=readNIfTI(paste(perf, "ktrans","bayes", sep="_")))
 png(file=paste(paste(perf, "ktrans", "bayes", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
@@ -1413,7 +1409,7 @@ fit.spline <- dcemri.spline(conc[,,,-(1:8)], acqtimes[-(1:8)], mask.spline,
 writeNIfTI(fit.spline$ktrans, paste(perf, "ktrans","spline", sep="_"))
 writeNIfTI(fit.spline$Fp, paste(perf, "Fp","spline", sep="_"))
 @ 
-<<RiderNeuroMRI+spline2,eval=FALSE,echo=FALSE,results=hide>>=
+<<RiderNeuroMRI+spline2,echo=FALSE,results=hide>>=
 fit.spline <- list(ktrans=readNIfTI(paste(perf, "ktrans","spline", sep="_")))
 png(file=paste(paste(perf, "ktrans", "spline", sep="_"), "png", sep="."), 
     width=2*480, height=2*480)
@@ -1479,25 +1475,23 @@ the negligence of the vascular compartment in the standard Kety model.
 
 The RIDER~Neuro~MRI data repository does not provide DWI acquisitions
 \emph{per se} but a diffusion tensor imaging (DTI) acquisition was
-performed at each visit.  \textcolor{BrickRed}{The analysis of DTI
-  data is beyond the scope of this article, but the interested reader
-  is pointed to the following references:
-  \citet{Horsfield2002,tof:book}.}  The methodology behind DWI and DTI
-are virtually identical, so we will ignore the extra information
-provided by a DTI acquisition and analyze the non-directional aspects
-of the diffusion process here.  \textcolor{BrickRed}{We acknowledge
-  the fact that the ADC values derived from this DTI acquisition may
-  differ slightly from those estimated using a more common DWI
-  sequence.}
+performed at each visit.  The analysis of DTI data is beyond the scope
+of this article, but the interested reader is pointed to the following
+references: \citet{Horsfield2002,tof:book}.  The methodology behind
+DWI and DTI are virtually identical, so we will ignore the extra
+information provided by a DTI acquisition and analyze the
+non-directional aspects of the diffusion process here.  We acknowledge
+the fact that the ADC values derived from this DTI acquisition may
+differ slightly from those estimated using a more common DWI sequence.
 
 There are 13 data volumes in the DWI acquisition: a single T2-weighted
 image without diffusion weighting ($b=0$) and 12 volumes with
 different gradient encodings but the same diffusion weighting.  The
-$b$-value for this acquisition is $b=1000\;\text{sec/mm}^2$
-(Barboriak, \emph{personal communication}), a common value in clinical
-practice.  As previously noted this acquisition protocol has not been
-optimized for ADC estimation, and will include both perfusion and
-diffusion effects, but is adequate for the purpose of illustration.
+$b$-value for this acquisition is $b=1000\;\text{s/mm}^2$ (Barboriak,
+\emph{personal communication}), a common value in clinical practice.
+As previously noted this acquisition protocol has not been optimized
+for ADC estimation, and will include both perfusion and diffusion
+effects, but is adequate for the purpose of illustration.
 
 <<RIDERNeuroMRI+dwi1>>=
 tensor <- paste("281949", "19040721", "axtensor", sep="_")
@@ -1536,22 +1530,22 @@ Given the larger voxel dimensions for the DTI acquisition
 ROI were selected for ADC estimation and are displayed in
 Figure~\ref{fig:tensor}.  The range of physical units for the ADC
 values is $[0.0005,0.003]\,\text{mm$^2$/s}$, where high ADC values
-correspond \textcolor{BrickRed}{to the high mobility of water
-  molecules in tissue}.  Thus, bright areas in the ROI may be found,
-for example, in the ventricles or major blood vessels and to a lesser
-extent the tumor(s).  There appear to be areas of high diffusion in
-the core of each tumor when compared to either the rim of the tumor or
-``normal'' brain tissue (white or grey matter).  This may indicate
-sparse cell density in the tumor ``cores'' due to necrotic or
-apoptotic processes and the subsequent removal of cells in the tissue.
+correspond to the high mobility of water molecules in tissue.  Thus,
+bright areas in the ROI may be found, for example, in the ventricles
+or major blood vessels and to a lesser extent the tumor(s).  There
+appear to be areas of high diffusion in the core of each tumor when
+compared to either the rim of the tumor or ``normal'' brain tissue
+(white or grey matter).  This may indicate sparse cell density in the
+tumor ``cores'' due to necrotic or apoptotic processes and the
+subsequent removal of cells in the tissue.
 
 The application of DWI to oncology is still a relatively immature
 field and caution should be used when interpreting any results because
-of the indirect nature of MRI data acquisition;
-\textcolor{BrickRed}{the pharmcodynamic effects of treatment are being
-  measured not directly in tissue, but via the diffusivity of water
-  molecules in the tissue}.  However, numerous authors have published
-on this topic and the interested reader is encouraged to look at
+of the indirect nature of MRI data acquisition; the pharmcodynamic
+effects of treatment are being measured not directly in tissue, but
+via the diffusivity of water molecules in the tissue.  However,
+numerous authors have published on this topic and the interested
+reader is encouraged to look at
 \cite{koh-pad:DW-MRI,yan-etal:integration,pad-etal:neoplasia}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1635,7 +1629,7 @@ items are regularly provided on the blog
 The authors would like to thank the National Biomedical Imaging
 Archive (NBIA), the National Cancer Institute (NCI), the National
 Institute of Health (NIH) and all institutions that have contributed
-medical imaging data to the public domain.  VS  is supported by the 
+medical imaging data to the public domain.  VS is supported by the 
 German Research Council (DFG SCHM 2747/1-1).
 
 \bibliography{dcemri}
