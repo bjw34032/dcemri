@@ -18,7 +18,7 @@
 
 %% almost as usual
 \author{Brandon Whitcher\\Mango~Solutions \And 
-        Volker J. Schmid\\Ludwig-Maximilians Universit\"at M\"unchen}
+        Volker J.~Schmid\\Ludwig-Maximilians Universit\"at M\"unchen}
 \title{Quantitative Analysis of Dynamic Contrast-Enhanced and Diffusion-Weighted Magnetic Resonance Imaging for Oncology in \proglang{R}}
 
 %% for pretty printing and a nice hypersummary also set:
@@ -168,7 +168,7 @@ as measured by traditional structural imaging techniques
 \citep{cho-dwy-kno:functional}.  Thus, the ability to study malignant
 vasculature through non-invasive MRI methods is advantageous.  We will
 cover a DCE-MRI data analysis pipeline using \pkg{dcemriS4} that is
-fully quantitative and produces biologically-relevant parmameter
+fully quantitative and produces biologically-relevant parameter
 estimates from a compartmental model.  The interested reader will find
 several chapters in \citet{jac-buc-par:dce-mri} and
 \citet{par-pad:DCE-MRI} pertaining to the scientific background,
@@ -914,7 +914,7 @@ models based on statistical summaries of the kinetic parameters over a
 given ROI on a per subject per visit basis.  An alternative to this
 traditional approach is to analyze an entire study using a Bayesian
 hierarchical model \citep{sch-etal:hierarchical}, where an
-implementatino is under development in the software project
+implementation is under development in the software project
 \pkg{PILFER} (\url{http://pilfer.sourceforge.net}).  One may also
 question the rationale for hypothesis testing in only one kinetic
 parameter.  Preliminary work has been performed in looking at the
@@ -923,7 +923,7 @@ using functional data analysis \citep{oco-etal:fPCA}.
 
 \section{Diffusion weighted imaging}
 
-Diffusion weighted imaging (DWI) is an imaging biomarker that is
+Diffusion weighted imaging (DWI) is an imaging bio\-marker that is
 rapidly becoming popular and widely applied in oncology
 \citep{che-etal:diffusion,koh-pad:DW-MRI}.  DWI allows one to quantify
 the diffusion behavior of water by estimating the apparent diffusion

@@ -7,7 +7,6 @@
 \usepackage{amsmath}
 %\definecolor{BrickRed}{rgb}{1,0,0}
 
-
 \newcommand{\ktrans}{K^\text{trans}}
 \newcommand{\iaugc}[1]{\text{IAUGC}_{#1}}
 \newcommand{\kep}{k_\text{ep}}
@@ -201,8 +200,8 @@ to positive signal enhancement, caused by the presence of the contrast
 agent.  The quantitative analysis of DCE-MRI data in \pkg{dcemriS4}
 consists of the following steps
 \begin{enumerate}
-  \item Pre-processing of the T1 signal (e.g., correction of the B1
-    field, motion correction, co-registration) is introduced in
+  \item Pre-processing of the T1 signal (e.g., motion correction,
+    co-registration, correction of the B1 field) is introduced in
     Sections~\ref{sec:motion} and~\ref{sec:b1},
   \item Estimation of voxel-wise contrast agent concentration time
     curves is introduced in Section~\ref{sec:t1},
@@ -447,9 +446,9 @@ longitudinal relaxation rate.  The non-linear equation
 \end{equation}
 where $E_{10}=\exp(-\TR{\cdot}R_{10})$, relates the observed signal
 intensity $S(\cdot)$ with the parameters of interest when varying the
-flip angle $\theta$ before injection of the contrast agent.  Note, a
-repetition time of $\TR\approx4\;\text{ms}$ is common practice for
-pulse sequences in clinical applications.  The Levenberg-Marquardt
+flip angle $\theta$ prior to the injection of the contrast agent.
+Note, a repetition time of $\TR\approx4\;\text{ms}$ is common practice
+for pulse sequences in clinical applications.  The Levenberg-Marquardt
 algorithm, provided in \pkg{minpack.lm} \citep{minpack.lm}, is applied
 to estimate the parameters; see the discussion by
 \cite{ahe-etal:levenburg-marquardt}.  It is worthwhile to consult
@@ -915,7 +914,7 @@ models based on statistical summaries of the kinetic parameters over a
 given ROI on a per subject per visit basis.  An alternative to this
 traditional approach is to analyze an entire study using a Bayesian
 hierarchical model \citep{sch-etal:hierarchical}, where an
-implementatin is under development in the software project
+implementation is under development in the software project
 \pkg{PILFER} (\url{http://pilfer.sourceforge.net}).  One may also
 question the rationale for hypothesis testing in only one kinetic
 parameter.  Preliminary work has been performed in looking at the
@@ -924,15 +923,16 @@ using functional data analysis \citep{oco-etal:fPCA}.
 
 \section{Diffusion weighted imaging}
 
-Diffusion weighted imaging (DWI) is under rapid development as an
-oncology imaging bio\-marker \citep{che-etal:diffusion,koh-pad:DW-MRI}.
-DWI allows one to quantify the diffusion behavior of water by
-estimating the apparent diffusion coefficient (ADC)
-\citep{whe-etal:D}.  Assuming completely unrestricted motion of water
-how restricted is the motion of water given the barriers of biological
-tissue?  The reduction in the ability of water to diffuse in tissue
-has been used to infer biological information in oncology; e.g., in
-tumor detection, disease progression and the evaluation of treatment
+Diffusion weighted imaging (DWI) is an imaging bio\-marker that is
+rapidly becoming popular and widely applied in oncology
+\citep{che-etal:diffusion,koh-pad:DW-MRI}.  DWI allows one to quantify
+the diffusion behavior of water by estimating the apparent diffusion
+coefficient (ADC) \citep{whe-etal:D}.  That is, assuming completely
+unrestricted motion of water, how is the motion of water impeded by
+the biological structure of tissue?  The reduction in the ability of
+water to diffuse in tissue has been used to infer
+biologically-relevant information in oncology; e.g., in tumor
+detection, disease progression and the evaluation of treatment
 response.
 
 DWI is an MR technique that provides a unique insight into tissue
@@ -945,7 +945,6 @@ migrate for a given time \citep{leb-del-lev:temperature}.
 % diffusion) relative to any particular direction (isotropic
 % diffusion).
 Using the Stejskal--Tanner equation
-
 \begin{equation}
   S = S_0 \exp\left(-\gamma^2G^2\delta^2(\Delta-\delta/3)D\right) =
   S_0 \exp\left(-bD\right),
