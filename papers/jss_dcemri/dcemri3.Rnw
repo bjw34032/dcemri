@@ -7,6 +7,7 @@
 \usepackage{amsmath}
 %\definecolor{BrickRed}{rgb}{1,0,0}
 
+
 \newcommand{\ktrans}{K^\text{trans}}
 \newcommand{\iaugc}[1]{\text{IAUGC}_{#1}}
 \newcommand{\kep}{k_\text{ep}}
@@ -18,7 +19,7 @@
 
 %% almost as usual
 \author{Brandon Whitcher\\Mango~Solutions \And 
-        Volker J. Schmid\\Ludwig-Maximilians Universit\"at M\"unchen}
+        Volker J.~Schmid\\Ludwig-Maximilians Universit\"at M\"unchen}
 \title{Quantitative Analysis of Dynamic Contrast-Enhanced and Diffusion-Weighted Magnetic Resonance Imaging for Oncology in \proglang{R}}
 
 %% for pretty printing and a nice hypersummary also set:
@@ -78,7 +79,7 @@ imaging data available in the public domain.
   E-mail: \email{bwhitcher@mango-solutions.com}\\
   URL: \url{http://www2.imperial.ac.uk/~bwhitche}, \url{http://www.dcemri.org}\\
   
-  Volker J. Schmid\\
+  Volker J.~Schmid\\
   Bioimaging group\\
   Department of Statistics\\
   Ludwig-Maximilians Universit\"at M\"unchen\\
@@ -168,7 +169,7 @@ as measured by traditional structural imaging techniques
 \citep{cho-dwy-kno:functional}.  Thus, the ability to study malignant
 vasculature through non-invasive MRI methods is advantageous.  We will
 cover a DCE-MRI data analysis pipeline using \pkg{dcemriS4} that is
-fully quantitative and produces biologically-relevant parmameter
+fully quantitative and produces biologically-relevant parameter
 estimates from a compartmental model.  The interested reader will find
 several chapters in \citet{jac-buc-par:dce-mri} and
 \citet{par-pad:DCE-MRI} pertaining to the scientific background,
@@ -214,70 +215,6 @@ consists of the following steps
     between scans of a single patient or between distinct patients,
     is discussed in Section~\ref{sec:statistics}.
 \end{enumerate}
-
-\subsection{T1 relaxation rate and contrast agent concentration}
-\label{sec:t1}
-
-Estimation of the longitudinal relaxation time T1 is the first step in
-converting signal intensity, obtained in the dynamic acquisition of
-the DCE-MRI protocol, to contrast agent concentration
-\citep{buc-par:measuring}.  Note, the longitudinal (or spin-lattice)
-relaxation time T1 is the decay constant of the recovery of the $z$
-component of the nuclear spin magnetization towards its thermal
-equilibrium value \citep{bux:introduction}.  Multiple flip-angle
-acquisitions are commonly used to estimate the intrinsic relaxation
-rate maps $\{m_0,R_{10}\}$ of the tissue, where $m_0$ is the
-equilibrium signal intensity and $R_{10}$ is the pre-injection
-longitudinal relaxation rate.  The non-linear equation
-\begin{equation}
-  S(\theta) = \frac{m_0 \sin(\theta) (1 - E_{10})} {1 - \cos(\theta)
-    E_{10}},\label{eqn:signal}
-\end{equation}
-where $E_{10}=\exp(-\TR{\cdot}R_{10})$, relates the observed signal
-intensity $S(\cdot)$ with the parameters of interest when varying the
-flip angle $\theta$ before injection of the contrast agent.  Note, a
-repetition time of $\TR\approx4\;\text{ms}$ is common practice for
-pulse sequences in clinical applications.  The Levenberg-Marquardt
-algorithm, provided in \pkg{minpack.lm} \citep{minpack.lm}, is applied
-to estimate the parameters; see the discussion by
-\cite{ahe-etal:levenburg-marquardt}.  It is worthwhile to consult
-known T1 values $(T_{10}=1/R_{10})$ for different tissue types (e.g.,
-muscle, grey matter, white matter) to ensure the parameter estimates
-obtained are sensible.
-
-Estimation of the post-injection longitudinal relaxation rate $R_1(t)$
-using the time-varying signal intensity $S(t)$ from pre- and
-post-contrast acquisitions is performed via
-\begin{eqnarray}
-  A(t) & = & \frac{S(t) - S(0)}{m_0\sin(\theta)}\\
-  B & = & \frac{1 - E_{10}}{1 - \cos(\theta) E_{10}}\\
-  R_1(t) & = & -\frac{1}{\TR} \cdot \ln\left\{\frac{1 - [A(t)+B]}{1
-    - \cos(\theta)[A(t) + B]}\right\},
-\end{eqnarray}
-where the flip angle $\theta\in[10^\circ,30^\circ]$ is common for the
-dynamic acquisitions, but will depend on both the field strength of
-the magnet and the anatomical region of interest.
-
-The function \code{R1.fast} (embedded within \code{CA.fast})
-rearranges the multi-dimensional structure of the multiple flip-angle
-acquisitions into a single matrix, to take advantage of internal
-\proglang{R} functions instead of loops, and calls \code{E10.lm} to
-perform the non-linear regression using the Levenberg-Marquardt
-algorithm.  If only two flip angles have been acquired it is possible
-to use the function \code{CA.fast2}, where a linear approximation is
-applied to estimate the parameters \citep{wan-rie-lee:optimizing}.
-
-The final step of the conversion of the dynamic signal intensities to
-contrast agent concentration, using the \code{CA.fast} function, is
-performed via
-\begin{equation}\label{eqn:conc}
-  C_t(t) = \frac{1}{r_1}\left(\frac{1}{T_1} - \frac{1}{T_{10}}\right),
-\end{equation}
-where $r_1$ is the spin-lattice relaxivity constant (depends on the
-gadolinium chelate and magnet field strength) and $T_{10}=1/R_{10}$ is
-the spin-lattice relaxation time in the absence of contrast media
-\citep{buc-par:measuring}.  For computational reasons we follow the
-method of \cite{li-etal:improved}.
 
 \subsection{Motion correction and co-registration}
 \label{sec:motion}
@@ -489,6 +426,70 @@ eighth and ninth ROIs are taken from the main compartment in the gel
 phantom; ROI~\#8 is drawn in the middle of the phantom while ROI~\#9
 is drawn from the outside of the phantom.  The final ROI is taken from
 the central cylinder embedded in the phantom.
+
+\subsection{T1 relaxation rate and contrast agent concentration}
+\label{sec:t1}
+
+Estimation of the longitudinal relaxation time T1 is the first step in
+converting signal intensity, obtained in the dynamic acquisition of
+the DCE-MRI protocol, to contrast agent concentration
+\citep{buc-par:measuring}.  Note, the longitudinal (or spin-lattice)
+relaxation time T1 is the decay constant of the recovery of the $z$
+component of the nuclear spin magnetization towards its thermal
+equilibrium value \citep{bux:introduction}.  Multiple flip-angle
+acquisitions are commonly used to estimate the intrinsic relaxation
+rate maps $\{m_0,R_{10}\}$ of the tissue, where $m_0$ is the
+equilibrium signal intensity and $R_{10}$ is the pre-injection
+longitudinal relaxation rate.  The non-linear equation
+\begin{equation}
+  S(\theta) = \frac{m_0 \sin(\theta) (1 - E_{10})} {1 - \cos(\theta)
+    E_{10}},\label{eqn:signal}
+\end{equation}
+where $E_{10}=\exp(-\TR{\cdot}R_{10})$, relates the observed signal
+intensity $S(\cdot)$ with the parameters of interest when varying the
+flip angle $\theta$ before injection of the contrast agent.  Note, a
+repetition time of $\TR\approx4\;\text{ms}$ is common practice for
+pulse sequences in clinical applications.  The Levenberg-Marquardt
+algorithm, provided in \pkg{minpack.lm} \citep{minpack.lm}, is applied
+to estimate the parameters; see the discussion by
+\cite{ahe-etal:levenburg-marquardt}.  It is worthwhile to consult
+known T1 values $(T_{10}=1/R_{10})$ for different tissue types (e.g.,
+muscle, grey matter, white matter) to ensure the parameter estimates
+obtained are sensible.
+
+Estimation of the post-injection longitudinal relaxation rate $R_1(t)$
+using the time-varying signal intensity $S(t)$ from pre- and
+post-contrast acquisitions is performed via
+\begin{eqnarray}
+  A(t) & = & \frac{S(t) - S(0)}{m_0\sin(\theta)}\\
+  B & = & \frac{1 - E_{10}}{1 - \cos(\theta) E_{10}}\\
+  R_1(t) & = & -\frac{1}{\TR} \cdot \ln\left\{\frac{1 - [A(t)+B]}{1
+    - \cos(\theta)[A(t) + B]}\right\},
+\end{eqnarray}
+where the flip angle $\theta\in[10^\circ,30^\circ]$ is common for the
+dynamic acquisitions, but will depend on both the field strength of
+the magnet and the anatomical region of interest.
+
+The function \code{R1.fast} (embedded within \code{CA.fast})
+rearranges the multi-dimensional structure of the multiple flip-angle
+acquisitions into a single matrix, to take advantage of internal
+\proglang{R} functions instead of loops, and calls \code{E10.lm} to
+perform the non-linear regression using the Levenberg-Marquardt
+algorithm.  If only two flip angles have been acquired it is possible
+to use the function \code{CA.fast2}, where a linear approximation is
+applied to estimate the parameters \citep{wan-rie-lee:optimizing}.
+
+The final step of the conversion of the dynamic signal intensities to
+contrast agent concentration, using the \code{CA.fast} function, is
+performed via
+\begin{equation}\label{eqn:conc}
+  C_t(t) = \frac{1}{r_1}\left(\frac{1}{T_1} - \frac{1}{T_{10}}\right),
+\end{equation}
+where $r_1$ is the spin-lattice relaxivity constant (depends on the
+gadolinium chelate and magnet field strength) and $T_{10}=1/R_{10}$ is
+the spin-lattice relaxation time in the absence of contrast media
+\citep{buc-par:measuring}.  For computational reasons we follow the
+method of \cite{li-etal:improved}.
 
 \subsection{Arterial input function}
 \label{sec:aif}
@@ -914,7 +915,7 @@ models based on statistical summaries of the kinetic parameters over a
 given ROI on a per subject per visit basis.  An alternative to this
 traditional approach is to analyze an entire study using a Bayesian
 hierarchical model \citep{sch-etal:hierarchical}, where an
-implementatino is under development in the software project
+implementatin is under development in the software project
 \pkg{PILFER} (\url{http://pilfer.sourceforge.net}).  One may also
 question the rationale for hypothesis testing in only one kinetic
 parameter.  Preliminary work has been performed in looking at the
@@ -924,7 +925,7 @@ using functional data analysis \citep{oco-etal:fPCA}.
 \section{Diffusion weighted imaging}
 
 Diffusion weighted imaging (DWI) is under rapid development as an
-oncology imaging biomarker \citep{che-etal:diffusion,koh-pad:DW-MRI}.
+oncology imaging bio\-marker \citep{che-etal:diffusion,koh-pad:DW-MRI}.
 DWI allows one to quantify the diffusion behavior of water by
 estimating the apparent diffusion coefficient (ADC)
 \citep{whe-etal:D}.  Assuming completely unrestricted motion of water
@@ -944,6 +945,7 @@ migrate for a given time \citep{leb-del-lev:temperature}.
 % diffusion) relative to any particular direction (isotropic
 % diffusion).
 Using the Stejskal--Tanner equation
+
 \begin{equation}
   S = S_0 \exp\left(-\gamma^2G^2\delta^2(\Delta-\delta/3)D\right) =
   S_0 \exp\left(-bD\right),
@@ -1628,9 +1630,8 @@ items are regularly provided on the blog
 The authors would like to thank the National Biomedical Imaging
 Archive (NBIA), the National Cancer Institute (NCI), the National
 Institute of Health (NIH) and all institutions that have contributed
-medical imaging data to the public domain.  VS is supported by the LMU
-innovative project BioMed-S: Analysis and Modelling of Complex
-Systems.
+medical imaging data to the public domain.  VS is supported by the 
+German Research Council (DFG SCHM 2747/1-1).
 
 \bibliography{dcemri}
 
