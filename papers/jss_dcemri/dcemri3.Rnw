@@ -227,9 +227,9 @@ three-dimensional translations are allowed and no interpolation is
 used (i.e., only whole-voxel translations) at this time.  More
 sophisticated image registration methodology in \proglang{R} is being
 developed in the \pkg{RNiftyReg} package \citep{RNiftyReg}.  Access to
-the image registration routines from the Insight Toolkit (ITK,
-\url{http://www.itk.org}) is highly desirable and currently under
-investigation.
+the image registration routines from the Insight Toolkit
+(\proglang{ITK}, \url{http://www.itk.org}) is highly desirable and
+currently under investigation.
 
 \subsection{B1 mapping via the saturated double-angle method}
 \label{sec:b1}
