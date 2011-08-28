@@ -30,23 +30,26 @@
 \Abstract{
 
 The package \pkg{dcemriS4} provides a complete set of data analysis
-tools for quantitative assessment of dynamic contrast-enhanced MRI and
-diffusion-weighted MRI.  Image processing is provided for the ANALYZE
-and NIfTI data formats as input with all parameter estimates being
-output in NIfTI format.  Estimation of T1 relaxation from multiple
-flip-angle acquisitions, using either constant or spatially-varying
-flip angles, is performed via nonlinear regression.  Both
-literature-based and data-driven arterial input functions are
-available and may be combined with a variety of compartmental models.
-Kinetic parameters are obtained from nonlinear regression, Bayesian
-estimation via Markov Chain Monte Carlo or Bayesian \emph{maximum a
-  posteriori} estimation.  A non-parametric model, using penalized
-splines, is also available to characterize the contrast agent
-concentration time curves.  Given the size of multi-dimensional data
-sets commonly acquired in imaging studies, care has been taken to
-maximize computational efficiency and minimize memory usage.  All
-methods are illustrated using both simulated and real-world medical
-imaging data available in the public domain.
+tools for the quantitative assessment of dynamic contrast-enhanced
+MRI.
+% and diffusion-weighted MRI.  
+Image processing is provided for the ANALYZE and NIfTI data formats as
+inputs with all parameter estimates being output in NIfTI format.
+Estimation of T1 relaxation from multiple flip-angle acquisitions,
+using either constant or spatially-varying flip angles, is performed
+via nonlinear regression.  Both literature-based and data-driven
+arterial input functions are available and may be combined with a
+variety of compartmental models.  Kinetic parameters are obtained from
+nonlinear regression, Bayesian estimation via Markov Chain Monte Carlo
+or Bayesian \emph{maximum a posteriori} estimation.  A non-parametric
+model, using penalized splines, is also available to characterize the
+contrast agent concentration time curves.  Methods for quantification
+of diffusion-weighted MRI acquisitions common in oncology are also
+provided.  Given the size of multi-dimensional data sets commonly
+acquired in imaging studies, care has been taken to maximize
+computational efficiency and minimize memory usage.  All methods are
+illustrated using both simulated and real-world medical imaging data
+available in the public domain.
 
 }
 
@@ -71,18 +74,16 @@ imaging data available in the public domain.
 \Address{
   Brandon Whitcher\\
   Mango Solutions\\
-  Unit 2 Greenways Business Park\\
-  Bellinger Close\\
-  Chippenham SN15 1BN\\
-  United Kingdom\\
+  Office 202, Second Floor\\
+  14 Greville Street\\
+  London EC1N 8SB, United Kingdom\\
   E-mail: \email{bwhitcher@mango-solutions.com}\\
   URL: \url{http://www2.imperial.ac.uk/~bwhitche}, \url{http://www.dcemri.org}\\
   
   Volker J.~Schmid\\
   Bioimaging group\\
   Department of Statistics\\
-  Ludwig-Maximilians Universit\"at M\"unchen\\
-  Germany\\
+  Ludwig-Maximilians Universit\"at M\"unchen, Germany\\
   E-mail: \email{volker.schmid@lmu.de}\\
   URL: \url{http://volkerschmid.de}
 }
