@@ -46,16 +46,18 @@ setMethod("dcemri.bayes", signature(conc="array"),
                          ab.tauepsilon=c(1,1/1000), samples=FALSE,
                          multicore=FALSE, verbose=FALSE, dic=FALSE, ...)
           .dcemriWrapper("dcemri.bayes", conc, time, img.mask, model,
-                        aif, user, nriters, thin, burnin, tune, ab.ktrans,
-                        ab.kep, ab.vp, ab.tauepsilon, samples,
-                        multicore, verbose, dic, ...))
+                         aif, user, nriters, thin,
+                         burnin, tune, ab.ktrans,
+                         ab.kep, ab.vp,
+                         ab.tauepsilon, samples,
+                         multicore, verbose, dic, ...))
 
 .dcemri.bayes.single <- function(conc, time, nriters=3500, thin=3,
-                                 burnin=500, tune=267, ab.gamma=c(0,1),
-                                 ab.theta=c(0,1), ab.vp=c(1,19),
-                                 ab.tauepsilon=c(1,1/1000), aif.model=0,
-                                 aif.parameter=c(2.4,0.62,3,0.016), vp=1) {
-  
+                                burnin=500, tune=267, ab.gamma=c(0,1),
+                                ab.theta=c(0,1), ab.vp=c(1,19),
+                                ab.tauepsilon=c(1,1/1000), aif.model=0,
+                                aif.parameter=c(2.4,0.62,3,0.016), vp=1) {
+
   if (sum(is.na(conc)) > 0) {
     return(NA)
   } else {
@@ -72,7 +74,7 @@ setMethod("dcemri.bayes", signature(conc="array"),
                     as.double(ab.vp),
                     as.double(ab.tauepsilon),
                     as.double(c(aif.model, aif.parameter)),
-                    as.integer(vp), # is this correct?
+                    as.integer(vp),
                     as.double(time),
                     as.integer(length(time)),
                     as.double(n0),
@@ -151,12 +153,12 @@ setMethod("dcemri.bayes", signature(conc="array"),
   if (tune < 50) {
     stop("Please check settings for tune")
   }
-  if (burnin < tune) {
-    burnin <- tune
-    nriters <- nriters + tune
-  } else {
-    nriters <- nriters + burnin
-  }
+  #if (burnin < tune) {
+  #  burnin <- tune
+  #  nriters <- nriters + tune
+  #} else {
+  #  nriters <- nriters + burnin
+  #}
   
   switch(model,
          weinmann = ,
@@ -365,8 +367,9 @@ setMethod("dcemri.bayes", signature(conc="array"),
       for (j in 1:J) {
         for (k in 1:K) {
           if (img.mask[i,j,k]) {
-            par <- list("ktrans"=ktrans.out$par[i,j,k],
-                        "kep"=kep.out$par[i,j,k])
+            par <- NULL
+            par["ktrans"]=kt[i,j,k]
+            par["kep"]=kp[i,j,k]
             if (vp.do) {
               par["vp"] <- Vp.out$par[i,j,k]
             }
@@ -411,4 +414,5 @@ setMethod("dcemri.bayes", signature(conc="array"),
   
   return(returnable)
 }
-
+  
+  
