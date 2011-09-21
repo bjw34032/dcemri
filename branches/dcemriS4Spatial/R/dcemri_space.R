@@ -118,7 +118,7 @@ setMethod("dcemri.space", signature(conc="array"),
   ## dcemri.space - a function for fitting 1-compartment PK models 
   ## with spatial prior to DCE-MRI images using Bayes inference
   ## 
-  ## authors: Volker Schmid, Julia Kärcher
+  ## authors: Volker Schmid, Julia Kaercher
   ##
   ## input:
   ##        conc: array of Gd concentration,
@@ -278,6 +278,7 @@ setMethod("dcemri.space", signature(conc="array"),
   conc<- array(conc,c(II,JJ,KK,T)) ## convert array in arbitrary dimension to 4D array
   img.mask<- array(img.mask,c(II,JJ,KK)) ## convert array in arbitrary dimension to 3D array
 
+  # tuning step
   singlerun <- .C("dce_space",
                   as.integer(c(tuning+2, tuning+1, tuning)),
                   as.double(conc),
@@ -459,7 +460,7 @@ setMethod("dcemri.space", signature(conc="array"),
   sigma2.med<-array(NA,c(I,J,K))
   s2<-apply(sigma2,1:3,median)
   s2[img.mask==0]<-NA
-  sigma2.med[x,y,]<-v
+  sigma2.med[x,y,]<-s2
 
 
 
@@ -480,24 +481,30 @@ setMethod("dcemri.space", signature(conc="array"),
         for (k in 1:KK) {
           if (img.mask[i,j,k]==1) {
             par <- NULL
+			# Caution: order of assignment is important!!!
+			if (vp.do) {
+				par["vp"] <- v[i,j,k]
+			}
             par["ktrans"]=kt[i,j,k]
             par["kep"]=kp[i,j,k]
-            if (vp.do) {
-              par["vp"] <- v[i,j,k]
-            }
+
             fitted[i,j,k,] <- kineticModel(time, par, model=model, aif=aif)
           }
         }
       }
     }
+	
+	returnable[["fitted"]] <- fitted
+	
     conc <- array(conc, c(II,JJ,KK,length(time)))
     fitted <- fitted - conc
     fitted <- fitted * fitted
     fitted <- apply(fitted, 1:3, sum)
-    deviance.med <- -length(time) * log(s2) + fitted / s2
+    deviance.med <- length(time) * log(s2) + fitted / s2
     med.deviance <- apply(deviance,1:3,median,na.rm=TRUE)
     med.deviance2 <- median(apply(deviance,4,sum))
     deviance.med2 <- sum(deviance.med)
+	
     
     pD <- med.deviance - deviance.med
     DIC <- med.deviance + pD
@@ -514,6 +521,7 @@ setMethod("dcemri.space", signature(conc="array"),
     if (samples) {
       returnable[["deviance.samples"]] <- deviance
     }
+	
   }
 
   if (samples)
@@ -540,6 +548,7 @@ setMethod("dcemri.space", signature(conc="array"),
       returnable[["sigma2.sample"]] <- sigma2
     }
   
+	
   return(returnable)
 }
   

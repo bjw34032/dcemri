@@ -134,6 +134,8 @@ int time1(double t,double* CPtime)
     }
   return start;
 }
+
+
   
 double space_log_fc_gamma(double gamma, double tau_epsilon, double tau_gamma, double* conc, double* time, double t0, double kep, double vp, int x, int y, int z, int X, int Y, int Z, int T, double* aifsettings)
  {
@@ -1428,6 +1430,10 @@ void dce_space(int* NRI,
 		   //Rprintf("weightmatrix[0] %f ... weightmatrix[N-1] % f:\n", weightmatrix[0],weightmatrix[N-1]);
 		   //Rprintf("weightmatrix2[0] %f ... weightmatrix2[N-1] % f:\n", weightmatrix2[0],weightmatrix2[N-1]);
 
+
+
+
+
 		   for (int x=1 ; x<=X  ; x++)
 		     {
 		       for (int y=1  ; y<=Y  ; y++)
@@ -1436,7 +1442,7 @@ void dce_space(int* NRI,
 			     {
 			       if(img_mask[ix(x,y,z,X,Y,Z)]==1)
 				 {
-				   double p = T * log(tau_epsilon[ix(x,y,z,X,Y,Z)]);
+				   double p = - T * log(tau_epsilon[ix(x,y,z,X,Y,Z)]);
 				   for (int t=1; t<=T; t++)
 				     {
 				       p += tau_epsilon[ix(x,y,z,X,Y,Z)] * pow((conc[indx(x,y,z,t,X,Y,Z,T)]) - extraterm(vp[ix(x,y,z,X,Y,Z)], time[t], aif_settings) - ktrans[ix(x,y,z,X,Y,Z)] * convterm(kep[ix(x,y,z,X,Y,Z)], time[t], aif_settings), 2.0);
@@ -1446,6 +1452,13 @@ void dce_space(int* NRI,
 			     }
 			 }
 		     }
+
+		   // test deviance, fit...
+		   //Rprintf("test deviance. \n devi[1,1,1]: %f \n", devi[ix(1,1,1,X,Y,Z)]);
+		   //Rprintf("p111: %f \n", tau_epsilon[ix(1,1,1,X,Y,Z)]);
+
+
+
 		   return;
 		   
 } // end dce_space
