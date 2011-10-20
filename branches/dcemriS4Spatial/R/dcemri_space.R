@@ -184,8 +184,9 @@ setMethod("dcemri.space", signature(conc="array"),
   p <- aifParameters(aif, user)
   am <- grep("^[Aa]|^[Mm][^Ee]", names(p))
   aif.parameter <- unlist(p[am])
+  # a1 and a2 have to be multiplied with D
   if (!is.null(p$D) && p$D != 1) {
-    a <- grep("^[Aa]", names(p))
+    a <- grep("^[Aa]", names(aif.parameter))
     aif.parameter[a] <- p$D * aif.parameter[a]
   }
   
@@ -519,7 +520,7 @@ setMethod("dcemri.space", signature(conc="array"),
     returnable[["deviance.med"]] <- deviance.med
     returnable[["med.deviance"]] <- med.deviance
     if (samples) {
-      returnable[["deviance.samples"]] <- deviance
+      returnable[["deviance.sample"]] <- deviance
     }
 	
   }
