@@ -136,7 +136,7 @@ setMethod("dcemri.lm", signature(conc="array"),
   if (verbose) {
     cat("  Estimating the kinetic parameters...", fill=TRUE)
   }
-  if (multicore && require("multicore")) {
+  if (multicore && require("parallel")) {
     lm.list <- mclapply(conc.list, function(x) {
       nls.lm(par=guess, fn=func, control=control, signal=x, time=time, p=p)
     })
