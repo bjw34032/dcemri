@@ -293,7 +293,7 @@ setMethod("dcemri.space", signature(conc="array"),
                   as.double(ab.tauepsilon),#10
                   as.double(c(aif.model, aif.parameter)),
                   as.integer(c(vp.do,spatial,slice,gemupdate,uptauep,retunecycles,tunepct)),
-                  as.double(time),
+                  as.double(c(0,time)),
                   as.double(rep(0,N)),					
                   as.double(rep(ab.gamma[1]/ab.gamma[2],N)), # 15
                   as.double(rep(ab.theta[1]/ab.theta[2],N)), 
@@ -336,10 +336,10 @@ setMethod("dcemri.space", signature(conc="array"),
                             as.double(ab.tauepsilon),
                             as.double(c(aif.model, aif.parameter)),
                             as.integer(c(vp.do,spatial,slice,gemupdate,uptauep,0,0)),
-                            as.double(time),
+                            as.double(c(0,time)),
                             as.double(singlerun[[14]]),
-                            as.double(singlerun[[15]]),
-                            as.double(singlerun[[16]]),
+                            as.double(singlerun[[15]]), #taugamma
+                            as.double(singlerun[[16]]), #tautheta
                             as.double(singlerun[[17]]),
                             as.double(singlerun[[18]]),
                             as.double(singlerun[[19]]),
@@ -352,8 +352,8 @@ setMethod("dcemri.space", signature(conc="array"),
                             as.integer(rep(0,N)),
                             as.integer(rep(0,N)),
                             as.integer(rep(0,N)),
-                            as.double(singlerun[[29]]),
-                            as.double(singlerun[[30]]),
+                            as.double(singlerun[[29]]), #taugamma2
+                            as.double(singlerun[[30]]), #tautheta2
                             as.double(singlerun[[31]]),
                             as.double(singlerun[[32]]),
                             as.double(singlerun[[33]]),
@@ -373,6 +373,7 @@ setMethod("dcemri.space", signature(conc="array"),
   vp<-array(NA,c(II,JJ,KK,samplesize))
   sigma2<-array(NA,c(II,JJ,KK,samplesize))
   deviance<-array(NA,c(II,JJ,KK,samplesize))
+  taugamma<-taugamma2<-tautheta<-tautheta2<-array(NA,c(II,JJ,KK,samplesize))
   iters<-0
   
   for (i in 1:samplesize)
@@ -391,7 +392,7 @@ setMethod("dcemri.space", signature(conc="array"),
                       as.double(ab.tauepsilon),
                       as.double(c(aif.model, aif.parameter)),
                       as.integer(c(vp.do,spatial,slice,gemupdate,uptauep,0,0)),
-                      as.double(time),
+                      as.double(c(0,time)),
                       as.double(singlerun[[14]]),
                       as.double(singlerun[[15]]),
                       as.double(singlerun[[16]]),
@@ -423,6 +424,10 @@ setMethod("dcemri.space", signature(conc="array"),
       vp[,,,i]<-array(singlerun[[19]],c(II,JJ,KK))
       sigma2[,,,i]<-1/array(singlerun[[20]],c(II,JJ,KK))
       deviance[,,,i]<-array(singlerun[[37]],c(II,JJ,KK))
+      taugamma[,,,i]<-array(singlerun[[15]],c(II,JJ,KK))
+      taugamma2[,,,i]<-array(singlerun[[29]],c(II,JJ,KK))
+      tautheta[,,,i]<-array(singlerun[[16]],c(II,JJ,KK))
+      tautheta2[,,,i]<-array(singlerun[[20]],c(II,JJ,KK))
 
       if (iters==0)
         {
@@ -463,6 +468,28 @@ setMethod("dcemri.space", signature(conc="array"),
   s2[img.mask==0]<-NA
   sigma2.med[x,y,]<-s2
 
+  if (spatial>0)
+    {
+      taugamma.med<-array(NA,c(I,J,K))
+      tg<-apply(taugamma,1:3,median)
+      tg[img.mask==0]<-NA
+      taugamma.med[x,y,]<-tg
+      
+      taugamma2.med<-array(NA,c(I,J,K))
+      tg<-apply(taugamma2,1:3,median)
+      tg[img.mask==0]<-NA
+      taugamma2.med[x,y,]<-tg
+      
+      tautheta.med<-array(NA,c(I,J,K))
+      tg<-apply(tautheta,1:3,median)
+      tg[img.mask==0]<-NA
+      tautheta.med[x,y,]<-tg
+      
+      tautheta2.med<-array(NA,c(I,J,K))
+      tg<-apply(tautheta2,1:3,median)
+      tg[img.mask==0]<-NA
+      tautheta2.med[x,y,]<-tg
+    }
 
 
   returnable <- list(ktrans=ktrans.med,
@@ -471,7 +498,15 @@ setMethod("dcemri.space", signature(conc="array"),
                      vp=vp.med,
                      sigma2=sigma2.med
                      )
-
+  if (spatial>0)
+    {
+      returnable[["taugamma"]]<-taugamma.med
+      returnable[["taugamma2"]]<-taugamma2.med
+      returnable[["tautheta"]]<-tautheta.med
+      returnable[["tautheta2"]]<-tautheta2.med
+    }
+  
+  
   if (dic) {
     if (verbose) {
       cat("  Computing DIC...", fill=TRUE)
@@ -494,8 +529,11 @@ setMethod("dcemri.space", signature(conc="array"),
         }
       }
     }
-	
-	returnable[["fitted"]] <- fitted
+
+    fitted.big<-array(NA,c(I,J,K,T))
+    fitted.big[x,y,,]<-fitted
+    
+    returnable[["fitted"]] <- fitted.big
 	
     conc <- array(conc, c(II,JJ,KK,length(time)))
     fitted <- fitted - conc
@@ -503,24 +541,35 @@ setMethod("dcemri.space", signature(conc="array"),
     fitted <- apply(fitted, 1:3, sum)
     deviance.med <- length(time) * log(s2) + fitted / s2
     med.deviance <- apply(deviance,1:3,median,na.rm=TRUE)
-    med.deviance2 <- median(apply(deviance,4,sum))
-    deviance.med2 <- sum(deviance.med)
+#    med.deviance2 <- median(apply(deviance,4,sum))
+#    deviance.med2 <- sum(deviance.med)
 	
     
     pD <- med.deviance - deviance.med
     DIC <- med.deviance + pD
-    pD2 <- med.deviance2 - deviance.med2
-    DIC2 <- med.deviance2 + pD2
+#    pD2 <- med.deviance2 - deviance.med2
+#    DIC2 <- med.deviance2 + pD2
+
+    DIC.map<-pD.map<-m.d<-d.m<-array(NA,c(I,J,K,T))
+    DIC.map[x,y,,]<-DIC
+    pD.map[x,y,,]<-pD
+    d.m[x,y,,]<-deviance.med
+    m.d[x,y,,]<-med.deviance
+    
+    N<-dim(deviance)[4]
+    deviance.sample<-array(NA,c(I,J,K,N))
+    deviance.sample[x,y,,]<-deviance
+    
     returnable[["DIC"]] <- sum(DIC,na.rm=TRUE)
     returnable[["pD"]] <- sum(pD,na.rm=TRUE)
-    returnable[["DIC2"]] <- sum(DIC2,na.rm=TRUE)
-    returnable[["pD2"]] <- sum(pD2,na.rm=TRUE)
-    returnable[["DIC.map"]] <- DIC
-    returnable[["pD.map"]] <- pD 
-    returnable[["deviance.med"]] <- deviance.med
-    returnable[["med.deviance"]] <- med.deviance
+#    returnable[["DIC2"]] <- sum(DIC2,na.rm=TRUE)
+#    returnable[["pD2"]] <- sum(pD2,na.rm=TRUE)
+    returnable[["DIC.map"]] <- DIC.map
+    returnable[["pD.map"]] <- pD.map
+    returnable[["deviance.med"]] <- d.m
+    returnable[["med.deviance"]] <- m.d
     if (samples) {
-      returnable[["deviance.sample"]] <- deviance
+      returnable[["deviance.sample"]] <- deviance.sample
     }
 	
   }
