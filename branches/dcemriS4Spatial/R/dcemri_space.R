@@ -257,7 +257,7 @@ setMethod("dcemri.space", signature(conc="array"),
   
   if (verbose) {
     cat(paste(N1,"voxels in mask."))
-    cat(" Tuning MCMC algorithm 0 %")
+    cat(" Tuning MCMC algorithm..")
   }
 
   II <- nrow(conc)
@@ -320,7 +320,7 @@ setMethod("dcemri.space", signature(conc="array"),
                   as.double(rep(0,N)), #
                   PACKAGE="dcemriS4")
 
-  cat("\b\b. Burnin phase")
+  cat(".done. Burnin..")
   
   # burnin
     	    singlerun <- .C("dce_space",
@@ -364,7 +364,7 @@ setMethod("dcemri.space", signature(conc="array"),
                             PACKAGE="dcemriS4")
   
 
-  cat(" done. MCMC iteration 0")
+  cat(".done. \nMCMC iteration 0")
 
   samplesize <- floor(nriters/thin)
   
@@ -373,12 +373,15 @@ setMethod("dcemri.space", signature(conc="array"),
   vp<-array(NA,c(II,JJ,KK,samplesize))
   sigma2<-array(NA,c(II,JJ,KK,samplesize))
   deviance<-array(NA,c(II,JJ,KK,samplesize))
+<<<<<<< .mine
+  iters<-olditers<-0
+=======
   taugamma<-taugamma2<-tautheta<-tautheta2<-array(NA,c(II,JJ,KK,samplesize))
   iters<-0
+>>>>>>> .r501
   
   for (i in 1:samplesize)
     {
-      print(singlerun[[19]][2005])
       singlerun <- .C("dce_space",
                       as.integer(c(thin, 0, 0)),
                       as.double(conc),
@@ -429,19 +432,17 @@ setMethod("dcemri.space", signature(conc="array"),
       tautheta[,,,i]<-array(singlerun[[16]],c(II,JJ,KK))
       tautheta2[,,,i]<-array(singlerun[[20]],c(II,JJ,KK))
 
-      if (iters==0)
-        {
-          cat("\b")
-        }
-      else
-        {
-          for (j in 1:floor(log(10*iters)/log(10)))cat("\b")
-        }
       iters<-iters+thin
-      cat (iters)
+
+      if((iters%%100)==0)
+       {
+          for (j in 1:20)cat("\b")
+          cat(paste("MCMC iteration ",iters,sep=""))
+        }
+
     }
 
-  cat("\b s done. Preparing Results.\n")
+  cat("\b s done. \nPreparing Results.\n")
 
   ktrans.med<-array(NA,c(I,J,K))
   kt<-apply(ktrans,1:3,median)
