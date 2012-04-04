@@ -1050,7 +1050,8 @@ void dce_space(int* NRI,
 { 
 	 GetRNGstate();
 
-
+         int verbose=0;
+	 
 	 // weightmatrix
 	 //double* weigthmatrix;
 	 //double* weightmatrix2;
@@ -1161,19 +1162,20 @@ void dce_space(int* NRI,
 	 int sign=0;
 	 for (int iter=1;iter<=nriters;iter++)
 	 {
-	   
-	   //	   if (iter==1)
-	   //{
-	   //  Rprintf("Iteration 1");
-	   // }
-	   //	 if (fmod(iter,10.0)==0)
-	   // 	 {
-	   //	   if(iter>1000){Rprintf("\b");}
-	   // 	   if(iter>100){Rprintf("\b");}
-	   // 	   if(iter>10){Rprintf("\b");}
-	   //	   Rprintf("\b%i",iter);
-	   // 	 }
-
+	   if (verbose==1)
+		{	
+	   	   if (iter==1)
+	           {
+	             Rprintf("Iteration 1");
+	           }
+	    	 if (fmod(iter,10.0)==0)
+	    	 {
+	   	   if(iter>1000){Rprintf("\b");}
+	    	   if(iter>100){Rprintf("\b");}
+	    	   if(iter>10){Rprintf("\b");}
+	   	   Rprintf("\b%i",iter);
+	     	 }
+               }
 		 // iterate over all voxels
 		 for (int riter=0;riter<2*N;riter++)
 		 {
@@ -1353,7 +1355,9 @@ void dce_space(int* NRI,
 			   Rprintf("%d %%",newvalue);
 			   */
 
-			   /*if (count5 >0)
+			if (verbose==1)
+			{
+			   if (count5 >0)
 			   {
 			     Rprintf("\nTuning: %i to go.",count5);
 			   }
@@ -1361,7 +1365,7 @@ void dce_space(int* NRI,
 			   Rprintf(" Overall acceptance rate: ");
 			   Rprintf("Gamma %f",fround(100.0*((double)count3/(double)count4),0));
 			   Rprintf(" Theta %f",fround(100.0*(double)(count2)/(double)(count4),0));
-			   */
+			 }  
 			   //if(vpupdate>=2)
 			     //{
 			       //    Rprintf(" Eta %f",fround(100.0*(double)(count6)/(double)(count4),0));
