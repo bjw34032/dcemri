@@ -373,12 +373,9 @@ setMethod("dcemri.space", signature(conc="array"),
   vp<-array(NA,c(II,JJ,KK,samplesize))
   sigma2<-array(NA,c(II,JJ,KK,samplesize))
   deviance<-array(NA,c(II,JJ,KK,samplesize))
-<<<<<<< .mine
   iters<-olditers<-0
-=======
+
   taugamma<-taugamma2<-tautheta<-tautheta2<-array(NA,c(II,JJ,KK,samplesize))
-  iters<-0
->>>>>>> .r501
   
   for (i in 1:samplesize)
     {
