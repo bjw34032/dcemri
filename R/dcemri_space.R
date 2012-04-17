@@ -514,11 +514,10 @@ setMethod("dcemri.space", signature(conc="array"),
       for (j in 1:JJ) {
         for (k in 1:KK) {
           if (img.mask[i,j,k]==1) {
-            par <- NULL
-			# Caution: order of assignment is important!!!
-			if (vp.do) {
-				par["vp"] <- v[i,j,k]
-			}
+            par <- NULL  # Caution: order of assignment is important!!!
+            if (vp.do) {
+              par["vp"] <- v[i,j,k]
+            }
             par["ktrans"]=kt[i,j,k]
             par["kep"]=kp[i,j,k]
 

@@ -103,7 +103,6 @@ int space_ix2(int x,int y,int X, int Y)
 
 int indx(int x,int y,int z, int t, int X, int Y, int Z, int T) 
 {
-  //return((x-1)*Y*Z*T+(y-1)*Z*T+(z-1)*T+t-1);
   return((t-1)*X*Y*Z+(z-1)*X*Y+(y-1)*X+x-1);
 }
 
@@ -440,6 +439,7 @@ void update_tau_global(double* tau_theta, double* tau_theta2,  double* tau_theta
   // Update global precision, set same value for all local precisions
   double aa=a_theta;
   double bb=b_theta;
+ 
   int i, j;
   for (int x=1; x<X; x++)
     {
@@ -460,6 +460,7 @@ void update_tau_global(double* tau_theta, double* tau_theta2,  double* tau_theta
 	    }
 	}
     }
+ 
   for (int x=1; x<=X; x++)
     {
       for (int y=1; y<Y; y++)
@@ -480,8 +481,9 @@ void update_tau_global(double* tau_theta, double* tau_theta2,  double* tau_theta
 	}
     }
   double tau=RNDGAM(aa,bb);
-  //  Rprintf("\naa %f",aa);
-  //  Rprintf(" bb %f\n",bb);
+     Rprintf("aa %f",aa);
+     Rprintf(" bb %f",bb);
+     Rprintf(" tau %f\n",tau);
 
   for (int x=0; x<=N; x++)
     {
@@ -859,7 +861,7 @@ int update_tau_XY_correct(double* tau_theta, double* tau_theta2,  double* tau_th
 	{
 	  for (int y1=1;y1<Y;y1=y1+1)
 	    {
-	      int i1=space_ix2(x1,y1,X,Y);
+      int i1=space_ix2(x1,y1,X,Y);
 		  weightmatrix[i1][0]=weightmatrix[i1][0]+tau[ix(x1,y1,z,X,Y,Z)]+tau2[ix(x1,y1,z,X,Y,Z)];
 		  if ((i1+1)<(X*Y*Z))
 		    {
@@ -999,7 +1001,10 @@ double space_update_tau_epsilon1(double* tau, double aa, double bb, double* conc
     }
   
   double tauneu=RNDGAM(a,b);
-  if (!(tauneu>0)){tauneu=tau[1];}
+  Rprintf("a %f ",a);
+  Rprintf(" b %f ",b);
+  Rprintf(" tauneu %f\n",tauneu);
+if (!(tauneu>0)){tauneu=tau[1];}
   int N=X*Y*Z;
   for (int i=0; i<N; i++)
     {
@@ -1148,9 +1153,18 @@ void dce_space(int* NRI,
 		  }
 	   }
 	   
+
+	 // Rprintf("x=34,y=19,z=1 %i ",ix(34,19,1,X,Y,Z));
+	 Rprintf("conc[34,19,2,1] %f\n",conc[indx(34,19,2,1,X,Y,Z,T)]);
+	 Rprintf("conc[14,19,2,2] %f\n",conc[indx(14,19,2,2,X,Y,Z,T)]);
+	 Rprintf("conc[24,17,2,3] %f\n",conc[indx(24,17,2,3,X,Y,Z,T)]);
+	 Rprintf("conc[34,17,1,3] %f\n",conc[indx(34,17,1,3,X,Y,Z,T)]);
+	 Rprintf("conc[34,19,1,2] %f\n",conc[indx(34,19,1,2,X,Y,Z,T)]);
+
 	 //Rprint("%i pixels to analyse.\n",N1);
-	 
+	
 	 int newvalue=0;
+
 
 	 /************************************/
 	 /* MCMC iterations                  */
