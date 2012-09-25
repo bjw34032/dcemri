@@ -1055,8 +1055,6 @@ void dce_space(int* NRI,
 { 
 	 GetRNGstate();
 
-         int verbose=0;
-	 
 	 // weightmatrix
 	 //double* weigthmatrix;
 	 //double* weightmatrix2;
@@ -1092,6 +1090,7 @@ void dce_space(int* NRI,
 	 int uptauep=settings[4];
 	 int respace_tunecycles=settings[5];
 	 int space_tunepct=settings[6];
+	 int verbose=settings[7];
 
 	 int nriters=NRI[0];
 	 // int burnin=NRI[1] nicht nötig
@@ -1197,16 +1196,17 @@ void dce_space(int* NRI,
 			 int x=einsk(X);
 			 int y=einsk(Y);
 			 int z;
-			 if (slice!=0)
-			   {
-			     z=slice;
-			   }
-			 else
-			   {
-			     int z=einsk(Z);
-			   }
+			 //			 if (slice!=0)
+			 //  {
+			 //    z=slice;
+			 //  }
+			 //else
+			 //  {
+			     z=einsk(Z);
+			     //  }
 			 if (img_mask[ix(x,y,z,X,Y,Z)]==1)
 			   {
+			     //Rprintf("%f ",conc[x,y,z,1]);
 			     acc[ix(x,y,z,X,Y,Z)]=acc[ix(x,y,z,X,Y,Z)]+1;
 			     
 			     // update Ktrans
@@ -1262,7 +1262,12 @@ void dce_space(int* NRI,
 				   }
 			       }
 			     //  tau_epsilon[ix(x,y,z,X,Y,Z)]=update_tau_epsilon(a_epsilon, b_epsilon, conc, x, y, z, vp[ix(x,y,z,X,Y,Z)], ktrans[ix(x,y,z,X,Y,Z)], kep[ix(x,y,z,X,Y,Z)], t0[ix(x,y,z,X,Y,Z)], time, X, Y, Z, T, aif_settings);
-			   } //endif img_mask[]==1
+			     //  Rprintf("_");
+			   }
+			 //else
+			 //  {
+			 //    Rprintf(".");
+			 //  }//endif img_mask[]==1
 		 
 		 } // end iterate over all voxels
 					
@@ -1293,7 +1298,7 @@ void dce_space(int* NRI,
 		     update_tau_global(tau_theta, tau_theta2, tau_theta3, a_theta, a_theta3, b_theta, b_theta3, img_mask, kep, X, Y, Z, N, spatial);
 		     update_tau_global(tau_gamma, tau_gamma2, tau_gamma3, a_gamma, a_gamma3, b_gamma, b_gamma3, img_mask, kep, X, Y, Z, N, spatial);
 		   }
-			//	Rprintf("\ntau%f",tau_theta[20]);
+			//	Rpritf("\ntau%f",tau_theta[20]);
 			//Rprintf(" %f",tau_theta[12]);
 			//Rprintf(" %f\n",tau_theta2[20]);
 
