@@ -481,9 +481,9 @@ void update_tau_global(double* tau_theta, double* tau_theta2,  double* tau_theta
 	}
     }
   double tau=RNDGAM(aa,bb);
-     Rprintf("aa %f",aa);
-     Rprintf(" bb %f",bb);
-     Rprintf(" tau %f\n",tau);
+  //Rprintf("aa %f",aa);
+  //Rprintf(" bb %f",bb);
+  //Rprintf(" tau %f\n",tau);
 
   for (int x=0; x<=N; x++)
     {
@@ -1001,9 +1001,9 @@ double space_update_tau_epsilon1(double* tau, double aa, double bb, double* conc
     }
   
   double tauneu=RNDGAM(a,b);
-  Rprintf("a %f ",a);
-  Rprintf(" b %f ",b);
-  Rprintf(" tauneu %f\n",tauneu);
+  //Rprintf("a %f ",a);
+  //Rprintf(" b %f ",b);
+  //Rprintf(" tauneu %f\n",tauneu);
 if (!(tauneu>0)){tauneu=tau[1];}
   int N=X*Y*Z;
   for (int i=0; i<N; i++)
@@ -1155,11 +1155,11 @@ void dce_space(int* NRI,
 	   
 
 	 // Rprintf("x=34,y=19,z=1 %i ",ix(34,19,1,X,Y,Z));
-	 Rprintf("conc[34,19,2,1] %f\n",conc[indx(34,19,2,1,X,Y,Z,T)]);
-	 Rprintf("conc[14,19,2,2] %f\n",conc[indx(14,19,2,2,X,Y,Z,T)]);
-	 Rprintf("conc[24,17,2,3] %f\n",conc[indx(24,17,2,3,X,Y,Z,T)]);
-	 Rprintf("conc[34,17,1,3] %f\n",conc[indx(34,17,1,3,X,Y,Z,T)]);
-	 Rprintf("conc[34,19,1,2] %f\n",conc[indx(34,19,1,2,X,Y,Z,T)]);
+	 //Rprintf("conc[34,19,2,1] %f\n",conc[indx(34,19,2,1,X,Y,Z,T)]);
+	 //Rprintf("conc[14,19,2,2] %f\n",conc[indx(14,19,2,2,X,Y,Z,T)]);
+	 //Rprintf("conc[24,17,2,3] %f\n",conc[indx(24,17,2,3,X,Y,Z,T)]);
+	 //Rprintf("conc[34,17,1,3] %f\n",conc[indx(34,17,1,3,X,Y,Z,T)]);
+	 //Rprintf("conc[34,19,1,2] %f\n",conc[indx(34,19,1,2,X,Y,Z,T)]);
 
 	 //Rprint("%i pixels to analyse.\n",N1);
 	
